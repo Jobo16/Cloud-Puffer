@@ -10,7 +10,7 @@ The hosted service is designed for open registration with no invitation code. Us
 
 ## Project status
 
-**Product planning.** This repository currently contains product requirements and source-code research. Application code, a runnable release, and deployment instructions are not yet available. The features below describe the planned first release.
+**Product planning.** This repository currently contains product requirements, source-code research, and a proposed technology stack. Application code, a runnable release, and deployment instructions are not yet available. The features below describe the planned first release.
 
 ## Planned first release
 
@@ -20,6 +20,7 @@ The hosted service is designed for open registration with no invitation code. Us
 - **Personal memory.** Ask the agent to remember preferences; review, change, or delete them.
 - **Files and documents.** Work with personal files, ask questions about them, and generate documents to download.
 - **Open registration.** Email and password accounts, with platform-provided models and usage limits during the initial free trial.
+- **Apple-inspired glass interface.** A responsive web UI built from reusable components, with clear reading surfaces for conversations and documents.
 
 The first release uses predefined tools and APIs. It does not require a dedicated server or a continuously running container for each user. Additional messaging channels and external app connections are planned for later releases.
 
@@ -36,6 +37,7 @@ No setup or deployment is required for end users of the planned hosted service. 
 ## Documentation
 
 - [Product requirements](docs/PRD.md) — scope, product decisions, and acceptance criteria (Chinese).
+- [Technology and UI selection](docs/technical-selection.md) — proposed stack, shared cloud architecture, and glass UI component comparison (Chinese).
 - [Open-source code review](docs/research/open-source-review-2026-11-02.md) — findings from Octop, ClawScale, and OpeniLink Hub, with pinned source references (Chinese).
 
 ## Contributing
