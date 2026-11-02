@@ -10,7 +10,7 @@ Cloud Puffer keeps one conversation, tasks, and personal memory together for eac
 
 ## Project status
 
-> **Development preview.** The hosted site is live at [fish.jobo.ink](https://fish.jobo.ink). Web, worker, database, and two real Bailian model replies passed production smoke checks; the second reported 3,072 cached input tokens. Production QQ/WeChat exchange and long-running reliability remain unverified. Private file storage has not been selected. QQ Mail SMTP delivered the administrator verification email, and the address was verified.
+> **Development preview.** The hosted site is live at [fish.jobo.ink](https://fish.jobo.ink). Web, worker, database, and two real Bailian model replies passed production smoke checks; the second reported 3,072 cached input tokens. Production WeChat QR binding and basic text exchange have been confirmed; QQ exchange and long-running WeChat reliability remain unverified. Private file storage has not been selected. QQ Mail SMTP delivered the administrator verification email, and the address was verified.
 
 Available in this preview:
 
@@ -22,7 +22,7 @@ Available in this preview:
 - One conversation per account, queued model execution, incremental responses, cancellation, tool result records, history pagination, and daily points based on reported tokens.
 - Bounded model history, stable conversation prefixes for provider caching, and recorded cache-hit input tokens.
 - A verified administrator can open a small management page from Assistant › Setup to search accounts, view today's points, and adjust individual daily limits.
-- An iLink text adapter: QR binding, encrypted credentials, shared polling, durable deduplication, and conservative submission status. The first WeChat reply includes instructions for changing the contact remark and avatar, a cropped guide image, and the avatar image. **One local account passed phone QR binding, text exchange, and web continuation; welcome-image delivery on a real phone, production exchange, and long-running behavior remain unverified.**
+- An iLink text adapter: QR binding, encrypted credentials, shared polling, durable deduplication, and conservative submission status. The first WeChat reply includes instructions for changing the contact remark and avatar, a cropped guide image, and the avatar image. **Local QR binding, text exchange, and web continuation passed; production QR binding and basic text exchange were confirmed. Welcome-image delivery on a real phone and long-running reliability remain unverified.**
 - A shared official QQ bot adapter for private text chat: one-time account binding, shared conversation/queue, and bounded text/image replies. QQ credentials, permissions, and real-device verification remain pending.
 - Natural-language reply guidance and four original built-in stickers for web/QQ, with a per-account opt-out and no consecutive reuse of the same sticker. Reading incoming images and learning a user's writing style are not implemented.
 

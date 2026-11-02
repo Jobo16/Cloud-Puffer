@@ -10,7 +10,6 @@ import { Button, Mark } from "./ui";
 const deliveryLabels = {
   pending: "等待提交",
   submitting: "正在提交",
-  accepted: "已提交 · 未确认送达",
   partial: "部分内容已提交",
   unknown: "投递结果不确定 · 不会自动重发",
   failed: "提交失败 · 完整回复见网页",
@@ -205,8 +204,9 @@ export function ChatPanel({
                     )}
                     {run.source !== "web" && (
                       <small className="delivery">
-                        {run.source === "qq" ? "QQ · " : "微信 · "}
-                        {deliveryLabels[run.deliveryStatus]}
+                        {run.source === "qq" ? "QQ" : "微信"}
+                        {run.deliveryStatus !== "accepted" &&
+                          ` · ${deliveryLabels[run.deliveryStatus]}`}
                       </small>
                     )}
                   </div>
