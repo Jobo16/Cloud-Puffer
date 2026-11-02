@@ -121,28 +121,6 @@ export function QqSettings({
           目前支持文字私聊和表情回复。群聊、读取图片与语音尚未开放。
         </p>
       </div>
-      <div className="settings-card glass">
-        <h3>聊天偏好</h3>
-        <label className="row preference-toggle">
-          <input
-            type="checkbox"
-            checked={state.preferences.stickersEnabled}
-            disabled={busy}
-            onChange={async (e) => {
-              setBusy(true);
-              try {
-                await mutate("preferences", "PATCH", {
-                  stickersEnabled: e.target.checked,
-                });
-              } finally {
-                setBusy(false);
-              }
-            }}
-          />
-          合适的时候，让 JOJO 发张表情
-        </label>
-        <p className="muted small">用于网页与 QQ 回复，微信暂不发送表情。</p>
-      </div>
     </>
   );
 }

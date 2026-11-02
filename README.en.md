@@ -16,7 +16,8 @@ Available in this preview:
 
 - A public project homepage with modal sign-in, registration, and password recovery.
 - Open email/password registration, email verification, password changes, and session revocation.
-- An Apple-inspired glass workspace with desktop and mobile layouts.
+- An Apple-inspired glass workspace: configuration on the left and a persistent phone chat preview on desktop; direct conversation on mobile.
+- Saved assistant name, persona, custom instructions, and task/memory/sticker switches, applied to the next reply across channels using real account data.
 - Persistent tasks and explicit personal memory, editable from the web or through agent tools.
 - One conversation per account, queued model execution, incremental responses, cancellation, tool result records, history pagination, and daily message limits.
 - An iLink text adapter: QR binding, encrypted credentials, shared polling, durable deduplication, and conservative submission status. **Real WeChat account/device verification remains pending.**

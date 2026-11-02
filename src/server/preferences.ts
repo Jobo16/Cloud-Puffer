@@ -4,13 +4,34 @@ import { db } from "../db";
 import { userPreferences } from "../db/schema";
 import { ownedWrite } from "./owned-write";
 
-export const preferencesInput = z.object({ stickersEnabled: z.boolean() });
+export const preferencesInput = z
+  .object({
+    agentName: z.string().trim().min(1).max(40),
+    persona: z.string().trim().max(1000),
+    instructions: z.string().trim().max(4000),
+    tasksEnabled: z.boolean(),
+    memoryEnabled: z.boolean(),
+    stickersEnabled: z.boolean(),
+  })
+  .partial()
+  .strict()
+  .refine((data) => Object.keys(data).length > 0, "请至少修改一项配置。");
+function publicPreferences(row?: typeof userPreferences.$inferSelect) {
+  return {
+    agentName: row?.agentName ?? "JOJO",
+    persona: row?.persona ?? "",
+    instructions: row?.instructions ?? "",
+    tasksEnabled: row?.tasksEnabled ?? true,
+    memoryEnabled: row?.memoryEnabled ?? true,
+    stickersEnabled: row?.stickersEnabled ?? true,
+  };
+}
 export async function preferences(userId: string) {
   const [row] = await db()
     .select()
     .from(userPreferences)
     .where(eq(userPreferences.userId, userId));
-  return { stickersEnabled: row?.stickersEnabled ?? true };
+  return publicPreferences(row);
 }
 export async function updatePreferences(
   userId: string,
@@ -19,13 +40,14 @@ export async function updatePreferences(
   const data = preferencesInput.parse(input);
   return ownedWrite(
     { userId, operationKey: crypto.randomUUID() },
-    "更新聊天偏好",
+    "更新助手配置",
     async (tx) => {
-      await tx
+      const [saved] = await tx
         .insert(userPreferences)
         .values({ userId, ...data })
-        .onConflictDoUpdate({ target: userPreferences.userId, set: data });
-      return data;
+        .onConflictDoUpdate({ target: userPreferences.userId, set: data })
+        .returning();
+      return publicPreferences(saved);
     },
   );
 }

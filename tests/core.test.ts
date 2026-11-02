@@ -35,6 +35,7 @@ import {
   inboundText,
   unlinkChannel,
 } from "../src/server/ilink";
+import { preferences, updatePreferences } from "../src/server/preferences";
 import { executeRun } from "../src/server/agent";
 import { createWorkerQueue, AGENT_QUEUE } from "../src/server/queue";
 import { readBody, requireUser } from "../src/server/http";
@@ -253,7 +254,154 @@ describe("owned, durable operations", () => {
   });
 });
 
+describe("assistant configuration", () => {
+  it("keeps settings private, patches only supplied fields and validates edits", async () => {
+    await updatePreferences(owner, {
+      agentName: "小舟",
+      persona: "温和直接",
+      instructions: "先给结论",
+      tasksEnabled: false,
+    });
+    await updatePreferences(owner, { stickersEnabled: false });
+    expect((await appState(owner)).preferences).toEqual({
+      agentName: "小舟",
+      persona: "温和直接",
+      instructions: "先给结论",
+      tasksEnabled: false,
+      memoryEnabled: true,
+      stickersEnabled: false,
+    });
+    expect(await preferences(stranger)).toMatchObject({
+      agentName: "JOJO",
+      persona: "",
+      tasksEnabled: true,
+      stickersEnabled: true,
+    });
+    for (const input of [
+      { agentName: "  " },
+      { persona: "a".repeat(1001) },
+      { instructions: "a".repeat(4001) },
+      {},
+    ]) {
+      await expect(updatePreferences(owner, input)).rejects.toThrow();
+    }
+    expect((await preferences(owner)).agentName).toBe("小舟");
+  });
+});
+
 describe("agent execution", () => {
+  it.each(["web", "wechat", "qq"] as const)(
+    "uses saved persona and enforces tool switches on %s, then restores them on the next turn",
+    async (source) => {
+      await saveMemory(actor(), { content: "仅在启用记忆时注入的偏好" });
+      await updatePreferences(owner, {
+        agentName: "小舟",
+        persona: "温和直接",
+        instructions: "先给结论",
+        tasksEnabled: false,
+        memoryEnabled: false,
+        stickersEnabled: false,
+      });
+      const model = new MockLanguageModelV4({
+        doStream: async () => ({
+          stream: simulateReadableStream<ModelChunk>({
+            chunks: [
+              { type: "stream-start", warnings: [] },
+              { type: "text-start", id: "reply" },
+              { type: "text-delta", id: "reply", delta: "你好" },
+              { type: "text-end", id: "reply" },
+              {
+                type: "finish",
+                finishReason: { unified: "stop", raw: "stop" },
+                usage: {
+                  inputTokens: {
+                    total: 10,
+                    noCache: 10,
+                    cacheRead: 0,
+                    cacheWrite: 0,
+                  },
+                  outputTokens: { total: 5, text: 5, reasoning: 0 },
+                },
+              },
+            ],
+          }),
+        }),
+      });
+      fixture.model = model;
+      const run = await seedRun({ source });
+      await executeRun(run.id);
+      expect((await getRun(run.id)).status).toBe("completed");
+      const first = model.doStreamCalls[0];
+      expect(first.tools ?? []).toHaveLength(0);
+      const prompt = JSON.stringify(first.prompt);
+      expect(prompt).toContain("小舟");
+      expect(prompt).toContain("温和直接");
+      expect(prompt).toContain("先给结论");
+      expect(prompt).not.toContain("仅在启用记忆时注入的偏好");
+      // Disabling agent tools does not delete records or block the manual management UI.
+      await createTask(actor(), { title: "手动管理仍然可用" });
+      expect(await listMemories(owner)).toHaveLength(1);
+      await updatePreferences(owner, {
+        tasksEnabled: true,
+        memoryEnabled: true,
+        stickersEnabled: true,
+      });
+      const next = await seedRun({ source });
+      await executeRun(next.id);
+      const second = model.doStreamCalls[1];
+      const names = second.tools?.map((entry) => entry.name);
+      expect(names).toContain("create_task");
+      expect(names).toContain("save_memory");
+      expect(names?.includes("choose_sticker")).toBe(source !== "wechat");
+      expect(JSON.stringify(second.prompt)).toContain(
+        "仅在启用记忆时注入的偏好",
+      );
+    },
+  );
+  it("cannot execute a disabled task tool even when a provider emits that tool call", async () => {
+    await updatePreferences(owner, {
+      tasksEnabled: false,
+      memoryEnabled: false,
+      stickersEnabled: false,
+    });
+    fixture.model = new MockLanguageModelV4({
+      doStream: async () => ({
+        stream: simulateReadableStream<ModelChunk>({
+          chunks: [
+            { type: "stream-start", warnings: [] },
+            {
+              type: "tool-call",
+              toolCallId: "disabled",
+              toolName: "create_task",
+              input: JSON.stringify({
+                title: "不得创建",
+                notes: "",
+                dueAt: null,
+              }),
+            },
+            {
+              type: "finish",
+              finishReason: { unified: "stop", raw: "stop" },
+              usage: {
+                inputTokens: {
+                  total: 10,
+                  noCache: 10,
+                  cacheRead: 0,
+                  cacheWrite: 0,
+                },
+                outputTokens: { total: 5, text: 5, reasoning: 0 },
+              },
+            },
+          ],
+        }),
+      }),
+    });
+    const run = await seedRun();
+    await executeRun(run.id);
+    expect(await listTasks(owner)).toHaveLength(0);
+    expect((await getRun(run.id)).activities).toHaveLength(0);
+  });
+
   it("selects a real catalog sticker through the model tool loop and allows a sticker-only reply", async () => {
     let step = 0;
     const usage = {
@@ -425,7 +573,7 @@ describe("channel and HTTP boundaries", () => {
         }),
         context("preferences"),
       );
-      expect(await pref.json()).toEqual({ stickersEnabled: false });
+      expect(await pref.json()).toMatchObject({ stickersEnabled: false });
       const binding = await POST(
         new Request("http://localhost:3031/api/app/qq/binding", {
           method: "POST",

@@ -1,26 +1,24 @@
 "use client";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
-  ArrowUp,
-  ArrowUpRight,
   Brain,
-  Check,
   ListTodo,
   MessageCircle,
-  Plus,
   Settings,
-  Square,
+  SlidersHorizontal,
+  Smartphone,
   X,
 } from "lucide-react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { clsx } from "clsx";
 import type { AppState } from "@/server/state";
 import { api } from "@/lib/api";
 import { Button, Mark, Modal } from "./ui";
+import { ChatPanel } from "./chat-panel";
+import { AssistantEditor } from "./assistant-editor";
 import { TasksPanel, MemoryPanel, SettingsPanel } from "./workspace-panels";
 
-type Page = "chat" | "tasks" | "memories" | "settings";
+type Page = "assistant" | "chat" | "tasks" | "memories" | "settings";
 export type Mutate = (
   path: string,
   method: string,
@@ -32,20 +30,12 @@ export type Confirm = (
   action: () => Promise<boolean>,
 ) => void;
 const navigation = [
-  { id: "chat", label: "和 JOJO 聊聊", icon: MessageCircle },
+  { id: "chat", label: "聊聊", icon: MessageCircle },
+  { id: "assistant", label: "助手配置", icon: SlidersHorizontal },
   { id: "tasks", label: "我的事项", icon: ListTodo },
-  { id: "memories", label: "关于我的记忆", icon: Brain },
+  { id: "memories", label: "记忆", icon: Brain },
   { id: "settings", label: "设置与连接", icon: Settings },
 ] as const;
-const deliveryLabels = {
-  pending: "等待提交",
-  submitting: "正在提交",
-  accepted: "已提交 · 未确认送达",
-  partial: "部分提交成功 · 完整回复见网页",
-  unknown: "投递结果不确定 · 不会自动重发",
-  failed: "提交失败 · 完整回复见网页",
-  not_sent: "未发送",
-};
 
 export function Workspace({
   initial,
@@ -56,23 +46,15 @@ export function Workspace({
 }) {
   const [state, setState] = useState(initial);
   const [page, setPage] = useState<Page>("chat");
-  const [draft, setDraft] = useState("");
-  const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const [connected, setConnected] = useState(true);
-  const [older, setOlder] = useState<AppState["runs"]>([]);
-  const [olderMore, setOlderMore] = useState<boolean | null>(null);
-  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [chatKey, setChatKey] = useState(0);
   const [confirmation, setConfirmation] = useState<{
     title: string;
     description: string;
     action: () => Promise<boolean>;
   } | null>(null);
   const [confirming, setConfirming] = useState(false);
-  const request = useRef<{ text: string; key: string } | null>(null);
-  const composer = useRef<HTMLTextAreaElement>(null);
-  const scroll = useRef<HTMLDivElement>(null);
-  const follow = useRef(true);
   useEffect(() => {
     const events = new EventSource("/api/app/events");
     events.onmessage = (event) => {
@@ -87,11 +69,6 @@ export function Workspace({
     };
     return () => events.close();
   }, []);
-  const last = state.runs.at(-1);
-  useEffect(() => {
-    if (follow.current && scroll.current)
-      scroll.current.scrollTop = scroll.current.scrollHeight;
-  }, [last?.output, last?.id, last?.status, page]);
   async function refresh() {
     setState(await api<AppState>("state"));
   }
@@ -108,57 +85,22 @@ export function Workspace({
   };
   const confirm: Confirm = (title, description, action) =>
     setConfirmation({ title, description, action });
-  async function send(event?: FormEvent) {
-    event?.preventDefault();
-    const text = draft.trim();
-    if (!text || sending) return;
-    if (request.current?.text !== text)
-      request.current = { text, key: crypto.randomUUID() };
-    setSending(true);
-    follow.current = true;
-    if (
-      await mutate("chat", "POST", { text, requestKey: request.current.key })
-    ) {
-      setDraft("");
-      request.current = null;
-    }
-    setSending(false);
-    composer.current?.focus();
-  }
-  async function loadHistory() {
-    const first = older[0] ?? state.runs[0];
-    if (!first) return;
-    setLoadingHistory(true);
-    try {
-      const result = await api<{ runs: AppState["runs"]; hasMore: boolean }>(
-        `history?time=${encodeURIComponent(first.createdAt)}&id=${first.id}`,
-      );
-      setOlder((rows) => [...result.runs, ...rows]);
-      setOlderMore(result.hasMore);
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setLoadingHistory(false);
-    }
-  }
-  const allRuns = [
-    ...older.filter((r) => !state.runs.some((s) => s.id === r.id)),
-    ...state.runs,
-  ];
   const pendingCount = state.tasks.filter((t) => !t.completed).length;
   return (
-    <div className="workspace">
+    <div className="workspace" data-page={page}>
       <aside className="sidebar glass">
-        <a className="wordmark" href="/app">
+        <Link className="wordmark" href="/">
           <Mark />
           <span>JOJOBOT</span>
-        </a>
+        </Link>
         <span className="sidebar-caption">一点秩序，一点从容。</span>
         <nav aria-label="主导航">
           {navigation.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
-              className={clsx("nav-item", page === id && "active")}
+              aria-label={label}
+              title={label}
+              className={clsx("nav-item", `nav-${id}`, page === id && "active")}
               aria-current={page === id ? "page" : undefined}
               onClick={() => {
                 setPage(id);
@@ -201,16 +143,23 @@ export function Workspace({
           </button>
         </div>
       </aside>
-      <main className="main-panel">
+      <main
+        className="main-panel configuration-panel"
+        aria-label="助手配置与资料"
+      >
         <header className="topbar">
           <div>
             <span className="mobile-brand">
               <Mark />
             </span>
-            <h1>{navigation.find((n) => n.id === page)?.label}</h1>
-            <span className="topbar-subtitle">
+            <h1>
               {page === "chat"
-                ? "想到什么，都可以从这里开始。"
+                ? "助手配置"
+                : navigation.find((n) => n.id === page)?.label}
+            </h1>
+            <span className="topbar-subtitle">
+              {page === "chat" || page === "assistant"
+                ? "按你的习惯，塑造你的助手。"
                 : page === "tasks"
                   ? "给大大小小的事，找个落点。"
                   : page === "memories"
@@ -231,222 +180,18 @@ export function Workspace({
             </button>
           </div>
         )}
-        {page === "chat" ? (
-          <div className="chat-layout">
-            <div
-              className="chat-scroll"
-              ref={scroll}
-              onScroll={(e) => {
-                const el = e.currentTarget;
-                follow.current =
-                  el.scrollHeight - el.scrollTop - el.clientHeight < 100;
-              }}
-            >
-              {allRuns.length === 0 ? (
-                <section className="welcome">
-                  <div className="welcome-symbol glass">
-                    <Mark large />
-                  </div>
-                  <span className="eyebrow">A SPACE FOR YOUR EVERYDAY</span>
-                  <h2>把想到的，交给 JOJO。</h2>
-                  <p>
-                    记一件事，理一个思路，或只是聊聊天。
-                    <br />
-                    不用一次想清楚，我们慢慢来。
-                  </p>
-                  <div className="suggestions">
-                    {[
-                      {
-                        icon: Plus,
-                        title: "记下一个待办",
-                        text: "帮我记一条待办：",
-                      },
-                      {
-                        icon: Brain,
-                        title: "记住我的偏好",
-                        text: "请记住我的偏好：",
-                      },
-                      {
-                        icon: ArrowUpRight,
-                        title: "一起理清思路",
-                        text: "我想和你一起理清一个想法：",
-                      },
-                    ].map(({ icon: Icon, title, text }) => (
-                      <button
-                        className="suggestion glass"
-                        key={title}
-                        onClick={() => {
-                          setDraft(text);
-                          composer.current?.focus();
-                        }}
-                      >
-                        <Icon size={19} />
-                        <span>{title}</span>
-                        <ArrowUpRight size={15} />
-                      </button>
-                    ))}
-                  </div>
-                </section>
-              ) : (
-                <div className="messages">
-                  {(olderMore ?? state.hasMore) && (
-                    <Button
-                      className="history-button"
-                      disabled={loadingHistory}
-                      onClick={loadHistory}
-                    >
-                      {loadingHistory ? "加载中…" : "查看更早的对话"}
-                    </Button>
-                  )}
-                  {allRuns.map((run) => (
-                    <article className="turn" key={run.id}>
-                      <div className="user-message">
-                        <div className="message-text">{run.input}</div>
-                        <small>
-                          {run.source === "wechat"
-                            ? "来自微信 · "
-                            : run.source === "qq"
-                              ? "来自 QQ · "
-                              : ""}
-                          {new Date(run.createdAt).toLocaleTimeString("zh-CN", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            timeZone: "Asia/Shanghai",
-                          })}
-                        </small>
-                      </div>
-                      <div className="assistant-message">
-                        <Mark />
-                        <div className="assistant-content">
-                          {run.output && (
-                            <div className="markdown">
-                              <ReactMarkdown
-                                remarkPlugins={[remarkGfm]}
-                                components={{
-                                  a: ({ children, href }) => (
-                                    <a
-                                      href={href}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                    >
-                                      {children}
-                                    </a>
-                                  ),
-                                  img: () => null,
-                                }}
-                              >
-                                {run.output}
-                              </ReactMarkdown>
-                            </div>
-                          )}
-                          {run.sticker && (
-                            // Bundled original sticker; its URL is selected from the server's fixed catalog.
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              className="chat-sticker"
-                              src={run.sticker.src}
-                              alt={run.sticker.label}
-                              width={160}
-                              height={160}
-                            />
-                          )}
-                          {run.activities.length > 0 && (
-                            <div className="activities">
-                              {run.activities.map((activity) => (
-                                <div key={activity.id}>
-                                  <Check size={14} />
-                                  <span>{activity.label}</span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                          {["running", "queued"].includes(run.status) && (
-                            <div className="thinking" role="status">
-                              <span />
-                              {run.status === "queued"
-                                ? "等待 JOJO 处理…"
-                                : "JOJO 正在思考…"}
-                              <button
-                                onClick={() =>
-                                  void mutate(`runs/${run.id}/cancel`, "POST")
-                                }
-                              >
-                                <Square size={12} />
-                                停止
-                              </button>
-                            </div>
-                          )}
-                          {run.error && (
-                            <p className="inline-error">{run.error}</p>
-                          )}
-                          {run.status === "cancelled" && (
-                            <p className="muted small">
-                              已停止 · 已完成的操作仍然保留
-                            </p>
-                          )}
-                          {run.source !== "web" && (
-                            <small className="delivery">
-                              {run.source === "qq" ? "QQ · " : "微信 · "}
-                              {deliveryLabels[run.deliveryStatus]}
-                            </small>
-                          )}
-                        </div>
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              )}
-            </div>
-            <div className="composer-area">
-              {!state.modelReady && (
-                <div className="model-notice">
-                  <span className="status-dot offline" />
-                  对话服务尚未连接。你可以先管理
-                  <span>
-                    <button onClick={() => setPage("tasks")}>待办</button>和
-                    <button onClick={() => setPage("memories")}>记忆</button>。
-                  </span>
-                </div>
-              )}
-              <form className="composer glass" onSubmit={send}>
-                <textarea
-                  ref={composer}
-                  aria-label="给 JOJO 发消息"
-                  placeholder="有什么想交给 JOJO？"
-                  value={draft}
-                  maxLength={12000}
-                  rows={2}
-                  onChange={(e) => setDraft(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (
-                      e.key === "Enter" &&
-                      !e.shiftKey &&
-                      !e.nativeEvent.isComposing &&
-                      e.nativeEvent.keyCode !== 229
-                    ) {
-                      e.preventDefault();
-                      void send();
-                    }
-                  }}
-                />
-                <div className="row spread">
-                  <span className="composer-hint">你的想法，在这里接着聊</span>
-                  <Button
-                    type="submit"
-                    className="send-button"
-                    aria-label="发送消息"
-                    disabled={!draft.trim() || sending}
-                  >
-                    <ArrowUp size={20} />
-                  </Button>
-                </div>
-              </form>
-              <p className="composer-footnote">
-                JOJO 也可能出错，重要信息记得确认。
-              </p>
-            </div>
-          </div>
-        ) : (
+        <div
+          className="page-scroll"
+          hidden={page !== "chat" && page !== "assistant"}
+        >
+          <AssistantEditor
+            preferences={state.preferences}
+            onSaved={(preferences) =>
+              setState((current) => ({ ...current, preferences }))
+            }
+          />
+        </div>
+        {page !== "chat" && page !== "assistant" && (
           <div className="page-scroll">
             {page === "tasks" ? (
               <TasksPanel
@@ -466,15 +211,48 @@ export function Workspace({
                 user={user}
                 mutate={mutate}
                 confirm={confirm}
-                onClear={() => {
-                  setOlder([]);
-                  setOlderMore(null);
-                }}
+                onClear={() => setChatKey((key) => key + 1)}
               />
             )}
           </div>
         )}
       </main>
+      <aside className="preview-panel" aria-label="主对话实时预览">
+        <header className="preview-heading">
+          <span className="row">
+            <Smartphone size={17} />
+            实时预览
+          </span>
+          <span className="preview-badge">主对话</span>
+        </header>
+        <div className="phone-frame">
+          <div className="phone-hardware" aria-hidden="true">
+            <span />
+          </div>
+          <header className="phone-header">
+            <Mark />
+            <div>
+              <strong>{state.preferences.agentName}</strong>
+              <small>你的个人助手</small>
+            </div>
+            <span className="connection">
+              <span className={clsx("status-dot", !connected && "offline")} />
+              {connected ? "已同步" : "正在重连"}
+            </span>
+          </header>
+          <ChatPanel
+            key={chatKey}
+            state={state}
+            refresh={refresh}
+            onManage={setPage}
+            active={page === "chat"}
+          />
+          <div className="phone-home" aria-hidden="true">
+            <span />
+          </div>
+        </div>
+        <p className="preview-caption">与微信、QQ 共用真实对话和资料</p>
+      </aside>
       {confirmation && (
         <Modal
           title={confirmation.title}

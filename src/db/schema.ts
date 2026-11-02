@@ -199,6 +199,11 @@ export const userPreferences = pgTable("user_preferences", {
     .primaryKey()
     .references(() => user.id, { onDelete: "cascade" }),
   stickersEnabled: boolean("stickers_enabled").default(true).notNull(),
+  agentName: text("agent_name").default("JOJO").notNull(),
+  persona: text("persona").default("").notNull(),
+  instructions: text("instructions").default("").notNull(),
+  tasksEnabled: boolean("tasks_enabled").default(true).notNull(),
+  memoryEnabled: boolean("memory_enabled").default(true).notNull(),
 });
 // A platform-owned QQ application serves many users. Each private sender binds to one owner.
 export const qqConnections = pgTable(

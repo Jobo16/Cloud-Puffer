@@ -10,7 +10,7 @@ import {
 import { and, eq } from "drizzle-orm";
 import { db, transaction } from "../db";
 import { qqBindings, qqConnections, runs, user } from "../db/schema";
-import { stickerById } from "../lib/stickers";
+import { stickerById, type StickerId } from "../lib/stickers";
 import { config } from "./config";
 import { enqueueTurn, runErrors } from "./conversations";
 import { AppError } from "./errors";
@@ -18,6 +18,14 @@ import { ownedWrite } from "./owned-write";
 import { preferences } from "./preferences";
 
 type QqSender = Pick<QQBot, "send" | "uploadMedia">;
+// Keep each file path statically bounded. A dynamic path rooted at cwd makes
+// Turbopack watch the repository, so writing dev logs can trigger an HMR loop.
+const stickerFiles: Record<StickerId, () => Promise<Buffer>> = {
+  okay: () => readFile(join(process.cwd(), "public/stickers/okay.png")),
+  cheer: () => readFile(join(process.cwd(), "public/stickers/cheer.png")),
+  hug: () => readFile(join(process.cwd(), "public/stickers/hug.png")),
+  thinking: () => readFile(join(process.cwd(), "public/stickers/thinking.png")),
+};
 const digest = (value: string) =>
   createHash("sha256").update(value).digest("hex");
 
@@ -341,7 +349,7 @@ export async function deliverQqRun(id: string, bot?: QqSender) {
       const upload = await bot.uploadMedia({
         target,
         fileType: 1,
-        buffer: await readFile(join(process.cwd(), "public", sticker.src)),
+        buffer: await stickerFiles[sticker.id](),
         srvSendMsg: false,
       });
       if (!upload.file_info) throw new Error("QQ_UPLOAD_FAILED");

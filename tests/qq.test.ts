@@ -254,36 +254,39 @@ describe("QQ ownership and ingestion", () => {
 });
 
 describe("QQ delivery", () => {
-  it("submits at most two text parts and one uploaded sticker using distinct reply sequence numbers", async () => {
-    const connection = await connect();
-    const bot = sender();
-    const run = await seedRun({
-      source: "qq",
-      status: "completed",
-      channelId: connection.id,
-      contextToken: "incoming",
-      output: "收到。\n\n好耶！",
-      stickerId: "cheer",
-      deliveryStatus: "pending",
-    });
-    await Promise.all([deliverQqRun(run.id, bot), deliverQqRun(run.id, bot)]);
-    expect(bot.send).toHaveBeenCalledTimes(3);
-    expect(
-      bot.send.mock.calls.map(([payload]) => payload.extra?.msg_seq),
-    ).toEqual([1, 2, 3]);
-    expect(bot.send.mock.calls[2][0]).toMatchObject({
-      target: { msgId: "incoming", targetId: connection.peerId },
-      msgType: 7,
-      media: { file_info: "uploaded" },
-    });
-    expect(
-      bot.uploadMedia.mock.calls[0][0].buffer?.subarray(1, 4).toString(),
-    ).toBe("PNG");
-    expect(bot.uploadMedia.mock.calls[0][0].srvSendMsg).toBe(false);
-    expect((await readRun(run.id)).deliveryStatus).toBe("accepted");
-    await deliverQqRun(run.id, bot);
-    expect(bot.send).toHaveBeenCalledTimes(3);
-  });
+  it.each(["okay", "cheer", "hug", "thinking"] as const)(
+    "submits bounded text and the real %s PNG using distinct reply sequence numbers",
+    async (stickerId) => {
+      const connection = await connect();
+      const bot = sender();
+      const run = await seedRun({
+        source: "qq",
+        status: "completed",
+        channelId: connection.id,
+        contextToken: "incoming",
+        output: "收到。\n\n好耶！",
+        stickerId,
+        deliveryStatus: "pending",
+      });
+      await Promise.all([deliverQqRun(run.id, bot), deliverQqRun(run.id, bot)]);
+      expect(bot.send).toHaveBeenCalledTimes(3);
+      expect(
+        bot.send.mock.calls.map(([payload]) => payload.extra?.msg_seq),
+      ).toEqual([1, 2, 3]);
+      expect(bot.send.mock.calls[2][0]).toMatchObject({
+        target: { msgId: "incoming", targetId: connection.peerId },
+        msgType: 7,
+        media: { file_info: "uploaded" },
+      });
+      expect(
+        bot.uploadMedia.mock.calls[0][0].buffer?.subarray(1, 4).toString(),
+      ).toBe("PNG");
+      expect(bot.uploadMedia.mock.calls[0][0].srvSendMsg).toBe(false);
+      expect((await readRun(run.id)).deliveryStatus).toBe("accepted");
+      await deliverQqRun(run.id, bot);
+      expect(bot.send).toHaveBeenCalledTimes(3);
+    },
+  );
   it("marks partial/uncertain delivery without replaying a message", async () => {
     const connection = await connect();
     for (const uncertain of [false, true]) {
@@ -394,7 +397,9 @@ describe("sticker selection", () => {
       code: "STICKER_REPEAT",
     });
     await updatePreferences(owner, { stickersEnabled: false });
-    expect(await preferences(stranger)).toEqual({ stickersEnabled: true });
+    expect(await preferences(stranger)).toMatchObject({
+      stickersEnabled: true,
+    });
     await expect(chooseSticker(actor, { id: "hug" })).rejects.toMatchObject({
       code: "STICKER_DISABLED",
     });
