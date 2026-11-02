@@ -10,6 +10,7 @@ import {
 } from "../db/schema";
 import { stickerById } from "../lib/stickers";
 import { config, modelConfigured } from "./config";
+import { creditUsage, pointLimit, pointStatus } from "./credits";
 import { AppError } from "./errors";
 import { AGENT_QUEUE, queue } from "./queue";
 
@@ -20,26 +21,15 @@ export const turnInput = z.object({
 export const runErrors: Record<string, string> = {
   MODEL_NOT_CONFIGURED:
     "助手还未连接模型服务，暂时不能回复。你仍可在事项中管理待办。",
-  LIMIT_REACHED: "今日对话额度已用完，明天再来吧。已有事项仍可管理。",
+  LIMIT_REACHED: "今日积分已用完，北京时间零点恢复。已有事项仍可管理。",
+  ACCOUNT_PAUSED: "当前对话已暂停。已有事项仍可管理。",
   BUSY: "已有多条消息等待处理，请稍后再试。",
   MODEL_FAILED: "这次回复没有完成，请重试。已经保存的事项和记忆仍然有效。",
   INTERRUPTED: "服务重启中断了这次回复，已完成的操作保留，请先查看结果再继续。",
   UNSUPPORTED_MESSAGE: "当前开发版本仅支持文字消息，文件和语音接入仍在开发中。",
   MESSAGE_TOO_LONG: "消息太长了，请分成几条发送（每条最多 12,000 字符）。",
 };
-export async function usage(userId: string) {
-  const [row] = await db()
-    .select({ count: sql<number>`count(*)::int` })
-    .from(runs)
-    .where(
-      and(
-        eq(runs.userId, userId),
-        sql`(${runs.errorCode} IS NULL OR ${runs.errorCode} IN ('MODEL_FAILED', 'INTERRUPTED'))`,
-        sql`(${runs.createdAt} AT TIME ZONE 'Asia/Shanghai')::date = (now() AT TIME ZONE 'Asia/Shanghai')::date`,
-      ),
-    );
-  return { used: row.count, limit: config().DAILY_MESSAGE_LIMIT };
-}
+export const usage = pointStatus;
 type Incoming = {
   source: "web" | "wechat" | "qq";
   channelId?: string;
@@ -106,32 +96,17 @@ export async function enqueueTurn(
         );
       return runView(existing);
     }
-    const [{ count: daily }] = await tx
-      .select({ count: sql<number>`count(*)::int` })
-      .from(runs)
-      .where(
-        and(
-          eq(runs.userId, userId),
-          sql`(${runs.errorCode} IS NULL OR ${runs.errorCode} IN ('MODEL_FAILED', 'INTERRUPTED'))`,
-          sql`(${runs.createdAt} AT TIME ZONE 'Asia/Shanghai')::date = (now() AT TIME ZONE 'Asia/Shanghai')::date`,
-        ),
-      );
-    const [{ count: pending }] = await tx
-      .select({ count: sql<number>`count(*)::int` })
-      .from(runs)
-      .where(
-        and(
-          eq(runs.userId, userId),
-          inArray(runs.status, ["queued", "running"]),
-        ),
-      );
+    const meter = await creditUsage(userId, tx);
+    const limit = pointLimit(owner.dailyPointLimit);
     const errorCode =
       incoming.errorCode ??
       (!modelConfigured()
         ? "MODEL_NOT_CONFIGURED"
-        : daily >= config().DAILY_MESSAGE_LIMIT
+        : limit === 0
+          ? "ACCOUNT_PAUSED"
+          : meter.used >= limit
           ? "LIMIT_REACHED"
-          : pending >= 3
+          : meter.pending >= 3
             ? "BUSY"
             : null);
     if (errorCode && incoming.source === "web")
@@ -239,7 +214,7 @@ export async function clearHistory(userId: string) {
       .limit(1);
     if (pending)
       throw new AppError("BUSY", 409, "请先停止当前回复，再清空对话。");
-    // Erase content while retaining quota metadata, so clearing cannot reset the daily allowance.
+    // Erase content while retaining token usage, so clearing cannot reset today's points.
     await tx
       .update(runs)
       .set({

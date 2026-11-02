@@ -9,12 +9,15 @@
 - `POSTGRES_PASSWORD`：另行生成高强度密码，不使用本地开发密码。
 - `DATABASE_URL`：`postgresql://jojobot:<URL 编码后的密码>@postgres:5432/jojobot`。
 - `BETTER_AUTH_URL`：正式 HTTPS 域名；随机生成 `BETTER_AUTH_SECRET` 和 `CHANNEL_ENCRYPTION_KEY`。
+- `DAILY_POINT_LIMIT`：默认每日积分，当前为 100；`ADMIN_EMAIL`：已验证的管理员登录邮箱。
 - SMTP：当前托管部署选用 QQ 邮箱 SMTP（`smtp.qq.com`、465、SSL），授权码只放在不入 Git 的私密配置中；本机已验证登录，实际发信与收件待部署验收。不要使用本地 Mailpit。
 - 模型：选择并验证支持流式输出/工具调用的供应商，填入服务端配置。
 - `ILINK_ENABLED`：完成独立微信账号验证后再启用。一个微信不能被本地与线上同时轮询。
 - `QQ_ENABLED`：默认关闭。准备 QQ 开放平台机器人应用后配置 `QQ_APP_ID`、`QQ_APP_SECRET`，可选 `QQ_BOT_URL` 为官方分享页的 HTTPS 链接；重启 Web 和 Worker 后，用户在设置生成绑定指令并发给机器人。凭据由平台维护，不向用户分发。
 
 示例只说明格式，不包含可使用的生产密钥。配置文件限制为维护者可读；加密密钥随加密数据库备份分别安全保存。
+
+`ADMIN_EMAIL` 只指定权限归属，不自动创建账号。部署后用该邮箱完成正常注册与邮箱验证，才会在「助手 › 设定」看到后台入口；其他账号访问 `/app/admin` 或 `/api/admin` 会被拒绝。后台可修改个人每日积分上限，0 暂停新对话。积分按模型报告的 token 事后结算，不能代替全平台成本硬上限。
 
 ## 首次启动与后续更新
 

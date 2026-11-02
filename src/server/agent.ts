@@ -7,6 +7,7 @@ import { runs } from "../db/schema";
 import { config } from "./config";
 import { buildAgentPrompt } from "./agent-prompt";
 import { modelHistory } from "./conversations";
+import { pointStatus } from "./credits";
 import { AppError, publicError } from "./errors";
 import { stickers } from "../lib/stickers";
 import { preferences } from "./preferences";
@@ -43,6 +44,18 @@ export async function executeRun(id: string) {
       .where(and(eq(runs.id, id), eq(runs.status, "running")));
     return;
   }
+  const quota = await pointStatus(run.userId);
+  if (quota.used >= quota.limit) {
+    await db()
+      .update(runs)
+      .set({
+        status: "failed",
+        errorCode: quota.limit === 0 ? "ACCOUNT_PAUSED" : "LIMIT_REACHED",
+        updatedAt: new Date(),
+      })
+      .where(and(eq(runs.id, id), eq(runs.status, "queued")));
+    return;
+  }
   const [claimed] = await db()
     .update(runs)
     .set({ status: "running", updatedAt: new Date() })
@@ -68,6 +81,8 @@ export async function executeRun(id: string) {
     }
   }, 600);
   let output = "";
+  let inputTokens = 0;
+  let outputTokens = 0;
   let lastSaved = 0;
   const writeOutput = async () => {
     await db()
@@ -107,6 +122,14 @@ export async function executeRun(id: string) {
       maxRetries: 0,
       maxOutputTokens: 4000,
       stopWhen: stepCountIs(12),
+      onStepFinish: async ({ usage }) => {
+        inputTokens += Math.max(0, usage.inputTokens ?? 0);
+        outputTokens += Math.max(0, usage.outputTokens ?? 0);
+        await db()
+          .update(runs)
+          .set({ inputTokens, outputTokens, updatedAt: new Date() })
+          .where(eq(runs.id, id));
+      },
       system: buildAgentPrompt(settings, run.source),
       messages: [
         ...(await modelHistory(run.userId, id)),
@@ -249,8 +272,8 @@ export async function executeRun(id: string) {
         output,
         status: "completed",
         modelMessages: response.messages,
-        inputTokens: usage.inputTokens ?? 0,
-        outputTokens: usage.outputTokens ?? 0,
+        inputTokens: Math.max(0, usage.inputTokens ?? inputTokens),
+        outputTokens: Math.max(0, usage.outputTokens ?? outputTokens),
         updatedAt: new Date(),
       })
       .where(and(eq(runs.id, id), eq(runs.status, "running")));

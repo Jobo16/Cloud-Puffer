@@ -42,9 +42,11 @@ const navigation = [
 export function Workspace({
   initial,
   user,
+  admin,
 }: {
   initial: AppState;
   user: { name: string; email: string };
+  admin: boolean;
 }) {
   const [state, setState] = useState(initial);
   const [page, setPage] = useState<Page>("chat");
@@ -277,6 +279,7 @@ export function Workspace({
                 <div hidden={section !== "profile"}>
                   <AssistantEditor
                     preferences={state.preferences}
+                    admin={admin}
                     onSaved={(preferences) =>
                       setState((current) => ({ ...current, preferences }))
                     }

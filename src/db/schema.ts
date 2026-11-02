@@ -22,6 +22,7 @@ export const user = pgTable("user", {
   email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified").default(false).notNull(),
   image: text("image"),
+  dailyPointLimit: integer("daily_point_limit"),
   createdAt: created(),
   updatedAt: updated(),
 });

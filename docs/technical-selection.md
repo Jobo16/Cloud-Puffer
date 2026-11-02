@@ -12,10 +12,10 @@
 | 界面 | 直接使用 Base UI Button/Dialog，Glasscn 的 CSS 材质与项目设计令牌；未引入整套 shadcn CLI、AI Elements 或 assistant-ui runtime。 |
 | 聊天与配置 | 自有 `ChatPanel` + react-markdown/remark-gfm；桌面左侧编辑配置、右侧手机主对话，手机端通过导航切换。名字、系统提示词和开关存入账号偏好。 |
 | Agent 与后台 | AI SDK Core 负责工具循环；pg-boss 负责入队与按用户顺序执行，一个共享 Worker 最多并行处理四个用户。 |
-| 账号与业务 | Better Auth 邮箱密码；Drizzle 管理迁移；当前支持待办、明确保存的记忆和每日对话额度。 |
+| 账号与业务 | Better Auth 邮箱密码；Drizzle 管理迁移；当前支持待办、明确保存的记忆、每日积分及简易管理员后台。 |
 | 渠道 | 仓库内 iLink 文本适配、QQ 官方 SDK 私聊适配，均默认关闭；真实账号收发仍待验证。 |
 | 验证 | TypeScript、ESLint、Vitest 已配置；浏览器通过人工/自动操作验收，未建立独立 Playwright 测试套件。 |
-| 仍为候选 | pgvector、对象存储、PDF.js/Mammoth/docx、联网搜索、提醒调度和管理后台尚未实现，不视为现有依赖或能力。 |
+| 仍为候选 | pgvector、对象存储、PDF.js/Mammoth/docx、联网搜索、提醒调度和完整运营后台尚未实现，不视为现有依赖或能力。 |
 
 当前架构与接口归属见[架构](architecture.md)，实际验证记录见[开发与验证](development.md#验证记录)。下文的组件比较与推荐表保留初始选型依据，不能直接当作安装清单。
 

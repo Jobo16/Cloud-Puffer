@@ -42,6 +42,10 @@ import { readBody, requireUser } from "../src/server/http";
 import { appState } from "../src/server/state";
 import { auth } from "../src/server/auth";
 import { DELETE, GET, PATCH, POST } from "../src/app/api/app/[...path]/route";
+import {
+  GET as ADMIN_GET,
+  PATCH as ADMIN_PATCH,
+} from "../src/app/api/admin/route";
 import { consumeQqBinding } from "../src/server/qq";
 
 const fixture = vi.hoisted(() => ({ model: null as unknown }));
@@ -170,12 +174,14 @@ describe("owned, durable operations", () => {
       input: "private",
       output: "private",
       contextToken: "private",
+      inputTokens: 1,
+      outputTokens: 1,
     });
     await createTask(actor(), { title: "keep" });
     await saveMemory(actor(), { content: "keep" });
     await clearHistory(owner);
     expect((await history(owner)).runs).toHaveLength(0);
-    expect((await usage(owner)).used).toBe(1);
+    expect((await usage(owner)).used).toBe(4);
     expect(await listTasks(owner)).toHaveLength(1);
     expect(await listMemories(owner)).toHaveLength(1);
     const [retained] = await db()
@@ -240,17 +246,61 @@ describe("owned, durable operations", () => {
       await boss.stop();
     }
   });
-  it("charges failed and cancelled attempts and prevents concurrent quota overrun", async () => {
-    await seedRun({ status: "failed", errorCode: "MODEL_FAILED" });
-    await seedRun({ status: "cancelled" });
-    await seedRun({ status: "completed" });
+  it("charges reported tokens from failed and cancelled runs and blocks spent accounts", async () => {
+    await db()
+      .update(user)
+      .set({ dailyPointLimit: 12 })
+      .where(eq(user.id, owner));
+    await seedRun({
+      status: "failed",
+      errorCode: "MODEL_FAILED",
+      inputTokens: 1000,
+      outputTokens: 1,
+    });
+    await seedRun({ status: "cancelled", inputTokens: 1000, outputTokens: 1 });
+    await seedRun({ status: "completed", inputTokens: 1000, outputTokens: 1 });
     const results = await Promise.allSettled(
       [1, 2].map((n) =>
         enqueueTurn(owner, { text: `last ${n}`, requestKey: randomUUID() }),
       ),
     );
-    expect(results.filter((r) => r.status === "fulfilled")).toHaveLength(1);
-    expect((await usage(owner)).used).toBe(4);
+    expect(results.filter((r) => r.status === "fulfilled")).toHaveLength(0);
+    expect((await usage(owner)).used).toBe(12);
+  });
+  it("rounds input and output points separately and resets by Beijing date", async () => {
+    await seedRun({
+      status: "completed",
+      inputTokens: 1001,
+      outputTokens: 2001,
+    });
+    await seedRun({
+      status: "completed",
+      inputTokens: 1000,
+      outputTokens: 1000,
+      createdAt: new Date(Date.now() - 48 * 60 * 60 * 1000),
+    });
+    expect(await usage(owner)).toMatchObject({
+      used: 11,
+      limit: 100,
+      available: 89,
+    });
+  });
+  it("checks points again before a queued run reaches the model", async () => {
+    await db()
+      .update(user)
+      .set({ dailyPointLimit: 4 })
+      .where(eq(user.id, owner));
+    const queued = await seedRun({ status: "queued" });
+    await seedRun({
+      status: "completed",
+      inputTokens: 1000,
+      outputTokens: 1000,
+    });
+    await executeRun(queued.id);
+    expect(await getRun(queued.id)).toMatchObject({
+      status: "failed",
+      errorCode: "LIMIT_REACHED",
+    });
   });
 });
 
@@ -450,7 +500,7 @@ describe("agent execution", () => {
     );
   });
   it("executes a tool through the real SDK, persists its result, and completes the reply", async () => {
-    const usage = {
+    const modelUsage = {
       inputTokens: { total: 10, noCache: 10, cacheRead: 0, cacheWrite: 0 },
       outputTokens: { total: 5, text: 5, reasoning: 0 },
     };
@@ -475,7 +525,7 @@ describe("agent execution", () => {
                   {
                     type: "finish",
                     finishReason: { unified: "tool-calls", raw: "tool_calls" },
-                    usage,
+                    usage: modelUsage,
                   },
                 ]
               : [
@@ -490,7 +540,7 @@ describe("agent execution", () => {
                   {
                     type: "finish",
                     finishReason: { unified: "stop", raw: "stop" },
-                    usage,
+                    usage: modelUsage,
                   },
                 ],
         }),
@@ -501,6 +551,8 @@ describe("agent execution", () => {
     await executeRun(run.id);
     const result = await getRun(run.id);
     expect(result.status).toBe("completed");
+    expect(result).toMatchObject({ inputTokens: 20, outputTokens: 10 });
+    expect((await usage(owner)).used).toBe(4);
     expect(result.output).toBe("已记下整理书桌。");
     expect(result.activities).toHaveLength(1);
     expect((await listTasks(owner))[0].title).toBe("整理书桌");
@@ -524,6 +576,102 @@ describe("agent execution", () => {
 });
 
 describe("channel and HTTP boundaries", () => {
+  it("restricts admin user search and point-limit changes to the configured verified account", async () => {
+    const password = "test-only-password-123";
+    const signups = await Promise.all([
+      auth().api.signUpEmail({
+        body: { name: "Admin", email: "admin@jojobot.local", password },
+      }),
+      auth().api.signUpEmail({
+        body: {
+          name: "Regular",
+          email: `${randomUUID()}@jojobot.local`,
+          password,
+        },
+      }),
+    ]);
+    try {
+      await db()
+        .update(user)
+        .set({ emailVerified: true })
+        .where(eq(user.id, signups[0].user.id));
+      await db()
+        .update(user)
+        .set({ emailVerified: true })
+        .where(eq(user.id, signups[1].user.id));
+      const headersFor = async (email: string) => {
+        const response = await auth().api.signInEmail({
+          body: { email, password },
+          asResponse: true,
+        });
+        return {
+          Cookie: response.headers
+            .getSetCookie()
+            .map((cookie) => cookie.split(";")[0])
+            .join("; "),
+          Origin: "http://localhost:3031",
+          "Content-Type": "application/json",
+        };
+      };
+      const adminHeaders = await headersFor("admin@jojobot.local");
+      const regularHeaders = await headersFor(signups[1].user.email);
+      const url = `http://localhost:3031/api/admin?search=${encodeURIComponent(`${owner}@jojobot.local`)}`;
+      expect((await ADMIN_GET(new Request(url))).status).toBe(401);
+      expect(
+        (await ADMIN_GET(new Request(url, { headers: regularHeaders }))).status,
+      ).toBe(403);
+      const list = await ADMIN_GET(new Request(url, { headers: adminHeaders }));
+      expect((await list.json()).users).toMatchObject([{ id: owner }]);
+      const payload = JSON.stringify({ userId: owner, dailyPointLimit: 9 });
+      expect(
+        (
+          await ADMIN_PATCH(
+            new Request(url, {
+              method: "PATCH",
+              headers: regularHeaders,
+              body: payload,
+            }),
+          )
+        ).status,
+      ).toBe(403);
+      expect(
+        (
+          await ADMIN_PATCH(
+            new Request(url, {
+              method: "PATCH",
+              headers: { ...adminHeaders, Origin: "https://evil.example" },
+              body: payload,
+            }),
+          )
+        ).status,
+      ).toBe(403);
+      expect(
+        (
+          await ADMIN_PATCH(
+            new Request(url, {
+              method: "PATCH",
+              headers: adminHeaders,
+              body: payload,
+            }),
+          )
+        ).status,
+      ).toBe(200);
+      expect((await usage(owner)).limit).toBe(9);
+      await ADMIN_PATCH(
+        new Request(url, {
+          method: "PATCH",
+          headers: adminHeaders,
+          body: JSON.stringify({ userId: owner, dailyPointLimit: 0 }),
+        }),
+      );
+      await expect(
+        enqueueTurn(owner, { text: "paused", requestKey: randomUUID() }),
+      ).rejects.toMatchObject({ code: "ACCOUNT_PAUSED" });
+    } finally {
+      for (const signup of signups)
+        await db().delete(user).where(eq(user.id, signup.user.id));
+    }
+  });
   it("verifies real auth sessions, API ownership, CSRF, and sign-out revocation", async () => {
     const email = `${randomUUID()}@jojobot.local`;
     const password = "test-only-password-123";

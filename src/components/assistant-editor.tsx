@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { Brain, ListTodo, Smile, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { ArrowUpRight, Brain, ListTodo, Smile, Sparkles } from "lucide-react";
 import type { AppState } from "@/server/state";
 import { api } from "@/lib/api";
 import { Mark } from "./ui";
@@ -27,9 +28,11 @@ function trimAll(p: Preferences): Preferences {
 export function AssistantEditor({
   preferences,
   onSaved,
+  admin,
 }: {
   preferences: Preferences;
   onSaved: (saved: Preferences) => void;
+  admin: boolean;
 }) {
   // A null draft follows synced settings. Keep an edited draft across navigation and SSE updates.
   const [draft, setDraft] = useState<Preferences | null>(null);
@@ -169,6 +172,11 @@ export function AssistantEditor({
           关闭不会删除已有资料；待办截止时间暂不触发提醒。
         </p>
       </section>
+      {admin && (
+        <Link className="admin-entry" href="/app/admin">
+          后台管理 <ArrowUpRight size={16} />
+        </Link>
+      )}
       {error && (
         <p className="editor-error" role="alert">
           {error}

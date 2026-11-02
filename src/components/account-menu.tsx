@@ -110,7 +110,7 @@ export function AccountMenu({
       </div>
       <div className="account-quota">
         <div className="row spread">
-          <span>今日对话</span>
+          <span>今日积分</span>
           <span>
             <strong>{quota.used}</strong> / {quota.limit}
           </span>
@@ -118,7 +118,7 @@ export function AccountMenu({
         <span
           className="account-quota-bar"
           role="progressbar"
-          aria-label="今日对话用量"
+          aria-label="今日积分用量"
           aria-valuenow={quota.used}
           aria-valuemin={0}
           aria-valuemax={quota.limit}

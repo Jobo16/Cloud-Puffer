@@ -36,6 +36,13 @@
       "when": 1793608362066,
       "tag": "0004_known_zodiak",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793621920727,
+      "tag": "0005_concerned_captain_stacy",
+      "breakpoints": true
     }
   ]
 }

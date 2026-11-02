@@ -223,7 +223,7 @@ export function ChatPanel({
           </p>
         )}
         {/* 用量只在快用完时出现，平时不占视线 */}
-        {state.quota.limit - state.quota.used <= 5 && (
+        {state.quota.available <= 10 && (
           <p
             className={clsx(
               "quota-hint",
@@ -231,9 +231,11 @@ export function ChatPanel({
             )}
             role="status"
           >
-            {state.quota.used >= state.quota.limit
-              ? "今天的对话次数用完了，北京时间零点恢复。"
-              : `今天还能聊 ${state.quota.limit - state.quota.used} 次。`}
+            {state.quota.limit === 0
+              ? "当前对话已暂停。"
+              : state.quota.available === 0
+              ? "今日积分已用完，北京时间零点恢复。"
+              : `今日还可用 ${state.quota.available} 积分。`}
           </p>
         )}
         <form className="composer glass" onSubmit={send}>
