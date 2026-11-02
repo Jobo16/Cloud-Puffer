@@ -270,11 +270,13 @@ describe("assistant configuration", () => {
       stickersEnabled: false,
     });
     expect(await preferences(stranger)).toMatchObject({
-      agentName: "JOJO",
+      agentName: "小肥鱼",
       systemPrompt: "",
       tasksEnabled: true,
       stickersEnabled: true,
     });
+    await updatePreferences(stranger, { memoryEnabled: false });
+    expect((await preferences(stranger)).agentName).toBe("小肥鱼");
     for (const input of [
       { agentName: "  " },
       { systemPrompt: "a".repeat(4001) },

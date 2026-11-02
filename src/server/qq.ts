@@ -241,7 +241,7 @@ export function qqTextParts(text: string) {
   const chars = Array.from(text.trim());
   const clipped =
     chars.length > 1600
-      ? `${chars.slice(0, 1500).join("")}\n\n完整回复可在 JOJOBOT 网页查看。`
+      ? `${chars.slice(0, 1500).join("")}\n\n完整回复可在 云上小肥鱼网页查看。`
       : chars.join("");
   if (!clipped) return [];
   const points = Array.from(clipped);

@@ -1,6 +1,6 @@
-# JOJOBOT 开源代码调研
+# 云上小肥鱼开源代码调研
 
-日期：2026-11-02。目的：为 JOJOBOT 首版 PRD 提供代码依据，判断已有实现可以参考到哪一层。
+日期：2026-11-02。目的：为云上小肥鱼首版 PRD 提供代码依据，判断已有实现可以参考到哪一层。
 
 本次拉取并静态阅读了三个仓库，未安装依赖、启动应用、运行其测试或使用真实微信账号联调。因此“代码已实现”不等于“已验证可投产”；本报告不作容量或完整安全审计结论。
 
@@ -14,13 +14,13 @@
 
 均为默认分支的浅克隆。提交日期来自 `git show`，不是搜索引擎抓取日期；引用固定 SHA，后续复核需注明新版本。参考仓库不纳入产品提交或发布包。
 
-## 2. 对 JOJOBOT 的结论
+## 2. 对云上小肥鱼的结论
 
 三者共同证明“共享服务 + 多用户逻辑隔离 + 多渠道连接”有现成实现可参考，按用户维护数据和连接并不要求每个用户一台机器。
 
-目前最适合 JOJOBOT 的做法是独立实现已确认的个人产品范围，参考它们的局部机制。本次不建议直接以任何一个完整产品作为已选定基座：Octop 的专家、工作区和本机能力超出首版；ClawScale 的组织租户与终端用户模型不同；OpeniLink Hub 的中心对象是 Bot 与 App 安装，尚不能替代 JOJOBOT 的统一个人主对话和业务记录。
+目前最适合云上小肥鱼的做法是独立实现已确认的个人产品范围，参考它们的局部机制。本次不建议直接以任何一个完整产品作为已选定基座：Octop 的专家、工作区和本机能力超出首版；ClawScale 的组织租户与终端用户模型不同；OpeniLink Hub 的中心对象是 Bot 与 App 安装，尚不能替代云上小肥鱼的统一个人主对话和业务记录。
 
-| 关注点 | Octop | ClawScale | OpeniLink Hub | 对 JOJOBOT 的取舍 |
+| 关注点 | Octop | ClawScale | OpeniLink Hub | 对云上小肥鱼的取舍 |
 | --- | --- | --- | --- | --- |
 | 用户归属 | 用户持有 Agent，另有共享专家/管理权限 | 组织租户下分管理成员和终端用户 | Bot 归属于平台用户 | 首版一个人一个私有空间，无组织层级 |
 | 运行方式 | 同进程注册多 Agent 对象 | 共享 API 路由到多个后端 | 共享 Manager 管理 Bot 连接 | 共享运行服务与任务执行，不按人部署 |
@@ -35,7 +35,7 @@
 
 - [架构文档](https://github.com/TencentCloud/Octop/blob/a40f54a8099b1faebc89c680ec1e1ece8b97a4e6/docs/architecture.md)：一个 Python 进程承载 API、Agent 管理、渠道和定时任务，控制数据可存 SQLite 或 PostgreSQL。
 - [AgentManager](https://github.com/TencentCloud/Octop/blob/a40f54a8099b1faebc89c680ec1e1ece8b97a4e6/src/octop/infra/agents/manager.py)：`boot()` 读取所有启用 Agent 并调用 `_start_agent()`，创建 Harness Agent 对象；生命周期按 Agent 加锁。
-- [Agent 访问校验](https://github.com/TencentCloud/Octop/blob/a40f54a8099b1faebc89c680ec1e1ece8b97a4e6/src/octop/api/common/agent.py)：校验用户归属，同时允许管理员和共享专家等路径。这说明实际权限不是简单的一人一份数据，JOJOBOT 不需要继承这些共享分支。
+- [Agent 访问校验](https://github.com/TencentCloud/Octop/blob/a40f54a8099b1faebc89c680ec1e1ece8b97a4e6/src/octop/api/common/agent.py)：校验用户归属，同时允许管理员和共享专家等路径。这说明实际权限不是简单的一人一份数据，云上小肥鱼不需要继承这些共享分支。
 - [记忆后端](https://github.com/TencentCloud/Octop/blob/a40f54a8099b1faebc89c680ec1e1ece8b97a4e6/src/octop/infra/agents/memory/backend.py)：支持 SQLite 与 PostgreSQL；记忆以 Agent 命名空间区分，可连接共享数据库。命名空间不等于独立服务器。
 - [定时工具](https://github.com/TencentCloud/Octop/blob/a40f54a8099b1faebc89c680ec1e1ece8b97a4e6/src/octop/infra/cron/tools.py)及[投递服务](https://github.com/TencentCloud/Octop/blob/a40f54a8099b1faebc89c680ec1e1ece8b97a4e6/src/octop/infra/cron/delivery.py)：区分固定文字提醒与需要模型执行的任务，带用户/Agent/会话归属，并在投递前核对用户。
 - [用户管理接口](https://github.com/TencentCloud/Octop/blob/a40f54a8099b1faebc89c680ec1e1ece8b97a4e6/src/octop/api/routers/users.py)：已有停用、权限、token 配额、Agent 数量等管理字段，可作为后台能力参考。
@@ -46,7 +46,7 @@
 
 ### 借鉴与舍弃
 
-借鉴用户归属校验、明确的运行生命周期、固定提醒绕过模型、定时结果回到会话的设计。JOJOBOT 首版不采用多专家共享、专家市场、终端/桌面能力和按 Agent 本地工作区；文件与长期状态按产品数据管理。
+借鉴用户归属校验、明确的运行生命周期、固定提醒绕过模型、定时结果回到会话的设计。云上小肥鱼首版不采用多专家共享、专家市场、终端/桌面能力和按 Agent 本地工作区；文件与长期状态按产品数据管理。
 
 许可：[MIT LICENSE](https://github.com/TencentCloud/Octop/blob/a40f54a8099b1faebc89c680ec1e1ece8b97a4e6/LICENSE)。
 
@@ -57,13 +57,13 @@
 - [数据模型](https://github.com/ClayPulse/ClawScale/blob/98b62f2f38c813671078ed5b04ba59f8b20241d7/packages/app/prisma/schema.prisma)：`Tenant` 是组织，`Member` 是管理人员，`EndUser` 是渠道使用者；外部用户以租户、渠道、外部 ID 联合标识。
 - [消息路由](https://github.com/ClayPulse/ClawScale/blob/98b62f2f38c813671078ed5b04ba59f8b20241d7/packages/app/api/lib/route-message.ts)：先由渠道解析租户，再解析 EndUser 和 Conversation；支持 link code，把多个外部身份关联并收集多个会话的历史。
 - [微信适配器](https://github.com/ClayPulse/ClawScale/blob/98b62f2f38c813671078ed5b04ba59f8b20241d7/packages/app/api/adapters/wechat.ts)：直接使用 iLink 二维码登录、长轮询、媒体下载和消息发送，不只是 README 声称支持微信。
-- [内置 Agent](https://github.com/ClayPulse/ClawScale/blob/98b62f2f38c813671078ed5b04ba59f8b20241d7/packages/app/api/lib/clawscale-agent.ts)：通过 LangChain 工具执行平台斜杠命令，并包含文件文本提取。它的主要工具目标是管理 ClawScale，不是 JOJOBOT 的个人待办和文档业务。
+- [内置 Agent](https://github.com/ClayPulse/ClawScale/blob/98b62f2f38c813671078ed5b04ba59f8b20241d7/packages/app/api/lib/clawscale-agent.ts)：通过 LangChain 工具执行平台斜杠命令，并包含文件文本提取。它的主要工具目标是管理 ClawScale，不是云上小肥鱼的个人待办和文档业务。
 
 ### 直接采用前的差距
 
-微信适配器的同步游标保存在进程内 Map 中；轮询取到消息后先更新游标，再逐条等待消息路由与回复。该路径未提供 JOJOBOT 所需的持久消息接收、独立任务执行及投递结果管理保证。此结论只描述所读路径，不等同于对全仓库作完整可靠性审计。
+微信适配器的同步游标保存在进程内 Map 中；轮询取到消息后先更新游标，再逐条等待消息路由与回复。该路径未提供云上小肥鱼所需的持久消息接收、独立任务执行及投递结果管理保证。此结论只描述所读路径，不等同于对全仓库作完整可靠性审计。
 
-跨渠道关联后“聚合多个会话历史”也不等同于本产品要求的“唯一主对话、统一顺序与完整网页记录”。JOJOBOT 应从内部账号直接关联已授权的渠道身份，首版不引入组织管理员和外部终端用户两套产品身份。
+跨渠道关联后“聚合多个会话历史”也不等同于本产品要求的“唯一主对话、统一顺序与完整网页记录”。云上小肥鱼应从内部账号直接关联已授权的渠道身份，首版不引入组织管理员和外部终端用户两套产品身份。
 
 借鉴渠道适配器、标准入站消息和显式身份关联。当前快照的提交日期为 2026-04-10，不能直接假定其 iLink 协议调用仍符合当前服务端行为。
 
@@ -81,7 +81,7 @@
 
 ### 对此前调研的补充
 
-OpeniLink Hub 不只是将消息转发给外部 Agent；它已有工具调用能力。不过其 AI 上下文按频道和发送者构造，不能直接推定它已实现 JOJOBOT 需要的统一个人身份、网页和微信共用主对话、个人记忆及内置事项模型。
+OpeniLink Hub 不只是将消息转发给外部 Agent；它已有工具调用能力。不过其 AI 上下文按频道和发送者构造，不能直接推定它已实现云上小肥鱼需要的统一个人身份、网页和微信共用主对话、个人记忆及内置事项模型。
 
 应用市场中的“飞书/Slack/Notion App”可能是工具集或桥接能力，不能仅凭 App 名称就把它当成同一个个人助手的独立聊天入口。
 
@@ -101,13 +101,13 @@ OpeniLink Hub 不只是将消息转发给外部 Agent；它已有工具调用能
 | SaaS 托管模式的准入和容量尚无此处可确认的公开答复 | [Discussion #324](https://github.com/Tencent/openclaw-weixin/discussions/324)于 2026-11-02 查询时仍显示未回答 | 在扩大试用前核实，不把插件 MIT 许可等同于后端服务容量或准入承诺。 |
 | 存在 API 返回成功但微信无可见回复的报告 | [Issue #290](https://github.com/Tencent/openclaw-weixin/issues/290)，属于用户故障报告，不是普遍发生的证明 | 记录渠道接受与可见送达的区别；无回执时只显示已提交。 |
 
-JOJOBOT 产品边界是用户与自己的 ClawBot 交互，不扩展为读取普通微信聊天记录、朋友圈或普通群消息。窗口恢复与 Bot 登录失效也需要区分，不统一要求重新扫码。
+云上小肥鱼产品边界是用户与自己的 ClawBot 交互，不扩展为读取普通微信聊天记录、朋友圈或普通群消息。窗口恢复与 Bot 登录失效也需要区分，不统一要求重新扫码。
 
 ## 7. 后续验证重点
 
 技术设计阶段围绕 PRD 实现最小闭环；无需先将三个项目拼接起来。
 
-1. 两个 JOJOBOT 用户各绑定一个真实微信身份，证明身份隔离和重绑正确。
+1. 两个云上小肥鱼用户各绑定一个真实微信身份，证明身份隔离和重绑正确。
 2. 微信与网页接续同一主对话，同时发消息仍保持顺序和业务写入幂等。
 3. 文本、文件的真实手机收发，以及窗口不可用/登录过期/未知提交结果的展示。
 4. 服务重启后消息、任务和提醒恢复，旧连接的投递不转移到新身份。

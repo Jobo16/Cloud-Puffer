@@ -5,8 +5,8 @@ import "./globals.css";
 const themeScript = `(function(){try{var s=localStorage.getItem('jojobot-theme');var d=s?s==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.dataset.theme=d?'dark':'light';}catch(e){document.documentElement.dataset.theme='light';}})();`;
 
 export const metadata: Metadata = {
-  title: "JOJOBOT · 你的个人助手",
-  description: "随时聊聊，把想到的交给 JOJO。你的个人 AI 助手。",
+  title: "云上小肥鱼 · 你的个人助手",
+  description: "随时聊聊，把想到的交给小肥鱼。你的个人 AI 助手。",
   robots: { index: false, follow: false },
 };
 export const viewport: Viewport = {

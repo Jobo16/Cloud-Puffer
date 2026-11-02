@@ -123,7 +123,7 @@ export function AssistantEditor({
               value={values.agentName}
               maxLength={40}
               onChange={(e) => edit({ agentName: e.target.value })}
-              placeholder="JOJO"
+              placeholder="小肥鱼"
             />
           </label>
         </div>

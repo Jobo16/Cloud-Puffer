@@ -1,12 +1,12 @@
-![JOJOBOT — 一点秩序，一点从容](docs/assets/github-cover.svg)
+![云上小肥鱼 — 一点秩序，一点从容](docs/assets/github-cover.png)
 
-# JOJOBOT
+# 云上小肥鱼 · Cloud Puffer
 
 **在网页和聊天窗口中，帮你打理日常的个人 AI 助手。**
 
 [English](README.en.md) · [当前状态](#当前状态) · [本地运行](#本地运行) · [工作区说明](docs/workspace.md) · [实现架构](docs/architecture.md) · [产品规划](docs/PRD.md)
 
-JOJOBOT 为每个账号保留一条跨渠道对话、待办和个人记忆，由同一套共享服务承载。
+云上小肥鱼为每个账号保留一条跨渠道对话、待办和个人记忆，由同一套共享服务承载。
 
 ## 当前状态
 

@@ -7,17 +7,17 @@
 ## 1. 结论
 
 - **QQ 值得作为优先验证的新渠道，先做官方机器人私聊。** 有腾讯提供的 Node.js/TypeScript SDK，适合接入当前共享服务。公开服务的主体条件需要先落实：当前官网明确个人认证暂不支持公开使用，企业认证可以配置公开服务范围。
-- **表情包优先参考 `dsh-meme`。** 它覆盖按情绪和关键词选图、图片学习、Web 展示和 IM 原生图片投递，接近“实际聊天会用”的需求。JOJOBOT 先移植选图与投递方式，无需引入图库市场。
+- **表情包优先参考 `dsh-meme`。** 它覆盖按情绪和关键词选图、图片学习、Web 展示和 IM 原生图片投递，接近“实际聊天会用”的需求。云上小肥鱼先移植选图与投递方式，无需引入图库市场。
 - **自然回复分两部分做。** 措辞与个人偏好参考 `biaoqingbao` 的“学我说话”；分条、输入状态和发送节奏参考 `dsh-im-humanize`。后者主要改变消息交付方式，不能单独保证内容更自然。
 - **维持现有 AI SDK 方向。** DSH 是宿主框架，不是 DeepSeek 模型的一个 API 参数；这些插件依赖其工具、会话和前端接口，不能直接安装进 Next.js/AI SDK。为两项能力更换整个运行框架，当前收益不足。
 
-以上取舍是针对 JOJOBOT 的判断。DSH 官方仍标注 developer preview，并提示会发生破坏兼容性的变更。依据：[DSH 官方仓库](https://github.com/deepseek-ai/deepseek-harness)、[QQ 当前接入指南](https://bot.q.qq.com/wiki/)、[腾讯 QQ SDK](https://github.com/tencent-connect/qqbot-nodejs)。
+以上取舍是针对云上小肥鱼的判断。DSH 官方仍标注 developer preview，并提示会发生破坏兼容性的变更。依据：[DSH 官方仓库](https://github.com/deepseek-ai/deepseek-harness)、[QQ 当前接入指南](https://bot.q.qq.com/wiki/)、[腾讯 QQ SDK](https://github.com/tencent-connect/qqbot-nodejs)。
 
 ## 2. QQ 的可行路线与限制
 
 ### 2.1 推荐官方机器人，而非个人 QQ 号托管
 
-建议平台运营一个 JOJOBOT 官方机器人，用户在 QQ 添加它并绑定自己的 JOJOBOT 账号。机器人应用凭据属于平台；不要求每个终端用户申请 AppID，也不为用户创建独立运行实例。
+建议平台运营一个云上小肥鱼官方机器人，用户在 QQ 添加它并绑定自己的云上小肥鱼账号。机器人应用凭据属于平台；不要求每个终端用户申请 AppID，也不为用户创建独立运行实例。
 
 腾讯的 `@tencent-connect/qqbot-nodejs` 提供凭证维护、WebSocket/Webhook、文本和图片/文件发送、私聊流式消息及 TypeScript 类型。`dsh-im` 的 QQ 运行模块也直接使用这个 SDK，因此可以参考其渠道处理经验，直接调用 SDK 接到本项目业务层。[SDK 说明](https://github.com/tencent-connect/qqbot-nodejs/blob/main/README.zh-CN.md)、[dsh-im QQ 运行模块](https://github.com/xmanrui/dsh-im/blob/dd500d24252a182ca64645ada005a553fd723831/src/channels/qq/qq-runtime.mjs)。
 
@@ -25,7 +25,7 @@
 
 ### 2.2 当前官网给出的准入条件
 
-| 事项 | 本次核实结果 | 对 JOJOBOT 的影响 |
+| 事项 | 本次核实结果 | 对云上小肥鱼的影响 |
 | --- | --- | --- |
 | 个人认证 | 暂不支持公开使用；历史已获公开权限者有例外 | 新个人主体不应直接按“公开注册用户都能使用 QQ”规划上线 |
 | 企业认证 | 可将各场景设置为公开使用 | 公开托管服务应先确认主体及后台实际可选范围 |
@@ -52,7 +52,7 @@
 - 私聊已有“输入中”接口，可以体现真实处理状态。图片加文字会占用回复次数，拆条必须计入渠道预算；不能原样搬用拟人插件的 20 段上限。
 - QQ 提醒有验证价值，但主动权限、用户接收开关、频控和失败状态都应实测。沿用 PRD 的网页留存与真实投递状态，不把 API 接受写成已送达。
 
-### 2.4 接到 JOJOBOT 的最小边界
+### 2.4 接到云上小肥鱼的最小边界
 
 网页生成短期、一次性的绑定凭证，用户在机器人私聊提交；服务端把已验证的 QQ 应用/用户标识关联到登录账号。不能让用户只填写 QQ 号码即完成身份认领。
 
@@ -66,7 +66,7 @@ QQ 私聊输入进入同一条主对话，复用已有业务规则、运行顺�
 
 | 插件 | 与本次需求有关的能力 | 局限与建议 |
 | --- | --- | --- |
-| [`@xmanrui/dsh-im`](https://github.com/xmanrui/dsh-im) · 5.9.1 | QQ/微信等渠道接入、会话路由、图片与文件回传 | **渠道参考。** 完整插件还管理工作区、模型和本机文件，不直接作为 JOJOBOT 多用户业务层 |
+| [`@xmanrui/dsh-im`](https://github.com/xmanrui/dsh-im) · 5.9.1 | QQ/微信等渠道接入、会话路由、图片与文件回传 | **渠道参考。** 完整插件还管理工作区、模型和本机文件，不直接作为云上小肥鱼多用户业务层 |
 | [`dsh-meme`](https://github.com/yyh-001/dsh-meme) · 0.1.76 | 情绪/关键词选图、多图库、主动发图频率、AI 学图；Web 配图与 IM 图片投递；QQ 缩图 | **表情包第一参考。** 本地 SQLite/文件图库需要改成项目内受控数据与存储；图库市场和自动收集暂不引入 |
 | [`dsh-biaoqingbao`](https://github.com/moononnn/DeepSeek-Harness-biaoqingbao) · 0.3.2 | 自建图库、标签/向量检索、反馈、场景频率、“学我说话”、方言 | **个性化参考。** 不附图库；识图、内容分析、可选向量会增加调用。依赖较早 DSH 接口，不能承诺与最新宿主兼容 |
 | [`@johnnren/dsh-im-humanize`](https://github.com/john-walks-slow/dsh-im-humanize) · 4.38.0-humanize.2 | IM 分条、阅读/段间延迟、输入状态、每机器人覆盖设置 | **节奏参考。** 是完整 dsh-im fork，与上游 5.9.1 不在同一版本；不是可随意叠装的独立风格插件 |
@@ -79,23 +79,23 @@ QQ 私聊输入进入同一条主对话，复用已有业务规则、运行顺�
 - `send_meme` 按情绪、关键词和描述返回候选，再让模型选择；找不到合适图可以继续换词或只回文字。
 - Web 模式使用描述标记配图；IM 模式给文件投递工具图片路径，真正发送图片，而非在聊天里打印“[表情：开心]”。
 - 有 QQ 发送副本缩放，默认不开启；缩放代码检查动图帧数，目标是保留动画，但 QQ 客户端的最终显示仍需验证。
-- 索引采用 SQLite，图库位于本地目录，HTTP 访问控制主要面向本机/可信 Host。这不是 JOJOBOT 所需的逐用户资料鉴权。
+- 索引采用 SQLite，图库位于本地目录，HTTP 访问控制主要面向本机/可信 Host。这不是云上小肥鱼所需的逐用户资料鉴权。
 
 代码依据：[选图与 IM 路由](https://github.com/yyh-001/dsh-meme/blob/aef2b817c822dbfac6ba849bb43fd81535ad2903/memes.js)、[宿主与图库管理](https://github.com/yyh-001/dsh-meme/blob/aef2b817c822dbfac6ba849bb43fd81535ad2903/index.js)、[QQ 缩图](https://github.com/yyh-001/dsh-meme/blob/aef2b817c822dbfac6ba849bb43fd81535ad2903/qq-resize.js)。
 
-对 JOJOBOT 的建议：模型选受控的 `stickerId`，服务端校验素材归属并生成图片消息；不要让模型提交任意本地路径，也不依赖描述文字作为图片唯一标识。
+对云上小肥鱼的建议：模型选受控的 `stickerId`，服务端校验素材归属并生成图片消息；不要让模型提交任意本地路径，也不依赖描述文字作为图片唯一标识。
 
 ### 3.2 `biaoqingbao`：“学我说话”确有实现，但要改归属范围
 
 代码中有采样用户发言、分析用词/句长/标点/语气、生成风格草稿、保存与注入模板的流程。它强调学习特征的出现比例，避免每句话都堆语气词；这比给所有回复统一加“呀、呢、哈哈”更有参考价值。
 
-但当前实现调用宿主 `listSessions()` 收集多个会话，风格模板是全局一份；图库偏好按助手预设区分。**助手预设隔离不等于 JOJOBOT 用户隔离。** 移植时只处理当前用户主动选择的样本，生成可编辑、可关闭的风格偏好，并与事实记忆分开。不能把整台宿主的会话作为一个用户的语言样本。[风格采样、模板与注入代码](https://github.com/moononnn/DeepSeek-Harness-biaoqingbao/blob/e8a81042230b33a4800d7c4f01238d368998b0d5/lib/index.js)、[标签评分](https://github.com/moononnn/DeepSeek-Harness-biaoqingbao/blob/e8a81042230b33a4800d7c4f01238d368998b0d5/lib/core.js)。
+但当前实现调用宿主 `listSessions()` 收集多个会话，风格模板是全局一份；图库偏好按助手预设区分。**助手预设隔离不等于云上小肥鱼用户隔离。** 移植时只处理当前用户主动选择的样本，生成可编辑、可关闭的风格偏好，并与事实记忆分开。不能把整台宿主的会话作为一个用户的语言样本。[风格采样、模板与注入代码](https://github.com/moononnn/DeepSeek-Harness-biaoqingbao/blob/e8a81042230b33a4800d7c4f01238d368998b0d5/lib/index.js)、[标签评分](https://github.com/moononnn/DeepSeek-Harness-biaoqingbao/blob/e8a81042230b33a4800d7c4f01238d368998b0d5/lib/core.js)。
 
 第一阶段只需预设自然语气，加上用户明确保存的措辞偏好。学习历史说话风格放到后续，不需要每轮额外调用一个“情绪分析 Agent”。
 
 ### 3.3 `dsh-im-humanize`：借鉴分条，谨慎使用延迟与打断
 
-代码通过 `message_break` 形成消息断点，再由 IM 投递消费者发送各段；发送延迟与输入状态有独立设置。发送延迟默认关闭，但新消息处理默认是 `interrupt`。这适合某些角色聊天，不能直接替代 JOJOBOT 的事务与任务执行规则。[分条代码](https://github.com/john-walks-slow/dsh-im-humanize/blob/1fe4b08ce4dc4f2e5601796a90decc3a06d90c3b/src/channels/shared/message-break.mjs)、[延迟代码](https://github.com/john-walks-slow/dsh-im-humanize/blob/1fe4b08ce4dc4f2e5601796a90decc3a06d90c3b/src/channels/shared/send-delay.mjs)、[配置定义](https://github.com/john-walks-slow/dsh-im-humanize/blob/1fe4b08ce4dc4f2e5601796a90decc3a06d90c3b/src/channels/shared/humanize-schema.mjs)。
+代码通过 `message_break` 形成消息断点，再由 IM 投递消费者发送各段；发送延迟与输入状态有独立设置。发送延迟默认关闭，但新消息处理默认是 `interrupt`。这适合某些角色聊天，不能直接替代云上小肥鱼的事务与任务执行规则。[分条代码](https://github.com/john-walks-slow/dsh-im-humanize/blob/1fe4b08ce4dc4f2e5601796a90decc3a06d90c3b/src/channels/shared/message-break.mjs)、[延迟代码](https://github.com/john-walks-slow/dsh-im-humanize/blob/1fe4b08ce4dc4f2e5601796a90decc3a06d90c3b/src/channels/shared/send-delay.mjs)、[配置定义](https://github.com/john-walks-slow/dsh-im-humanize/blob/1fe4b08ce4dc4f2e5601796a90decc3a06d90c3b/src/channels/shared/humanize-schema.mjs)。
 
 建议普通闲聊按语义最多拆成一两条文字，可附一张图；实际总条数由渠道额度约束。创建待办、取消事项、操作失败等必须及时说清结果；不随机不回、不故意拖慢、不因后到一句话就自动重做已产生副作用的操作。聊天自然感首先来自措辞、上下文衔接与适度表达。
 
@@ -149,4 +149,4 @@ QQ 私聊输入进入同一条主对话，复用已有业务规则、运行顺�
 | john-walks-slow/dsh-im-humanize | `1fe4b08ce4dc4f2e5601796a90decc3a06d90c3b` | 2026-10-26 | [MIT](https://github.com/john-walks-slow/dsh-im-humanize/blob/1fe4b08ce4dc4f2e5601796a90decc3a06d90c3b/LICENSE) |
 | kaitox326/dsh-alive | `e50acf50d04c910f6df66b4d7f08440b7390c854` | 2026-10-27 | [MIT](https://github.com/kaitox326/dsh-alive/blob/e50acf50d04c910f6df66b4d7f08440b7390c854/LICENSE) |
 
-`dsh-alive` 的验证边界见其 [README](https://github.com/kaitox326/dsh-alive/blob/e50acf50d04c910f6df66b4d7f08440b7390c854/README.md)。实际采用任何源码前固定版本、保留版权，并针对 JOJOBOT 的用户边界与目标渠道重新验收。
+`dsh-alive` 的验证边界见其 [README](https://github.com/kaitox326/dsh-alive/blob/e50acf50d04c910f6df66b4d7f08440b7390c854/README.md)。实际采用任何源码前固定版本、保留版权，并针对云上小肥鱼的用户边界与目标渠道重新验收。

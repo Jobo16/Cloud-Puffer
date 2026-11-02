@@ -16,7 +16,7 @@ const {
 if (!lock.acquired) {
   lease.release();
   await pool().end();
-  throw new Error("A JOJOBOT worker is already running for this database.");
+  throw new Error("A Cloud Puffer worker is already running for this database.");
 }
 const controller = new AbortController();
 const boss = createWorkerQueue();
@@ -73,5 +73,5 @@ if (qqBot)
     );
   });
 console.log(
-  "JOJOBOT worker ready; four concurrent users, ordered turns per user.",
+  "Cloud Puffer worker ready; four concurrent users, ordered turns per user.",
 );

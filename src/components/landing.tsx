@@ -14,7 +14,7 @@ import { Button, Mark, Modal } from "./ui";
 import { AuthForm } from "./login";
 import { ThemeToggle } from "./theme-toggle";
 
-const repository = "https://github.com/Jobo16/JOJOBOT";
+const repository = "https://github.com/Jobo16/Cloud-Puffer";
 
 const capabilities = [
   {
@@ -77,7 +77,7 @@ export function Landing({
       <header className="landing-nav glass">
         <Link className="wordmark" href="/">
           <Mark />
-          <span>JOJOBOT</span>
+          <span>云上小肥鱼</span>
         </Link>
         <nav aria-label="页面导航">
           <a className="nav-link" href="#what">
@@ -114,7 +114,7 @@ export function Landing({
               把事<span>记下。</span>
             </h1>
             <p>
-              JOJOBOT 是一个开源的私人 AI 助手。待办、记忆和对话都在同一个账号里，网页和微信共用一条对话，换设备接着说。
+              云上小肥鱼是一个开源的私人 AI 助手。待办、记忆和对话都在同一个账号里，网页和微信共用一条对话，换设备接着说。
             </p>
             <div className="hero-actions">
               <Button className="primary" onClick={enter}>
@@ -135,7 +135,7 @@ export function Landing({
           <figure className="hero-demo glass" aria-hidden="true">
             <div className="demo-head">
               <Mark />
-              <span>JOJO</span>
+              <span>小肥鱼</span>
             </div>
             <div className="demo-thread">
               <p className="demo-bubble">帮我记个待办：周五前交材料</p>
@@ -203,7 +203,7 @@ export function Landing({
           <div className="footer-brand">
             <Link className="wordmark" href="/">
               <Mark />
-              <span>JOJOBOT</span>
+              <span>云上小肥鱼</span>
             </Link>
             <p>
               开源的私人 AI 助手。待办、记忆和对话都在一个账号里，网页和微信共用同一条记录。
@@ -302,7 +302,7 @@ export function Landing({
         </div>
         <div className="footer-bottom">
           <p>
-            © 2026 JOJOBOT
+            © 2026 云上小肥鱼
             <span aria-hidden="true">·</span>
             <a href="https://jobo.ink" target="_blank" rel="noreferrer">
               JOBO 维护
@@ -333,7 +333,7 @@ export function Landing({
 
       {login && (
         <Modal
-          title="JOJOBOT 账号"
+          title="云上小肥鱼账号"
           bare
           onClose={() => {
             setLogin(false);

@@ -254,10 +254,12 @@ export function TasksPanel({
 }
 function MemoryForm({
   memory,
+  agentName,
   onSave,
   onClose,
 }: {
   memory?: Memory;
+  agentName: string;
   onSave: (content: string) => Promise<boolean>;
   onClose: () => void;
 }) {
@@ -266,8 +268,8 @@ function MemoryForm({
   const [failed, setFailed] = useState(false);
   return (
     <Modal
-      title={memory ? "编辑记忆" : "让 JOJO 记住"}
-      description="保存后，JOJO 会在之后的对话中参考这条信息。"
+      title={memory ? "编辑记忆" : `让${agentName}记住`}
+      description={`保存后，${agentName}会在之后的对话中参考这条信息。`}
       onClose={() => {
         if (!busy) onClose();
       }}
@@ -313,9 +315,10 @@ function MemoryForm({
 }
 export function MemoryPanel({
   memories,
+  agentName,
   mutate,
   confirm,
-}: { memories: Memory[] } & PanelProps) {
+}: { memories: Memory[]; agentName: string } & PanelProps) {
   const [editor, setEditor] = useState<{ memory?: Memory; key: string } | null>(
     null,
   );
@@ -381,6 +384,7 @@ export function MemoryPanel({
         <MemoryForm
           key={editor.key}
           memory={editor.memory}
+          agentName={agentName}
           onClose={() => setEditor(null)}
           onSave={(content) =>
             editor.memory

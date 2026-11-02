@@ -136,7 +136,7 @@ export function Workspace({
       <aside className="sidebar glass" ref={sidebar} tabIndex={-1}>
         <Link className="wordmark" href="/">
           <Mark />
-          <span>JOJOBOT</span>
+          <span>云上小肥鱼</span>
         </Link>
         <button
           type="button"
@@ -252,6 +252,7 @@ export function Workspace({
             ) : page === "memories" ? (
               <MemoryPanel
                 memories={state.memories}
+                agentName={state.preferences.agentName}
                 mutate={mutate}
                 confirm={confirm}
               />

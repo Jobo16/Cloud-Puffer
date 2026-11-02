@@ -33,4 +33,4 @@ await boss.createQueue(AGENT_QUEUE, {
 });
 await boss.stop();
 await pool().end();
-console.log("JOJOBOT database and queue are ready.");
+console.log("Cloud Puffer database and queue are ready.");

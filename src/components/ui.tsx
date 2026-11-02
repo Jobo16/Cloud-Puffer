@@ -3,6 +3,7 @@ import { Button as BaseButton } from "@base-ui/react/button";
 import { Dialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
 import { clsx } from "clsx";
+import Image from "next/image";
 import type { ComponentProps, ReactNode } from "react";
 
 export function Button({
@@ -13,9 +14,8 @@ export function Button({
 }
 export function Mark({ large = false }: { large?: boolean }) {
   return (
-    <span className={clsx("jojo-mark", large && "large")} aria-hidden="true">
-      <span />
-      <span />
+    <span className={clsx("brand-mark", large && "large")} aria-hidden="true">
+      <Image src="/brand-avatar.webp" alt="" width={64} height={64} />
     </span>
   );
 }

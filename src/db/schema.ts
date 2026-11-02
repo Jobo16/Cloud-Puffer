@@ -199,7 +199,7 @@ export const userPreferences = pgTable("user_preferences", {
     .primaryKey()
     .references(() => user.id, { onDelete: "cascade" }),
   stickersEnabled: boolean("stickers_enabled").default(true).notNull(),
-  agentName: text("agent_name").default("JOJO").notNull(),
+  agentName: text("agent_name").default("小肥鱼").notNull(),
   systemPrompt: text("system_prompt").default("").notNull(),
   tasksEnabled: boolean("tasks_enabled").default(true).notNull(),
   memoryEnabled: boolean("memory_enabled").default(true).notNull(),

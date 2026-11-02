@@ -22,7 +22,7 @@ async function sendMail(to: string, subject: string, text: string) {
 function createAuth() {
   const env = config();
   return betterAuth({
-    appName: "JOJOBOT",
+    appName: "云上小肥鱼",
     baseURL: env.BETTER_AUTH_URL,
     secret: env.BETTER_AUTH_SECRET,
     database: drizzleAdapter(db(), { provider: "pg", schema }),
@@ -34,7 +34,7 @@ function createAuth() {
       sendResetPassword: async ({ user, url }) =>
         sendMail(
           user.email,
-          "重设 JOJOBOT 密码",
+          "重设云上小肥鱼密码",
           `使用下面的链接重设密码。如果不是你发起的，可以忽略这封邮件。\n\n${url}`,
         ),
     },
@@ -45,8 +45,8 @@ function createAuth() {
       sendVerificationEmail: async ({ user, url }) =>
         sendMail(
           user.email,
-          "验证你的 JOJOBOT 邮箱",
-          `点击链接验证邮箱，即可开始使用 JOJOBOT。链接在一小时后失效。\n\n${url}`,
+          "验证你的云上小肥鱼邮箱",
+          `点击链接验证邮箱，即可开始使用云上小肥鱼。链接在一小时后失效。\n\n${url}`,
         ),
     },
     rateLimit: {

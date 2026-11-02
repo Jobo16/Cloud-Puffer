@@ -66,7 +66,7 @@ export function QqSettings({
           <>
             <p className="muted small">
               {state.qq.enabled
-                ? "生成绑定码，在 QQ 中私聊发送给 JOJO。"
+                ? `生成绑定码，在 QQ 中私聊发送给${state.preferences.agentName}。`
                 : "QQ 接入尚未开放，配置完成后可绑定。"}
             </p>
             <div className="row">

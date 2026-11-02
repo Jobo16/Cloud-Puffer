@@ -1,0 +1,1 @@
+ALTER TABLE "user_preferences" ALTER COLUMN "agent_name" SET DEFAULT '小肥鱼';

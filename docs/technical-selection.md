@@ -1,4 +1,4 @@
-# JOJOBOT 技术与 UI 选型
+# 云上小肥鱼技术与 UI 选型
 
 日期：2026-11-02 · 状态：选型研究记录，核心方案已落地到开发预览；当前落地差异见 [架构](architecture.md)，精确版本见 `package.json` 与锁文件。
 
@@ -28,11 +28,11 @@
 | --- | --- | --- |
 | 语言与运行时 | TypeScript、Node.js 24 LTS、pnpm | 前后端和微信适配共用语言。24 仍在 LTS 支持范围；初始化时固定受支持补丁版。 |
 | Web 与 HTTP 接口 | Next.js 16 App Router、React 19 | 登录、主对话、事项、资料、设置与受保护的 `/admin` 放在一个应用中；同源接口调用业务服务。 |
-| 样式与基础组件 | Tailwind CSS 4、shadcn/ui 的 Base UI 方案 | 获得可修改的组件源码和交互基础，维护一套 JOJOBOT 设计令牌。 |
+| 样式与基础组件 | Tailwind CSS 4、shadcn/ui 的 Base UI 方案 | 获得可修改的组件源码和交互基础，维护一套云上小肥鱼设计令牌。 |
 | 玻璃材质 | 按需复用 Glasscn 的 CSS 玻璃组件 | 先采用 `frosted` / `subtle` 材质，再统一圆角、色彩、模糊与阴影；折射效果只作可选增强。 |
-| 聊天展示 | shadcn/ui 的 AI Elements 按需取用 | 复用消息、输入、附件、来源与工具状态展示；历史、权限、取消和执行状态由 JOJOBOT 服务端维护。 |
+| 聊天展示 | shadcn/ui 的 AI Elements 按需取用 | 复用消息、输入、附件、来源与工具状态展示；历史、权限、取消和执行状态由云上小肥鱼服务端维护。 |
 | Agent 执行 | Vercel AI SDK Core | 一个服务端模型与工具循环，工具仅调用已授权业务能力；首版不叠加第二套 Agent 框架。 |
-| 账号 | Better Auth + 邮箱密码 | 处理会话、邮件验证与密码恢复；微信绑定属于 JOJOBOT 渠道模块。验证和找回邮件仍需配置发信服务。 |
+| 账号 | Better Auth + 邮箱密码 | 处理会话、邮件验证与密码恢复；微信绑定属于云上小肥鱼渠道模块。验证和找回邮件仍需配置发信服务。 |
 | 业务数据 | PostgreSQL 17 + Drizzle | 保存账号关联、主对话、运行、事项、记忆、文件元数据和额度；迁移 SQL 可审阅。 |
 | 个人资料检索 | PostgreSQL + pgvector | 在资料功能阶段加入分块和向量检索，无需单独部署向量数据库；向量化模型另选。 |
 | 可靠任务 | pg-boss + Node.js Worker | 执行对话运行、提醒、解析和文档生成；与业务库共用 PostgreSQL，使用独立队列表结构。 |
@@ -80,7 +80,7 @@ flowchart TB
     PG --> Web
 ```
 
-图中的业务模块、Agent、渠道模块是代码边界，不代表额外服务。首版部署主要是 `web`、`worker` 和数据库；如已有合适的数据库服务，可给 JOJOBOT 独立库与账号，不必额外创建数据库容器。
+图中的业务模块、Agent、渠道模块是代码边界，不代表额外服务。首版部署主要是 `web`、`worker` 和数据库；如已有合适的数据库服务，可给云上小肥鱼独立库与账号，不必额外创建数据库容器。
 
 - **一份代码，两类进程。** Web 处理页面、认证和 API；后台进程负责微信长轮询与任务调度。模型调用异步等待；有成本和 CPU 消耗的任务设置并发限制，文件解析不得阻塞所有微信连接。先保留在一个仓库与一个应用包中，后台入口共享业务代码，不因目录形式拆成多个包。
 - **多个入口，一条主对话。** 网页请求、微信和 QQ 消息转换成同一种输入记录，持久化后创建运行。按用户/主对话串行执行，其他用户可并行；重启后的重复事件依靠持久唯一键去重，不依靠单进程内存锁。
@@ -105,7 +105,7 @@ flowchart TB
 
 ### 原始复用建议
 
-最初建议采用 `shadcn/ui + Base UI + Glasscn 的少量组件源码`，先覆盖侧栏、按钮、输入区、卡片、选择框、日历和弹窗。对话展示从 AI Elements 取必要模式，统一改成 JOJOBOT 的材质与间距，不再并装一套独立聊天运行时。
+最初建议采用 `shadcn/ui + Base UI + Glasscn 的少量组件源码`，先覆盖侧栏、按钮、输入区、卡片、选择框、日历和弹窗。对话展示从 AI Elements 取必要模式，统一改成云上小肥鱼的材质与间距，不再并装一套独立聊天运行时。
 
 Glasscn 的 `glass-variants.ts` 已提供 CSS 模糊/半透明方案。但 `GlassButton` 默认是 `liquid-refract`，其 SVG 实现通过浏览器识别规避 Safari/Firefox 的限制。因此不能把“使用此库”写成“所有浏览器均有完整 Liquid Glass”；首版应显式采用 `frosted` 或 `subtle`，关闭不必要的持续背景动画，把材质值提取成项目令牌，并补足减少透明度与不支持模糊时的实色降级。
 
@@ -125,7 +125,7 @@ Glasscn 的 `glass-variants.ts` 已提供 CSS 模糊/半透明方案。但 `Glas
 | artyhoo/shadcn-glass-ui-library | 37 | `32d7625` · 2026-09-14 | [Apache-2.0](https://github.com/artyhoo/shadcn-glass-ui-library/blob/32d762578b6b9997851ed8ee930ab10a418b1bf9/LICENSE)，与 README 声明不一致 |
 | crenspire/glass-ui | 97 | `e74f533` · 2026-10-14 | 本次未核实到根许可文件，不据 README 认定已获完整许可 |
 
-## 5. JOJOBOT 的玻璃视觉方向
+## 5. 云上小肥鱼的玻璃视觉方向
 
 目标是日常使用的个人助手。参考 Apple 的功能层级：玻璃承载导航和控制，内容保持清晰。Apple 官方也将 Liquid Glass 定位为浮在内容之上的导航与控制层，且官方原生组件面向 SwiftUI/UIKit/AppKit，不能直接安装进 React 网页。依据：[Apple Materials](https://developer.apple.com/design/human-interface-guidelines/materials)、[Liquid Glass 概览](https://developer.apple.com/documentation/technologyoverviews/liquid-glass)。
 
@@ -136,7 +136,7 @@ Glasscn 的 `glass-variants.ts` 已提供 CSS 模糊/半透明方案。但 `Glas
 - **排版：**系统字体栈，统一字号和间距；使用开源图标，保持触控区域与焦点可见。
 - **降级：**已有减少动效、减少透明度媒体查询及不支持模糊时的实色回退；尚未提供用户手动切换的实色模式，真实设备表现仍需验收。
 
-浏览器依据：[MDN backdrop-filter](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/backdrop-filter)、[MDN prefers-reduced-transparency](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-reduced-transparency)。验收覆盖长对话阅读、明暗背景、中文输入法、滚动、移动键盘、弹层焦点、禁用动效和真实微信内置浏览器；初次选型时仅查看上游演示；后续 JOJOBOT 已完成桌面/手机视口及操作验收，详见[验证记录](development.md#验证记录)。真实 Safari 和微信内置浏览器仍待验收。
+浏览器依据：[MDN backdrop-filter](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/backdrop-filter)、[MDN prefers-reduced-transparency](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-reduced-transparency)。验收覆盖长对话阅读、明暗背景、中文输入法、滚动、移动键盘、弹层焦点、禁用动效和真实微信内置浏览器；初次选型时仅查看上游演示；后续云上小肥鱼已完成桌面/手机视口及操作验收，详见[验证记录](development.md#验证记录)。真实 Safari 和微信内置浏览器仍待验收。
 
 ## 6. 后续功能与正式部署所需配置
 

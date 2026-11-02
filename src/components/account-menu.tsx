@@ -7,7 +7,7 @@ import type { AppState } from "@/server/state";
 import { authClient } from "@/lib/auth-client";
 import { Button, Modal } from "./ui";
 
-const repository = "https://github.com/Jobo16/JOJOBOT";
+const repository = "https://github.com/Jobo16/Cloud-Puffer";
 
 // 身份、用量和账号动作都收在这一个浮层里，不需要为它们再开一页。
 export function AccountMenu({

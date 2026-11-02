@@ -1,12 +1,12 @@
-![JOJOBOT — A little order, a little ease](docs/assets/github-cover.svg)
+![Cloud Puffer — A little order, a little ease](docs/assets/github-cover.png)
 
-# JOJOBOT
+# Cloud Puffer（云上小肥鱼）
 
 **A personal AI assistant for everyday life, across web and chat.**
 
 [简体中文](README.md) · [What works](#project-status) · [Run locally](#run-locally) · [Workspace guide](docs/workspace.md) · [Architecture](docs/architecture.md) · [Roadmap](docs/PRD.md)
 
-JOJOBOT keeps one conversation, tasks, and personal memory together for each account. It runs as one shared service, without a separate machine for every user.
+Cloud Puffer keeps one conversation, tasks, and personal memory together for each account. It runs as one shared service, without a separate machine for every user.
 
 ## Project status
 

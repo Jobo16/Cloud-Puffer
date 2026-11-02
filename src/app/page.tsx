@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Landing } from "@/components/landing";
 export const metadata: Metadata = {
-  title: "JOJOBOT — 开源的个人 AI 助手",
+  title: "云上小肥鱼 — 开源的个人 AI 助手",
   robots: { index: true, follow: true },
 };
 export default async function Home({

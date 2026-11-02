@@ -29,6 +29,13 @@
       "when": 1793606155231,
       "tag": "0003_merge_prompt",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793608362066,
+      "tag": "0004_known_zodiak",
+      "breakpoints": true
     }
   ]
 }

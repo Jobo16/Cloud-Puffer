@@ -28,6 +28,6 @@ SOFTWARE.
 
 ## Package dependencies
 
-The QQ adapter uses `@tencent-connect/qqbot-nodejs` 1.0.5 (MIT, Copyright © 2026 Tencent); its license is retained in the installed package. DSH projects were research references only; no DSH plugin source or runtime is bundled. Artwork in `public/stickers` is original JOJOBOT material, covered by this repository's MIT license.
+The QQ adapter uses `@tencent-connect/qqbot-nodejs` 1.0.5 (MIT, Copyright © 2026 Tencent); its license is retained in the installed package. DSH projects were research references only; no DSH plugin source or runtime is bundled. Artwork in `public/stickers` is original Cloud Puffer material, covered by this repository's MIT license.
 
-Base UI, Next.js, React, Tailwind CSS, AI SDK, Better Auth, Drizzle, pg-boss, Lucide, and other packages retain their own licenses distributed with the installed packages. JOJOBOT's MIT license does not replace those notices. Exact versions and transitive packages are recorded in `pnpm-lock.yaml`.
+Base UI, Next.js, React, Tailwind CSS, AI SDK, Better Auth, Drizzle, pg-boss, Lucide, and other packages retain their own licenses distributed with the installed packages. Cloud Puffer's MIT license does not replace those notices. Exact versions and transitive packages are recorded in `pnpm-lock.yaml`.
