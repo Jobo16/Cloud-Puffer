@@ -17,7 +17,7 @@ Available in this preview:
 - A public project homepage with modal sign-in, registration, and password recovery.
 - Open email/password registration, email verification, password changes, and session revocation.
 - An Apple-inspired glass workspace with four sections — chat, tasks, memories, assistant — and a single, reading-width conversation view.
-- Saved assistant name, persona, custom instructions, and task/memory/sticker switches, applied to the next reply across channels using real account data.
+- Saved assistant name, a single system prompt, and task/memory/sticker switches, applied to the next reply across channels using real account data.
 - Persistent tasks and explicit personal memory, editable from the web or through agent tools.
 - One conversation per account, queued model execution, incremental responses, cancellation, tool result records, history pagination, and daily message limits.
 - An iLink text adapter: QR binding, encrypted credentials, shared polling, durable deduplication, and conservative submission status. **Real WeChat account/device verification remains pending.**
@@ -28,7 +28,7 @@ Still planned: scheduled reminders and calendar events, search, notes, private f
 
 ## Using the workspace
 
-After sign-in you land on the conversation. Desktop keeps four sections in the sidebar — chat, tasks, memories, assistant; on mobile they live in a drawer opened from the top-left button. Name, persona, instructions, and capability switches live under **Assistant › Setup** and save automatically as you type; WeChat and QQ binding live under **Assistant › Connections**. Your account, today's usage, and sign-out are in the account menu at the bottom of that same sidebar.
+After sign-in you land on the conversation. Desktop keeps four sections in the sidebar — chat, tasks, memories, assistant; on mobile they live in a drawer opened from the top-left button. Name, system prompt, and capability switches live under **Assistant › Setup** and save automatically as you type; WeChat and QQ binding live under **Assistant › Connections**. Your account, today's usage, and sign-out are in the account menu at the bottom of that same sidebar.
 
 Disabling tools does not delete tasks or memory, and manual management remains available. Disabling memory stops memory-library injection but preserves chat history. Navigation preserves drafts; save configuration before refreshing. See the [workspace guide](docs/workspace.md) (Chinese) for behavior and limits.
 

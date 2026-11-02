@@ -4,7 +4,7 @@ import { pool } from "../src/db";
 import { config } from "../src/server/config";
 import { AGENT_QUEUE } from "../src/server/queue";
 
-// All current migrations are additive. A short lock timeout aborts instead of blocking live traffic.
+// Migrations must not block live traffic: a short lock timeout aborts instead of queueing behind long locks.
 const client = await pool().connect();
 try {
   await client.query("SET lock_timeout = '3s'");

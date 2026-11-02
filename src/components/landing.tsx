@@ -34,8 +34,8 @@ const capabilities = [
   },
   {
     icon: SlidersHorizontal,
-    title: "人设",
-    body: "名字、人设、提示词和能力开关都在工作区里调，下一轮回复按新设定走。",
+    title: "系统提示词",
+    body: "名字、系统提示词和能力开关都在工作区里调，下一轮回复按新设定走。",
   },
 ];
 

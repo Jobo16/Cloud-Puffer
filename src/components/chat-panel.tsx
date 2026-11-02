@@ -1,13 +1,6 @@
 "use client";
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import {
-  ArrowUp,
-  ArrowUpRight,
-  Brain,
-  Check,
-  Plus,
-  Square,
-} from "lucide-react";
+import { ArrowUp, Check, Square } from "lucide-react";
 import { clsx } from "clsx";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";

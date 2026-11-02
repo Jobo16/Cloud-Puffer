@@ -10,7 +10,7 @@
 | --- | --- |
 | 应用与运行 | Next.js 16 + React 19 + TypeScript；Node.js 24、pnpm 10.30.3；Web/Worker 共用源码和 PostgreSQL 17。 |
 | 界面 | 直接使用 Base UI Button/Dialog，Glasscn 的 CSS 材质与项目设计令牌；未引入整套 shadcn CLI、AI Elements 或 assistant-ui runtime。 |
-| 聊天与配置 | 自有 `ChatPanel` + react-markdown/remark-gfm；桌面左侧编辑配置、右侧手机主对话，手机端通过导航切换。人设、提示词和开关存入账号偏好。 |
+| 聊天与配置 | 自有 `ChatPanel` + react-markdown/remark-gfm；桌面左侧编辑配置、右侧手机主对话，手机端通过导航切换。名字、系统提示词和开关存入账号偏好。 |
 | Agent 与后台 | AI SDK Core 负责工具循环；pg-boss 负责入队与按用户顺序执行，一个共享 Worker 最多并行处理四个用户。 |
 | 账号与业务 | Better Auth 邮箱密码；Drizzle 管理迁移；当前支持待办、明确保存的记忆和每日对话额度。 |
 | 渠道 | 仓库内 iLink 文本适配、QQ 官方 SDK 私聊适配，均默认关闭；真实账号收发仍待验证。 |

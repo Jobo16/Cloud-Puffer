@@ -258,29 +258,26 @@ describe("assistant configuration", () => {
   it("keeps settings private, patches only supplied fields and validates edits", async () => {
     await updatePreferences(owner, {
       agentName: "小舟",
-      persona: "温和直接",
-      instructions: "先给结论",
+      systemPrompt: "温和直接，先给结论",
       tasksEnabled: false,
     });
     await updatePreferences(owner, { stickersEnabled: false });
     expect((await appState(owner)).preferences).toEqual({
       agentName: "小舟",
-      persona: "温和直接",
-      instructions: "先给结论",
+      systemPrompt: "温和直接，先给结论",
       tasksEnabled: false,
       memoryEnabled: true,
       stickersEnabled: false,
     });
     expect(await preferences(stranger)).toMatchObject({
       agentName: "JOJO",
-      persona: "",
+      systemPrompt: "",
       tasksEnabled: true,
       stickersEnabled: true,
     });
     for (const input of [
       { agentName: "  " },
-      { persona: "a".repeat(1001) },
-      { instructions: "a".repeat(4001) },
+      { systemPrompt: "a".repeat(4001) },
       {},
     ]) {
       await expect(updatePreferences(owner, input)).rejects.toThrow();
@@ -291,13 +288,12 @@ describe("assistant configuration", () => {
 
 describe("agent execution", () => {
   it.each(["web", "wechat", "qq"] as const)(
-    "uses saved persona and enforces tool switches on %s, then restores them on the next turn",
+    "uses saved system prompt and enforces tool switches on %s, then restores them on the next turn",
     async (source) => {
       await saveMemory(actor(), { content: "仅在启用记忆时注入的偏好" });
       await updatePreferences(owner, {
         agentName: "小舟",
-        persona: "温和直接",
-        instructions: "先给结论",
+        systemPrompt: "温和直接，先给结论",
         tasksEnabled: false,
         memoryEnabled: false,
         stickersEnabled: false,
@@ -335,8 +331,7 @@ describe("agent execution", () => {
       expect(first.tools ?? []).toHaveLength(0);
       const prompt = JSON.stringify(first.prompt);
       expect(prompt).toContain("小舟");
-      expect(prompt).toContain("温和直接");
-      expect(prompt).toContain("先给结论");
+      expect(prompt).toContain("温和直接，先给结论");
       expect(prompt).not.toContain("仅在启用记忆时注入的偏好");
       // Disabling agent tools does not delete records or block the manual management UI.
       await createTask(actor(), { title: "手动管理仍然可用" });

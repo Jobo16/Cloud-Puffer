@@ -40,8 +40,11 @@ export function AssistantEditor({
   const queued = useRef<Preferences | null>(null);
   const latest = useRef(values);
   const synced = useRef(preferences);
-  latest.current = values;
-  synced.current = preferences;
+  // 在提交后同步最新值，供保存回调和卸载时补存读取
+  useEffect(() => {
+    latest.current = values;
+    synced.current = preferences;
+  });
 
   async function persist(payload: Preferences) {
     if (inFlight.current) {
