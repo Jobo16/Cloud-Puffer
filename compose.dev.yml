@@ -1,0 +1,20 @@
+name: jojobot-dev
+services:
+  postgres:
+    image: postgres:17.11-alpine
+    environment:
+      POSTGRES_USER: jojobot
+      POSTGRES_PASSWORD: local-development-only
+      POSTGRES_DB: jojobot
+    ports: ["127.0.0.1:55439:5432"]
+    volumes: ["postgres:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jojobot -d jojobot"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  mailpit:
+    image: axllent/mailpit:v1.29.2
+    ports: ["127.0.0.1:11025:1025", "127.0.0.1:18025:8025"]
+volumes:
+  postgres:

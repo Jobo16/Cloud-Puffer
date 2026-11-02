@@ -1,6 +1,6 @@
 # JOJOBOT 技术与 UI 选型
 
-日期：2026-11-02 · 状态：实施建议，尚未安装依赖或实现应用。
+日期：2026-11-02 · 状态：选型研究记录，核心方案已用于第一段开发增量；当前落地差异见 [架构](architecture.md)，精确版本见 `package.json` 与锁文件。
 
 用户已确认使用 Apple 风格的 Glassmorphism、优先复用现成组件，并在现有 Linux 云服务器上通过 Docker 部署。本文其余技术选择是基于 [PRD](PRD.md) 的推荐基线，区别于已实现能力；具体依赖版本在初始化与兼容性检查后锁定。
 
@@ -26,7 +26,7 @@
 | 部署 | Docker Compose，复用现有 HTTPS 入口 | 独立应用配置、数据与存储权限；不复用其他产品的业务表或凭据。 |
 | 检查 | TypeScript、ESLint、Vitest、Playwright | 检查类型与规范；重点验证用户隔离、重复写入、提醒恢复及真实浏览器交互。 |
 
-版本说明：Node 24、Next 16、React 19、Tailwind 4、PostgreSQL 17 是建议的兼容基线，不宣称均为最新大版本。库和镜像的精确版本应在初始化时核对并写入锁文件；目前没有锁文件，也没有完成这套组合的构建验收。
+版本说明：Node 24、Next 16、React 19、Tailwind 4、PostgreSQL 17 是建议的兼容基线，不宣称均为最新大版本。库和镜像的精确版本应在初始化时核对并写入锁文件；当前已有锁文件、集成检查与生产构建，具体证据见 [开发与验证](development.md)；下述表格保留最初候选方案，不代表所有库均已安装。
 
 依据：[Node 生命周期](https://nodejs.org/en/about/previous-releases)、[Next.js 部署](https://nextjs.org/docs/app/getting-started/deploying)、[shadcn/ui](https://ui.shadcn.com/docs)、[AI Elements](https://ui.shadcn.com/docs/ai-elements)、[Base UI](https://base-ui.com/react/overview/about)、[AI SDK Agent](https://ai-sdk.dev/docs/agents/overview)、[Better Auth 邮箱密码](https://better-auth.com/docs/authentication/email-password)、[Drizzle](https://orm.drizzle.team/docs/overview)、[PostgreSQL 支持周期](https://www.postgresql.org/support/versioning/)、[pgvector](https://github.com/pgvector/pgvector)、[pg-boss](https://github.com/timgit/pg-boss)。
 

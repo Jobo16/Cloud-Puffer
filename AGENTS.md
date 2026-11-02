@@ -2,8 +2,8 @@
 
 ## 当前范围
 
-- 当前仓库处于产品规划与技术选型阶段，没有应用代码、依赖锁文件或启动命令；不要把建议写成已实现能力。
-- 从 `docs/README.md` 进入文档。产品范围以 `docs/PRD.md` 为准，推荐技术方案见 `docs/technical-selection.md`。
+- 当前是 Next.js + TypeScript 的开发预览，完整首版尚未完成；实际范围见 `docs/development.md`，不把建议或测试替身写成上线能力。
+- 从 `docs/README.md` 进入文档。产品范围见 PRD，模块与 iLink 规则见 `docs/architecture.md`，Docker 流程见 `docs/deployment.md`。
 - 只完成本次用户要求及必要关联修改。仅要求调研或方案时，不扩展成应用实现、部署或第三方服务采购。
 - 采用满足当前需求的最简正确设计，不预建无需求的兼容层、插件平台或微服务，不用前端假数据冒充完成的功能。
 
@@ -11,7 +11,7 @@
 
 - 多用户共享云端服务；每用户的数据、对话和执行状态独立，不创建常驻用户服务器或容器。
 - 用户已确认 Apple 风格的 Glassmorphism，允许透明度、模糊、柔和阴影和克制渐变；此前其他项目的扁平化限制不适用于本项目。
-- 优先复用现成组件，维持统一设计令牌，保证长对话阅读、中文输入与手机操作。具体选型仍处于建议阶段。
+- 优先复用现成组件，维持统一设计令牌，保证长对话阅读、中文输入与手机操作。当前使用 Base UI Button/Dialog，玻璃材质参考 Glasscn；品牌首页与登录浮窗位于根路由，工作区在 `/app`。
 
 ## Git 与配置
 
@@ -25,7 +25,18 @@
 
 - 实现数据功能后，身份、资源归属、幂等和业务写入统一由服务端业务模块负责；API、工具和后台复用这些规则。
 - 用户文件保存到私有对象存储，业务记录保存到数据库；不把应用本地目录或 JSON 文件作为生产业务存储。
-- 数据库尚未初始化。引入迁移工具时必须提交生成 SQL 及所需元数据，禁止改写已应用迁移。现有服务保持在线，变更采用兼容的扩展、切换与收缩步骤。
-- 文档改动检查相对链接、事实一致性和 `git diff --check`。应用代码出现后补充真实的构建、测试与启动命令，禁止编造验收记录。
+- 数据库使用 PostgreSQL 17 + Drizzle，Schema 在 `src/db/schema.ts`；`pnpm db:generate` 生成迁移，`pnpm db:migrate` 应用。必须提交 `drizzle/` 的 SQL 及元数据，禁止改写已应用迁移。现有服务保持在线，变更采用兼容的扩展、切换与收缩步骤。
+- 本地准备：`pnpm run dev:setup`、`pnpm infra`、`pnpm db:migrate`；分别运行 `pnpm dev`（localhost:3030）和 `pnpm worker`。修改依赖前先停止 Web，避免 pnpm 重排目录造成持续热更新。
+- 应用检查：`pnpm typecheck`、`pnpm lint`、`pnpm test`、`pnpm build`。测试专用 `jojobot_test` 数据库，不使用真实账号资料。文档检查相对链接、事实一致性和 `git diff --check`，禁止编造验收记录。
 - 后端改动按影响重启本项目本地服务、等待就绪并验证相关链路；不误停其他项目。线上变更仅在获得相应部署授权后进行。
 - 交付清楚区分已实现、已验证、建议和待外部验证事项；README 中英文的范围、状态及文档入口同步更新。
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+## This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

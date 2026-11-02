@@ -1,0 +1,61 @@
+# 开发与验证
+
+当前交付是第一段可运行的开发增量，完整首版范围仍以 [PRD](PRD.md) 为准。
+
+## 运行
+
+Node 24 + pnpm 10.30.3。依次运行 README 中的安装、`pnpm run dev:setup`、`pnpm infra`、`pnpm db:migrate`；分别启动 `pnpm dev` 与 `pnpm worker`。
+
+| 入口 | 用途 |
+| --- | --- |
+| `http://localhost:3030/` | 项目首页与登录/注册浮窗 |
+| `http://localhost:3030/app` | 登录后工作区 |
+| `http://localhost:3030/api/health` | Web 数据库就绪检查，不代表模型或微信正常 |
+| `http://localhost:18025` | 本地邮件收件箱 |
+| `127.0.0.1:55439` | 本项目 PostgreSQL，数据库 `jojobot` |
+| `127.0.0.1:11025` | Mailpit SMTP |
+
+只启停本项目进程和 `jojobot-dev` 容器。`docker compose -f compose.dev.yml stop` 保留数据卷；不要为了重启删除数据。配置变更后同时重启 Web、Worker。修改依赖前停止 Web，避免 pnpm 的依赖目录重排触发 Turbopack 循环刷新。
+
+邮件会保存在本机 Mailpit。不要把 Mailpit 暴露公网。开发账号独立于测试数据库，未注入默认用户或演示业务记录。
+
+## 配置边界
+
+所有服务端配置由 `src/server/config.ts` 校验。`.env` 不提交，不通过 `NEXT_PUBLIC_*` 暴露；日志不打印模型密钥、微信 token、完整消息或工具参数。开发服务器可能打印验证链接，开发日志同样不能公开上传。
+
+| 变量 | 含义 |
+| --- | --- |
+| `DATABASE_URL` | PostgreSQL 连接；Web、Worker、迁移使用同一业务库 |
+| `BETTER_AUTH_URL` | 浏览器访问的唯一来源；本地使用 `http://localhost:3030` |
+| `BETTER_AUTH_SECRET` | 至少 32 字符的随机会话密钥 |
+| `CHANNEL_ENCRYPTION_KEY` | 32 字节密钥的 64 位十六进制表示，保护微信凭据；丢失后需重新绑定 |
+| `SMTP_HOST/PORT/SECURE/USER/PASSWORD`、`MAIL_FROM` | 验证和密码恢复邮件，正式环境另选供应商 |
+| `MODEL_BASE_URL/API_KEY/NAME` | 支持流式文本与工具调用的 chat-completions 服务；未配置时拒绝网页模型请求 |
+| `DAILY_MESSAGE_LIMIT` | 每账号每日消息限额，默认 50，按北京时间零点更新 |
+| `ILINK_ENABLED` | 默认 `false`，开启扫码和共享轮询前使用独立测试微信 |
+| `QQ_ENABLED` | 默认 `false`；启用后 Worker 通过官方 SDK 连接 QQ 网关，仅处理绑定后的私聊 |
+| `QQ_APP_ID/APP_SECRET` | 平台统一配置的机器人应用凭据，启用 QQ 时必填，不交给用户 |
+| `QQ_BOT_URL` | 可选 HTTPS 机器人分享链接，用于设置页的添加入口 |
+
+模型每轮最多 12 步、4,000 输出 token、120 秒。执行失败或取消也计入消息用量，防止反复中止绕过额度；入队前拒绝的请求不计入。清空聊天不恢复额度。此处是每人消息额度，不是全平台人民币/美元成本控制。
+
+## 数据与模块
+
+源码归属见[架构](architecture.md)。修改 Schema 后运行 `pnpm db:generate`，审阅生成 SQL 与元数据，再运行 `pnpm db:migrate`。已经应用的 SQL 不修改。本次为新增表，后续变化保持在线兼容，DDL 使用 3 秒锁超时；迁移失败应调查并重试，不停止旧服务绕过。
+
+## 检查
+
+- `pnpm typecheck`：包含服务端、页面、工具和测试的类型检查。
+- `pnpm lint`：ESLint 10、TypeScript、Next 与 React Hooks 规则。
+- `pnpm test`：迁移独立 `jojobot_test` 数据库并运行 Vitest。可通过 `TEST_DATABASE_URL` 指定测试服务器，但数据库名必须为 `jojobot_test`。测试账号按用例创建并删除；不要将真实资料放入该库。
+- `pnpm build`：生产应用编译。构建成功不代表微信或模型供应商验收完成。
+
+2026-11-02：29 项集成检查通过。既有检查涵盖真实 PostgreSQL 写入和队列、账号归属、并发版本、幂等、事务化工具记录、取消后的写入、额度、清空历史、上下文顺序、AI SDK 工具循环、iLink 接收筛选/投递状态、真实 Better Auth 登录与撤销、CSRF、请求大小限制。新增检查覆盖 QQ 绑定码轮换/过期/并发消费、跨账号绑定冲突、入站去重和媒体拒绝、解绑/重绑、文本/图片顺序、部分/未知投递、表情权限/开关/连续重复、纯表情工具回复，以及 QQ 和微信解绑 API。类型检查、Lint 与生产构建通过。模型、微信和 QQ 网络使用替身，无付费模型请求或真实 QQ/微信发送。
+
+浏览器已验收：邮箱注册与本地邮件验证、首页浮窗登录、待办创建/完成、记忆保存、刷新后的持久化。后续供应商与手机实测结果另行记录，不沿用其他项目的验收作为本产品通过证据。
+
+QQ/表情增量的浏览器验收使用独立 `jojobot_test` 账号：桌面聊天展示原创表情，设置页显示 QQ 未开放状态，关闭表情后刷新仍保留；390 × 844 视口下设置与开关正常显示，无浏览器错误日志。测试样本标注为界面验收数据，未向 QQ 发送。这不是 iOS Safari 或真实 QQ 客户端验收。本地兼容迁移已应用，Web 与 Worker 重启就绪，健康检查及 PNG 静态资源返回成功。
+
+## 待完成
+
+定时提醒、日程起止时间、搜索、资料/文档、管理后台、全平台成本上限与告警、规模压测、生产邮件、模型供应商及 iLink/QQ 实机验证均未完成。QQ 主体认证与公开服务权限留到部署阶段；当前仅私聊文本入站、静态表情出站，无群聊、主动通知、识图、私人图库、自动风格学习或自然度盲评结论。当前只支持一台共享 Worker；网页状态流每秒查询，尚未做大规模连接优化。待办列表当前最多展示 200 条，记忆上限 100 条。尚无公开生产部署。

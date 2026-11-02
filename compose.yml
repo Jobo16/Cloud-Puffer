@@ -1,0 +1,47 @@
+name: jojobot
+x-app: &app
+  image: jojobot:${IMAGE_TAG:-local}
+  build: .
+  env_file: .env.production
+  init: true
+services:
+  postgres:
+    image: postgres:17.11-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: jojobot
+      POSTGRES_DB: jojobot
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.production}
+    volumes: [postgres:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U jojobot -d jojobot"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+  migrate:
+    <<: *app
+    profiles: [migration]
+    command: [node, node_modules/tsx/dist/cli.mjs, scripts/migrate.ts]
+    depends_on:
+      postgres: { condition: service_healthy }
+    restart: "no"
+  web:
+    <<: *app
+    restart: unless-stopped
+    ports: ["127.0.0.1:3030:3030"]
+    depends_on:
+      postgres: { condition: service_healthy }
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3030/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+  worker:
+    <<: *app
+    restart: unless-stopped
+    command: [node, node_modules/tsx/dist/cli.mjs, src/worker.ts]
+    stop_grace_period: 160s
+    depends_on:
+      postgres: { condition: service_healthy }
+volumes:
+  postgres:
