@@ -329,6 +329,23 @@ export function Landing({
             </a>
           </div>
         </div>
+        {/* 备案号与域名绑定，换域名需同步更新主体备案 */}
+        <div className="footer-legal">
+          <a href="https://beian.miit.gov.cn/" target="_blank" rel="noreferrer">
+            浙ICP备2025148802号-3
+          </a>
+          <a
+            className="footer-police"
+            href="https://beian.mps.gov.cn/#/query/webSearch?code=33010602015015"
+            target="_blank"
+            rel="noreferrer"
+          >
+            {/* 固定尺寸的官方徽标，走静态资源比过图片优化器更简单 */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/police-beian.png" alt="" width={14} height={14} />
+            浙公网安备33010602015015号
+          </a>
+        </div>
       </footer>
 
       {login && (
