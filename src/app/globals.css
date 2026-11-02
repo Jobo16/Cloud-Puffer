@@ -66,7 +66,7 @@
   --panel-fill: rgb(252 252 250 / 78%);
   --panel-float: rgb(249 250 251 / 90%);
   --sheet: rgb(248 250 251 / 92%);
-  --backdrop: rgb(240 242 244 / 42%);
+  --backdrop: rgb(21 24 29 / 24%);
   --bubble: #e8edf3;
   --chip: #e9eef4;
   --code-bg: #eceff4;
@@ -156,7 +156,7 @@
   --panel-fill: rgb(22 26 31 / 86%);
   --panel-float: rgb(24 28 34 / 92%);
   --sheet: rgb(16 20 25 / 94%);
-  --backdrop: rgb(6 8 11 / 55%);
+  --backdrop: rgb(0 0 0 / 62%);
   --bubble: rgb(255 255 255 / 10%);
   --chip: rgb(255 255 255 / 6%);
   --code-bg: rgb(255 255 255 / 7%);
@@ -233,6 +233,11 @@ textarea:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
+/* 弹窗里输入框贴着字段边框走，浮空的一圈会让登录页显得重 */
+.dialog input:focus-visible,
+.dialog textarea:focus-visible {
+  outline-offset: 0;
+}
 button {
   border: 0;
   background: none;
@@ -300,13 +305,6 @@ svg {
   letter-spacing: 0.1em;
   color: var(--faint);
   font-weight: 400;
-}
-.eyebrow {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  font-weight: 400;
-  color: var(--faint);
 }
 .button {
   display: inline-flex;
@@ -576,26 +574,20 @@ textarea::placeholder {
   min-height: 46px;
 }
 .auth-links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
   margin-top: var(--space-5);
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   color: var(--muted);
 }
 .auth-links button {
   padding: var(--space-1) 0;
 }
-.auth-switch {
-  margin-top: var(--space-8);
-  text-align: center;
-}
-.auth-switch button {
+.auth-links .auth-switch-link {
+  margin-left: auto;
   color: var(--accent);
   font-weight: 600;
-  margin-left: var(--space-1);
-}
-.auth-card > .fine-print {
-  text-align: center;
-  margin-top: var(--space-6);
-  font-size: var(--text-xs);
 }
 .login-footer {
   display: flex;
@@ -1209,11 +1201,36 @@ textarea::placeholder {
   overflow-y: auto;
   border-radius: var(--radius-lg);
   padding: var(--space-8);
-  background: var(--panel-float);
-  backdrop-filter: blur(26px) saturate(180%);
-  -webkit-backdrop-filter: blur(26px) saturate(180%);
-  border: 1px solid var(--glass-border);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
   box-shadow: 0 40px 90px -40px var(--glass-shadow);
+  overscroll-behavior: contain;
+}
+/* 单列表单（登录）：不留标题区，关闭键浮在右上角 */
+.dialog-bare {
+  width: min(400px, calc(100vw - 32px));
+  padding: var(--space-8);
+}
+.dialog-close {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  color: var(--muted);
+  border-color: transparent;
+  background: transparent;
+}
+.dialog-close:hover:not(:disabled) {
+  background: var(--veil-70);
+  color: var(--ink);
+}
+.dialog h2.auth-title {
+  font-size: 22px;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  padding-right: var(--space-10);
+}
+.auth-stack {
+  margin-top: var(--space-6);
 }
 .dialog h2 {
   font-size: var(--text-xl);
@@ -1514,6 +1531,9 @@ textarea::placeholder {
     font-size: var(--text-sm);
   }
   .dialog {
+    padding: var(--space-6);
+  }
+  .dialog-bare {
     padding: var(--space-6);
   }
   .dialog input,

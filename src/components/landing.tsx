@@ -250,7 +250,8 @@ export function Landing({
       </footer>
       {login && (
         <Modal
-          title="欢迎来到 JOJOBOT"
+          title="JOJOBOT 账号"
+          bare
           onClose={() => {
             setLogin(false);
             if (openAuth) window.history.replaceState(null, "", "/");

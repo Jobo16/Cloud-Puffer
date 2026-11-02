@@ -1,6 +1,5 @@
 "use client";
 import { useState, type FormEvent } from "react";
-import { ArrowUpRight } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "./ui";
 
@@ -12,6 +11,12 @@ const authErrors: Record<string, string> = {
   USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL: "这个邮箱已注册，请直接登录。",
   INVALID_TOKEN: "链接已失效，请重新申请。",
   PASSWORD_TOO_SHORT: "密码至少需要 10 个字符。",
+};
+const headings: Record<Mode, string> = {
+  login: "登录",
+  register: "创建账号",
+  forgot: "重置密码",
+  reset: "设置新密码",
 };
 export function AuthForm({
   token,
@@ -28,6 +33,7 @@ export function AuthForm({
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const [needsVerify, setNeedsVerify] = useState(false);
   const [error, setError] = useState(
     linkError ? "链接已失效，请重新发送验证邮件或重设密码。" : "",
   );
@@ -35,6 +41,7 @@ export function AuthForm({
     setMode(next);
     setError("");
     setMessage("");
+    setNeedsVerify(false);
     setPassword("");
   };
   async function submit(event: FormEvent) {
@@ -42,6 +49,7 @@ export function AuthForm({
     setBusy(true);
     setError("");
     setMessage("");
+    setNeedsVerify(false);
     try {
       const result =
         mode === "register"
@@ -67,6 +75,7 @@ export function AuthForm({
                   callbackURL: "/app",
                 });
       if (result.error) {
+        setNeedsVerify(result.error.code === "EMAIL_NOT_VERIFIED");
         setError(
           authErrors[result.error.code ?? ""] ??
             (result.error.status === 429
@@ -81,9 +90,9 @@ export function AuthForm({
       }
       setMessage(
         mode === "register"
-          ? "验证邮件已发送。打开邮件里的链接，就可以开始了。"
+          ? "验证邮件已发送，请查收。"
           : mode === "forgot"
-            ? "如果这个邮箱已注册，你会收到重设密码的邮件。"
+            ? "如果这个邮箱已注册，你会收到重置密码的邮件。"
             : "密码已更新，请用新密码登录。",
       );
       if (mode === "reset") {
@@ -118,24 +127,9 @@ export function AuthForm({
   }
   return (
     <div className="auth-form">
-      <span className="eyebrow">YOUR PERSONAL SPACE</span>
-      <h3>
-        {mode === "register"
-          ? "认识一下吧"
-          : mode === "forgot"
-            ? "找回你的空间"
-            : mode === "reset"
-              ? "设置新密码"
-              : "欢迎回来"}
-      </h3>
-      <p className="muted">
-        {mode === "register"
-          ? "用邮箱注册，让 JOJO 开始了解你。"
-          : mode === "login"
-            ? "留给自己的事，从这里继续。"
-            : "我们会帮你安全地回到自己的账号。"}
-      </p>
-      <form onSubmit={submit} className="form-stack">
+      <h2 className="auth-title">{headings[mode]}</h2>
+      {/* key 换模式时重挂表单，让第一个字段重新拿到焦点 */}
+      <form key={mode} onSubmit={submit} className="form-stack auth-stack">
         {mode === "register" && (
           <label>
             怎么称呼你
@@ -143,6 +137,7 @@ export function AuthForm({
               value={name}
               onChange={(e) => setName(e.target.value)}
               autoComplete="nickname"
+              autoFocus
               required
               maxLength={60}
               placeholder="你的名字"
@@ -157,6 +152,7 @@ export function AuthForm({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
+              autoFocus={mode !== "register"}
               required
               maxLength={254}
               placeholder="you@example.com"
@@ -173,6 +169,7 @@ export function AuthForm({
               autoComplete={
                 mode === "login" ? "current-password" : "new-password"
               }
+              autoFocus={mode === "reset"}
               required
               minLength={mode === "login" ? 1 : 10}
               maxLength={128}
@@ -196,32 +193,37 @@ export function AuthForm({
             : mode === "register"
               ? "创建账号"
               : mode === "forgot"
-                ? "发送重设链接"
+                ? "发送链接"
                 : mode === "reset"
-                  ? "更新密码"
-                  : "进入我的空间"}
-          <ArrowUpRight size={18} />
+                  ? "保存密码"
+                  : "登录"}
         </Button>
       </form>
       {mode === "login" ? (
-        <>
-          <div className="row spread auth-links">
-            <button onClick={() => changeMode("forgot")}>忘记密码</button>
-            <button disabled={busy} onClick={resend}>
+        <div className="auth-links">
+          <button type="button" onClick={() => changeMode("forgot")}>
+            忘记密码
+          </button>
+          {needsVerify && (
+            <button type="button" disabled={busy} onClick={resend}>
               重新发送验证邮件
             </button>
-          </div>
-          <p className="auth-switch">
-            第一次来？
-            <button onClick={() => changeMode("register")}>创建账号</button>
-          </p>
-        </>
+          )}
+          <button
+            type="button"
+            className="auth-switch-link"
+            onClick={() => changeMode("register")}
+          >
+            创建账号
+          </button>
+        </div>
       ) : (
-        <p className="auth-switch">
-          <button onClick={() => changeMode("login")}>返回登录</button>
-        </p>
+        <div className="auth-links">
+          <button type="button" onClick={() => changeMode("login")}>
+            返回登录
+          </button>
+        </div>
       )}
-      <p className="fine-print">开放注册 · 无需邀请码</p>
     </div>
   );
 }
