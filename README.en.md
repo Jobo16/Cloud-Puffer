@@ -10,7 +10,7 @@ Cloud Puffer keeps one conversation, tasks, and personal memory together for eac
 
 ## Project status
 
-> **Development preview.** You can run the application locally. One WeChat account and a Bailian model have passed local text-chat verification. QQ, production deployment, and long-running reliability still need verification. Private file storage and production email providers have not been selected.
+> **Development preview.** You can run the application locally. One WeChat account and a Bailian model have passed local text-chat verification. QQ, production deployment, and long-running reliability still need verification. Private file storage has not been selected. QQ Mail SMTP has been chosen for production email; only local authentication has been verified, not delivery.
 
 Available in this preview:
 

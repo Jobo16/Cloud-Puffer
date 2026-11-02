@@ -29,7 +29,7 @@ Node 24 + pnpm 10.30.3。依次运行 README 中的安装、`pnpm run dev:setup`
 | `BETTER_AUTH_URL` | 浏览器访问的唯一来源；本地使用 `http://localhost:3030` |
 | `BETTER_AUTH_SECRET` | 至少 32 字符的随机会话密钥 |
 | `CHANNEL_ENCRYPTION_KEY` | 32 字节密钥的 64 位十六进制表示，保护微信凭据；丢失后需重新绑定 |
-| `SMTP_HOST/PORT/SECURE/USER/PASSWORD`、`MAIL_FROM` | 验证和密码恢复邮件，正式环境另选供应商 |
+| `SMTP_HOST/PORT/SECURE/USER/PASSWORD`、`MAIL_FROM` | 验证和密码恢复邮件；当前托管部署选用 QQ 邮箱 SMTP，实际投递待验收 |
 | `MODEL_BASE_URL/API_KEY/NAME` | 支持流式文本与工具调用的 chat-completions 服务；未配置时拒绝网页模型请求 |
 | `DAILY_MESSAGE_LIMIT` | 每账号每日消息限额，默认 50，按北京时间零点更新 |
 | `ILINK_ENABLED` | 默认 `false`，开启扫码和共享轮询前使用独立测试微信 |
