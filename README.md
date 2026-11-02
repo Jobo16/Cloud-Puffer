@@ -4,9 +4,19 @@
 
 **在网页和聊天窗口中，帮你打理日常的个人 AI 助手。**
 
-[在线预览](https://fish.jobo.ink) · [English](README.en.md) · [当前状态](#当前状态) · [本地运行](#本地运行) · [工作区说明](docs/workspace.md) · [实现架构](docs/architecture.md) · [产品规划](docs/PRD.md)
+**[打开网页版 →](https://fish.jobo.ink)** · [使用教程](docs/workspace.md) · [English](README.en.md) · [当前状态](#当前状态) · [本地运行](#本地运行) · [实现架构](docs/architecture.md) · [产品规划](docs/PRD.md)
 
 云上小肥鱼为每个账号保留一条跨渠道对话、待办和个人记忆，由同一套共享服务承载。
+
+## 页面预览
+
+[![云上小肥鱼网页首页](docs/assets/home.webp)](https://fish.jobo.ink)
+
+首页 · 点击图片打开网页版
+
+![助手接入微信页面，显示连接微信按钮](docs/assets/wechat-setup.webp)
+
+助手 › 接入 · 本地测试账号截图
 
 ## 当前状态
 

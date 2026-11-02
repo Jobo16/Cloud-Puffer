@@ -4,9 +4,19 @@
 
 **A personal AI assistant for everyday life, across web and chat.**
 
-[Live preview](https://fish.jobo.ink) · [简体中文](README.md) · [What works](#project-status) · [Run locally](#run-locally) · [Workspace guide](docs/workspace.md) · [Architecture](docs/architecture.md) · [Roadmap](docs/PRD.md)
+**[Open the web app →](https://fish.jobo.ink)** · [Getting started](docs/workspace.md) · [简体中文](README.md) · [What works](#project-status) · [Run locally](#run-locally) · [Architecture](docs/architecture.md) · [Roadmap](docs/PRD.md)
 
 Cloud Puffer keeps one conversation, tasks, and personal memory together for each account. It runs as one shared service, without a separate machine for every user.
+
+## Screenshots
+
+[![Cloud Puffer homepage](docs/assets/home.webp)](https://fish.jobo.ink)
+
+Homepage · click the image to open the web app
+
+![Assistant Connections page with the Connect WeChat button](docs/assets/wechat-setup.webp)
+
+Assistant › Connections · captured with a local test account
 
 ## Project status
 
