@@ -114,51 +114,6 @@ export function ChatPanel({
               <Mark large />
             </div>
             <h2>把想到的，交给 {state.preferences.agentName}。</h2>
-            <p>
-              记一件事，理一个思路，或只是聊聊天。
-              <br />
-              不用一次想清楚，我们慢慢来。
-            </p>
-            <div className="suggestions">
-              {[
-                ...(state.preferences.tasksEnabled
-                  ? [
-                      {
-                        icon: Plus,
-                        title: "记下一个待办",
-                        text: "帮我记一条待办：",
-                      },
-                    ]
-                  : []),
-                ...(state.preferences.memoryEnabled
-                  ? [
-                      {
-                        icon: Brain,
-                        title: "记住我的偏好",
-                        text: "请记住我的偏好：",
-                      },
-                    ]
-                  : []),
-                {
-                  icon: ArrowUpRight,
-                  title: "一起理清思路",
-                  text: "我想和你一起理清一个想法：",
-                },
-              ].map(({ icon: Icon, title, text }) => (
-                <button
-                  className="suggestion glass"
-                  key={title}
-                  onClick={() => {
-                    setDraft(text);
-                    composer.current?.focus();
-                  }}
-                >
-                  <Icon size={19} />
-                  <span>{title}</span>
-                  <ArrowUpRight size={15} />
-                </button>
-              ))}
-            </div>
           </section>
         ) : (
           <div className="messages">

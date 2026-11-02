@@ -1,9 +1,10 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   Brain,
   ListTodo,
+  Menu,
   MessageCircle,
   SlidersHorizontal,
   Trash2,
@@ -16,7 +17,7 @@ import { Button, Mark, Modal } from "./ui";
 import { ChatPanel } from "./chat-panel";
 import { AssistantEditor } from "./assistant-editor";
 import { ChannelsPanel, MemoryPanel, TasksPanel } from "./workspace-panels";
-import { ThemeToggle } from "./theme-toggle";
+import { ThemeRow, ThemeToggle } from "./theme-toggle";
 import { AccountMenu } from "./account-menu";
 
 type Page = "chat" | "tasks" | "memories" | "assistant";
@@ -51,6 +52,10 @@ export function Workspace({
   const [error, setError] = useState("");
   const [connected, setConnected] = useState(true);
   const [chatKey, setChatKey] = useState(0);
+  const [drawer, setDrawer] = useState(false);
+  const sidebar = useRef<HTMLElement>(null);
+  const drawerToggle = useRef<HTMLButtonElement>(null);
+  const drawerOpened = useRef(false);
   const [confirmation, setConfirmation] = useState<{
     title: string;
     description: string;
@@ -89,13 +94,58 @@ export function Workspace({
     setConfirmation({ title, description, action });
   const pendingCount = state.tasks.filter((t) => !t.completed).length;
   const current = navigation.find((item) => item.id === page) ?? navigation[0];
+  function clearChat() {
+    setDrawer(false);
+    confirm(
+      "清空所有聊天记录？",
+      "这会删除网页与微信的主对话内容，无法恢复。事项、记忆和今日用量保留。",
+      async () => {
+        const ok = await mutate("history/clear", "POST", { confirm: true });
+        if (ok) setChatKey((key) => key + 1);
+        return ok;
+      },
+    );
+  }
+  // Esc 关抽屉；只在打开时挂监听，避免平时抢键盘。
+  // 账号浮层和确认弹窗各自也响应 Esc，先让它们处理，别一次关两层
+  useEffect(() => {
+    if (!drawer) return;
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key !== "Escape") return;
+      if (document.querySelector(".account-menu, [role='dialog']")) return;
+      setDrawer(false);
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [drawer]);
+  // 打开时焦点落进菜单，关上还给按钮，键盘和读屏不用从头走一遍
+  useEffect(() => {
+    if (drawer) {
+      drawerOpened.current = true;
+      sidebar.current?.focus();
+    } else if (drawerOpened.current) {
+      drawerToggle.current?.focus();
+    }
+  }, [drawer]);
   return (
-    <div className="workspace" data-page={page}>
-      <aside className="sidebar glass">
+    <div
+      className="workspace"
+      data-page={page}
+      data-drawer={drawer ? "open" : "closed"}
+    >
+      <aside className="sidebar glass" ref={sidebar} tabIndex={-1}>
         <Link className="wordmark" href="/">
           <Mark />
           <span>JOJOBOT</span>
         </Link>
+        <button
+          type="button"
+          className="drawer-close"
+          aria-label="关闭菜单"
+          onClick={() => setDrawer(false)}
+        >
+          <X size={18} />
+        </button>
         <nav aria-label="主导航">
           {navigation.map(({ id, label, icon: Icon }) => (
             <button
@@ -107,6 +157,7 @@ export function Workspace({
               onClick={() => {
                 setPage(id);
                 setError("");
+                setDrawer(false);
               }}
             >
               <Icon size={20} />
@@ -117,6 +168,13 @@ export function Workspace({
             </button>
           ))}
         </nav>
+        <div className="sidebar-actions">
+          <button type="button" className="drawer-action" onClick={clearChat}>
+            <Trash2 size={18} />
+            <span>清空对话</span>
+          </button>
+          <ThemeRow />
+        </div>
         <div className="sidebar-bottom">
           <AccountMenu
             user={user}
@@ -126,12 +184,28 @@ export function Workspace({
           />
         </div>
       </aside>
+      {drawer && (
+        <button
+          type="button"
+          className="drawer-backdrop"
+          tabIndex={-1}
+          aria-label="关闭菜单"
+          onClick={() => setDrawer(false)}
+        />
+      )}
       <main className="main-panel">
         <header className="topbar">
           <div className="topbar-title">
-            <span className="mobile-brand">
-              <Mark />
-            </span>
+            <button
+              type="button"
+              ref={drawerToggle}
+              className="drawer-toggle"
+              aria-label="打开菜单"
+              aria-expanded={drawer}
+              onClick={() => setDrawer(true)}
+            >
+              <Menu size={20} />
+            </button>
             <h1>{current.label}</h1>
           </div>
           <div className="topbar-actions">
@@ -142,35 +216,12 @@ export function Workspace({
               </span>
             )}
             {page === "chat" && (
-              <Button
-                className="clear-chat"
-                onClick={() =>
-                  confirm(
-                    "清空所有聊天记录？",
-                    "这会删除网页与微信的主对话内容，无法恢复。事项、记忆和今日用量保留。",
-                    async () => {
-                      const ok = await mutate("history/clear", "POST", {
-                        confirm: true,
-                      });
-                      if (ok) setChatKey((key) => key + 1);
-                      return ok;
-                    },
-                  )
-                }
-              >
+              <Button className="clear-chat" onClick={clearChat}>
                 <Trash2 size={15} />
                 <span>清空对话</span>
               </Button>
             )}
             <ThemeToggle />
-            <AccountMenu
-              user={user}
-              quota={state.quota}
-              direction="down"
-              compact
-              className="topbar-account"
-              onError={setError}
-            />
           </div>
         </header>
         {error && (

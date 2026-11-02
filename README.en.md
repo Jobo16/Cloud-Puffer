@@ -28,7 +28,7 @@ Still planned: scheduled reminders and calendar events, search, notes, private f
 
 ## Using the workspace
 
-After sign-in you land on the conversation. Desktop shows four sections in the sidebar — chat, tasks, memories, assistant; on mobile the same tabs sit at the bottom. Name, persona, instructions, and capability switches live under **Assistant › Setup** and save automatically as you type; WeChat and QQ binding live under **Assistant › Connections**. Your account, today's usage, and sign-out are in the account menu: bottom-left on desktop, top-right on mobile.
+After sign-in you land on the conversation. Desktop keeps four sections in the sidebar — chat, tasks, memories, assistant; on mobile they live in a drawer opened from the top-left button. Name, persona, instructions, and capability switches live under **Assistant › Setup** and save automatically as you type; WeChat and QQ binding live under **Assistant › Connections**. Your account, today's usage, and sign-out are in the account menu at the bottom of that same sidebar.
 
 Disabling tools does not delete tasks or memory, and manual management remains available. Disabling memory stops memory-library injection but preserves chat history. Navigation preserves drafts; save configuration before refreshing. See the [workspace guide](docs/workspace.md) (Chinese) for behavior and limits.
 
