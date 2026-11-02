@@ -22,6 +22,8 @@
 
 ## 首次启动与后续更新
 
+镜像从国内的 `docker.1ms.run` 拉取 Node.js 和 PostgreSQL 基础镜像，依赖通过 `registry.npmmirror.com` 下载；这两个镜像源只用于本项目，不修改服务器上其他项目的 Docker 配置。
+
 ```sh
 docker compose --env-file .env.production build
 docker compose --env-file .env.production up -d postgres

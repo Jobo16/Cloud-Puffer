@@ -6,7 +6,7 @@ x-app: &app
   init: true
 services:
   postgres:
-    image: postgres:17.11-alpine
+    image: docker.1ms.run/library/postgres:17.11-alpine
     restart: unless-stopped
     environment:
       POSTGRES_USER: jojobot
