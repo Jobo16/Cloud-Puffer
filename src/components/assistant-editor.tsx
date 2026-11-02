@@ -20,8 +20,7 @@ function trimAll(p: Preferences): Preferences {
   return {
     ...p,
     agentName: p.agentName.trim(),
-    persona: p.persona.trim(),
-    instructions: p.instructions.trim(),
+    systemPrompt: p.systemPrompt.trim(),
   };
 }
 
@@ -126,23 +125,13 @@ export function AssistantEditor({
           </label>
         </div>
         <label>
-          助手人设
+          系统提示词
           <textarea
-            rows={3}
-            maxLength={1000}
-            value={values.persona}
-            placeholder="例如：你是一位温和、直接的生活搭子。回答简洁，偶尔带一点幽默。"
-            onChange={(e) => edit({ persona: e.target.value })}
-          />
-        </label>
-        <label>
-          自定义提示词
-          <textarea
-            rows={4}
+            rows={5}
             maxLength={4000}
-            value={values.instructions}
-            placeholder="例如：整理复杂问题时，先给结论再列步骤。帮我安排事项时，先确认时间。"
-            onChange={(e) => edit({ instructions: e.target.value })}
+            value={values.systemPrompt}
+            placeholder="例如：你是一位温和、直接的生活搭子，回答简洁，偶尔带一点幽默。整理复杂问题时先给结论再列步骤；安排事项前先确认时间。"
+            onChange={(e) => edit({ systemPrompt: e.target.value })}
           />
         </label>
       </section>

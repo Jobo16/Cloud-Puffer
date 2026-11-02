@@ -7,8 +7,7 @@ import { ownedWrite } from "./owned-write";
 export const preferencesInput = z
   .object({
     agentName: z.string().trim().min(1).max(40),
-    persona: z.string().trim().max(1000),
-    instructions: z.string().trim().max(4000),
+    systemPrompt: z.string().trim().max(4000),
     tasksEnabled: z.boolean(),
     memoryEnabled: z.boolean(),
     stickersEnabled: z.boolean(),
@@ -19,8 +18,7 @@ export const preferencesInput = z
 function publicPreferences(row?: typeof userPreferences.$inferSelect) {
   return {
     agentName: row?.agentName ?? "JOJO",
-    persona: row?.persona ?? "",
-    instructions: row?.instructions ?? "",
+    systemPrompt: row?.systemPrompt ?? "",
     tasksEnabled: row?.tasksEnabled ?? true,
     memoryEnabled: row?.memoryEnabled ?? true,
     stickersEnabled: row?.stickersEnabled ?? true,
