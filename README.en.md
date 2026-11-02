@@ -81,4 +81,4 @@ Start with the [PRD](docs/PRD.md), [architecture](docs/architecture.md), and [co
 
 ## License
 
-Original project code and artwork in this release are available under [PolyForm Noncommercial 1.0.0](LICENSE), with the copyright notice in [NOTICE](NOTICE). You may read, modify, and use them for noncommercial purposes; commercial use requires separate permission from the rights holder. This is a source-available license, not an OSI-approved open-source license. Previously published MIT versions retain their original permissions. Third-party components keep their own licenses; see [third-party notices](THIRD_PARTY_NOTICES.md).
+Original project content is licensed under [PolyForm Noncommercial 1.0.0](LICENSE); commercial use requires separate permission. See [NOTICE](NOTICE) for copyright and [third-party notices](THIRD_PARTY_NOTICES.md) for other licenses. Previously published MIT versions retain their original permissions.

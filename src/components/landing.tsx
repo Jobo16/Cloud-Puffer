@@ -114,7 +114,7 @@ export function Landing({
               把事<span>记下。</span>
             </h1>
             <p>
-              云上小肥鱼是一个源码可见的私人 AI 助手。待办、记忆和对话都在同一个账号里，网页和微信共用一条对话，换设备接着说。
+              云上小肥鱼帮你把待办、记忆和对话放在同一个账号里。网页和微信共用一条对话，换设备接着说。
             </p>
             <div className="hero-actions">
               <Button className="primary" onClick={enter}>
@@ -182,9 +182,9 @@ export function Landing({
         </section>
 
         <section className="landing-block landing-os" id="open-source">
-          <h2>代码在 GitHub 上，非商业许可。</h2>
+          <h2>代码和文档都在 GitHub。</h2>
           <p>
-            可以阅读、修改和非商业部署。商业使用需单独授权。多个账号共用一套服务，对话、待办和记忆按账号分开。
+            可以了解项目实现，也可以在自己的机器上运行。多个账号共用一套服务，对话、待办和记忆按账号分开。
           </p>
           <a
             className="text-link"
@@ -206,7 +206,7 @@ export function Landing({
               <span>云上小肥鱼</span>
             </Link>
             <p>
-              源码可见的私人 AI 助手。待办、记忆和对话都在一个账号里，网页和微信共用同一条记录。
+              私人 AI 助手。待办、记忆和对话都在一个账号里，网页和微信共用同一条记录。
             </p>
           </div>
           <nav className="footer-cols" aria-label="页脚导航">
@@ -220,7 +220,7 @@ export function Landing({
                   <a href="#status">当前进度</a>
                 </li>
                 <li>
-                  <a href="#open-source">代码与许可</a>
+                  <a href="#open-source">代码与文档</a>
                 </li>
                 <li>
                   <button type="button" onClick={enter}>
@@ -316,7 +316,7 @@ export function Landing({
               target="_blank"
               rel="noreferrer"
             >
-              非商业许可
+              许可说明
             </a>
             <a
               className="footer-icon"

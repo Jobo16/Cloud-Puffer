@@ -165,7 +165,7 @@ export function AccountMenu({
         <LogOut size={16} />
         退出登录
       </button>
-      <p className="account-foot">开发预览版 · 非商业许可</p>
+      <p className="account-foot">开发预览版</p>
     </div>
   );
 
