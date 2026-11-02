@@ -3,7 +3,7 @@
 ## 当前范围
 
 - 当前是 Next.js + TypeScript 的开发预览，完整首版尚未完成；实际范围见 `docs/development.md`，不把建议或测试替身写成上线能力。
-- 从 `docs/README.md` 进入文档。产品范围见 PRD，模块与 iLink 规则见 `docs/architecture.md`，Docker 流程见 `docs/deployment.md`。
+- 从 `docs/README.md` 进入文档。产品使用见 `docs/workspace.md`，产品范围见 PRD，模块与 iLink 规则见 `docs/architecture.md`，Docker 流程见 `docs/deployment.md`。
 - 只完成本次用户要求及必要关联修改。仅要求调研或方案时，不扩展成应用实现、部署或第三方服务采购。
 - 采用满足当前需求的最简正确设计，不预建无需求的兼容层、插件平台或微服务，不用前端假数据冒充完成的功能。
 
@@ -11,7 +11,7 @@
 
 - 多用户共享云端服务；每用户的数据、对话和执行状态独立，不创建常驻用户服务器或容器。
 - 用户已确认 Apple 风格的 Glassmorphism，允许透明度、模糊、柔和阴影和克制渐变；此前其他项目的扁平化限制不适用于本项目。
-- 优先复用现成组件，维持统一设计令牌，保证长对话阅读、中文输入与手机操作。当前使用 Base UI Button/Dialog，玻璃材质参考 Glasscn；品牌首页与登录浮窗位于根路由，工作区在 `/app`。
+- 优先复用现成组件，维持统一设计令牌，保证长对话阅读、中文输入与手机操作。当前使用 Base UI Button/Dialog，玻璃材质参考 Glasscn；品牌首页与登录浮窗位于根路由，工作区在 `/app`。桌面采用左侧配置、右侧常驻手机主对话；手机端通过导航切换聊天和配置。试聊使用真实账号资料，不默认隔离或复制数据。
 
 ## Git 与配置
 

@@ -4,7 +4,7 @@
 
 **A personal AI assistant for everyday life, across web and chat.**
 
-[简体中文](README.md) · [What works](#project-status) · [Run locally](#run-locally) · [Architecture](docs/architecture.md) · [Roadmap](docs/PRD.md)
+[简体中文](README.md) · [What works](#project-status) · [Run locally](#run-locally) · [Workspace guide](docs/workspace.md) · [Architecture](docs/architecture.md) · [Roadmap](docs/PRD.md)
 
 JOJOBOT keeps one conversation, tasks, and personal memory together for each account. It runs as one shared service, without a separate machine for every user.
 
@@ -25,6 +25,12 @@ Available in this preview:
 - Natural-language reply guidance and four original built-in stickers for web/QQ, with a per-account opt-out and no consecutive reuse of the same sticker. Reading incoming images and learning a user's writing style are not implemented.
 
 Still planned: scheduled reminders and calendar events, search, notes, private files, document generation/retrieval, operational administration, and platform-wide cost limits. A task deadline does **not** currently send a reminder.
+
+## Using the workspace
+
+After sign-in, desktop users edit settings on the left and use the real main conversation in the phone frame on the right. On mobile, use the bottom navigation to switch between chat and configuration. Click **Save configuration** after editing the name, persona, instructions, or capability switches; changes apply to the next reply.
+
+Disabling tools does not delete tasks or memory, and manual management remains available. Disabling memory stops memory-library injection but preserves chat history. Navigation preserves drafts; save configuration before refreshing. See the [workspace guide](docs/workspace.md) (Chinese) for behavior and limits.
 
 ## Run locally
 
@@ -61,11 +67,11 @@ pnpm test
 pnpm build
 ```
 
-Tests create and migrate a separate `jojobot_test` database on the local development PostgreSQL server. They use model/network fixtures and local Mailpit, never production credentials. See [development and verification](docs/development.md) for details, configuration, and current limitations.
+Tests create and migrate a separate `jojobot_test` database on the local development PostgreSQL server. They use model/network fixtures and local Mailpit, never production credentials. On 2026-11-02, 37 integration checks, type checking, lint, production and Docker builds passed, alongside desktop/mobile viewport checks. These results do not verify a real model provider or channel delivery. See the [verification record](docs/development.md#验证记录) and current limitations.
 
 The stack is Next.js 16, React 19, TypeScript, Tailwind CSS 4, Base UI, AI SDK, Better Auth, Drizzle, PostgreSQL 17, and pg-boss. A single shared worker serves accounts concurrently while ordering each user's turns. No per-user VM/container, Redis, or additional agent framework is required.
 
-Stop the development server before changing dependencies, then restart it. Installing packages while Turbopack is watching can cause repeated reloads while pnpm reorganizes dependencies.
+Stop the development server before changing dependencies, then restart it. Run production builds separately from the development server. Known repeated-compilation triggers and remedies are recorded in [development troubleshooting](docs/development.md#反复编译或页面刷新).
 
 ## Self-hosting and contributing
 
