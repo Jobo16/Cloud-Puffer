@@ -1,6 +1,6 @@
 # Docker 部署
 
-目标为一台现有 Linux 云服务器。当前提供部署配置，并完成本机 Docker 镜像构建与 Web/Worker 启动检查；生产域名、模型供应商、备份和公网接入尚未配置，不能直接视为已上线服务。
+托管开发预览运行在 `https://fish.jobo.ink`：服务器 `/opt/apps/jojobot/repo` 检出 `main`，Docker Compose 运行 Web、共享 Worker 和 PostgreSQL，Caddy 将 HTTPS 转发到 `127.0.0.1:3030`。私密配置在仓库目录的 `.env.production`，不入 Git；首次数据库备份保存在 `/opt/stacks/jojobot/initial.dump`（权限 0600），已在独立临时库恢复验证。定期异地加密备份尚未配置。
 
 ## 配置
 
@@ -10,19 +10,22 @@
 - `DATABASE_URL`：`postgresql://jojobot:<URL 编码后的密码>@postgres:5432/jojobot`。
 - `BETTER_AUTH_URL`：正式 HTTPS 域名；随机生成 `BETTER_AUTH_SECRET` 和 `CHANNEL_ENCRYPTION_KEY`。
 - `DAILY_POINT_LIMIT`：默认每日积分，当前为 1000；`ADMIN_EMAIL`：已验证的管理员登录邮箱。
-- SMTP：当前托管部署选用 QQ 邮箱 SMTP（`smtp.qq.com`、465、SSL），授权码只放在不入 Git 的私密配置中；本机已验证登录，实际发信与收件待部署验收。不要使用本地 Mailpit。
+- `IMAGE_TAG`：当前运行的应用镜像标记；每次构建和启动使用同一标记。
+- SMTP：当前托管部署选用 QQ 邮箱 SMTP（`smtp.qq.com`、465、SSL），授权码只放在不入 Git 的私密配置中；生产注册邮件已送到管理员邮箱并完成验证。不要使用本地 Mailpit。
 - 模型：选择并验证支持流式输出/工具调用的供应商，填入服务端配置。
 - 对支持隐式前缀缓存的模型，应用会保持系统提示词及历史消息稳定并限制历史长度；模型是否命中以 `runs.cache_read_tokens` 和 Worker 的 `model_usage` 日志为准。缓存命中的 token 仍属于输入积分，不改变用户的换算比例。
 - `ILINK_ENABLED`：完成独立微信账号验证后再启用。一个微信不能被本地与线上同时轮询。
 - `QQ_ENABLED`：默认关闭。准备 QQ 开放平台机器人应用后配置 `QQ_APP_ID`、`QQ_APP_SECRET`，可选 `QQ_BOT_URL` 为官方分享页的 HTTPS 链接；重启 Web 和 Worker 后，用户在设置生成绑定指令并发给机器人。凭据由平台维护，不向用户分发。
 
-示例只说明格式，不包含可使用的生产密钥。配置文件限制为维护者可读；加密密钥随加密数据库备份分别安全保存。
+示例只说明格式，不包含可使用的生产密钥。配置文件限制为维护者可读；后续建立异地加密备份时，备份密钥与备份文件分别保存。
 
 `ADMIN_EMAIL` 只指定权限归属，不自动创建账号。部署后用该邮箱完成正常注册与邮箱验证，才会在「助手 › 设定」看到后台入口；其他账号访问 `/app/admin` 或 `/api/admin` 会被拒绝。后台可修改个人每日积分上限，0 暂停新对话。积分按模型报告的 token 事后结算，不能代替全平台成本硬上限。
 
 ## 首次启动与后续更新
 
 镜像从国内的 `docker.1ms.run` 拉取 Node.js 和 PostgreSQL 基础镜像，依赖通过 `registry.npmmirror.com` 下载；这两个镜像源只用于本项目，不修改服务器上其他项目的 Docker 配置。
+
+首次发布时服务器到 GitHub 的连接和国内镜像站的镜像层下载中断：本地已推送的同一提交通过 Git bundle 放入服务器 Git 检出，基础镜像从国内源取得 amd64 版本后导入服务器，再在服务器执行 Docker 构建。服务器检出目录须保持干净；后续优先从 `origin/main` 快进拉取，若网络仍不可用，可用已推送提交的 Git bundle 快进，不同步未提交文件。生产密钥仅传入受限的 `.env.production`。
 
 ```sh
 docker compose --env-file .env.production build
@@ -53,6 +56,8 @@ docker compose --env-file .env.production logs --tail=50 worker
 发布前建立数据库备份与恢复演练。`0003` 之前的迁移为新增表及添加有默认值的列；`0003` 删除了两列，回退到旧镜像会因缺列失败，需从备份恢复到相同时点。已应用的迁移不回滚、不改写。旧版 Worker 不识别新增提示词字段或工具开关，回退后的行为应按旧版说明，不能继续声称开关生效。数据库迁移 SQL 与元数据必须随代码保存。
 
 当前尚无对象存储和文件能力；实现上传/生成文档时必须使用私有对象存储，而非容器文件系统。
+
+2026-11-02 首次托管验收：`/api/health` 在服务器本机及 HTTPS 域名均返回 ready；Worker 就绪；生产管理员邮箱完成注册与验证，登录后 `/api/admin` 和 `/app/admin` 均返回 200，默认每日额度为 1000 分。独立临时账号完成两轮真实模型回复，第二轮报告输入 3505 token，其中缓存命中 3072 token；临时账号随后删除。尚未验证 QQ、微信生产渠道、完整模型工具调用与长期运行。
 
 ## QQ 部署后验收
 

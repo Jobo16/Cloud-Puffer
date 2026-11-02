@@ -4,13 +4,13 @@
 
 **A personal AI assistant for everyday life, across web and chat.**
 
-[简体中文](README.md) · [What works](#project-status) · [Run locally](#run-locally) · [Workspace guide](docs/workspace.md) · [Architecture](docs/architecture.md) · [Roadmap](docs/PRD.md)
+[Live preview](https://fish.jobo.ink) · [简体中文](README.md) · [What works](#project-status) · [Run locally](#run-locally) · [Workspace guide](docs/workspace.md) · [Architecture](docs/architecture.md) · [Roadmap](docs/PRD.md)
 
 Cloud Puffer keeps one conversation, tasks, and personal memory together for each account. It runs as one shared service, without a separate machine for every user.
 
 ## Project status
 
-> **Development preview.** You can run the application locally. One WeChat account and a Bailian model have passed local text-chat verification. QQ, production deployment, and long-running reliability still need verification. Private file storage has not been selected. QQ Mail SMTP has been chosen for production email; only local authentication has been verified, not delivery.
+> **Development preview.** The hosted site is live at [fish.jobo.ink](https://fish.jobo.ink). Web, worker, database, and two real Bailian model replies passed production smoke checks; the second reported 3,072 cached input tokens. Production QQ/WeChat exchange and long-running reliability remain unverified. Private file storage has not been selected. QQ Mail SMTP delivered the administrator verification email, and the address was verified.
 
 Available in this preview:
 
@@ -22,7 +22,7 @@ Available in this preview:
 - One conversation per account, queued model execution, incremental responses, cancellation, tool result records, history pagination, and daily points based on reported tokens.
 - Bounded model history, stable conversation prefixes for provider caching, and recorded cache-hit input tokens.
 - A verified administrator can open a small management page from Assistant › Setup to search accounts, view today's points, and adjust individual daily limits.
-- An iLink text adapter: QR binding, encrypted credentials, shared polling, durable deduplication, and conservative submission status. The first WeChat reply includes instructions for changing the contact remark and avatar, a cropped guide image, and the avatar image. **One local account passed phone QR binding, text exchange, and web continuation; delivery of the welcome images on a real phone, production use, and long-running behavior remain unverified.**
+- An iLink text adapter: QR binding, encrypted credentials, shared polling, durable deduplication, and conservative submission status. The first WeChat reply includes instructions for changing the contact remark and avatar, a cropped guide image, and the avatar image. **One local account passed phone QR binding, text exchange, and web continuation; welcome-image delivery on a real phone, production exchange, and long-running behavior remain unverified.**
 - A shared official QQ bot adapter for private text chat: one-time account binding, shared conversation/queue, and bounded text/image replies. QQ credentials, permissions, and real-device verification remain pending.
 - Natural-language reply guidance and four original built-in stickers for web/QQ, with a per-account opt-out and no consecutive reuse of the same sticker. Reading incoming images and learning a user's writing style are not implemented.
 
@@ -69,7 +69,7 @@ pnpm test
 pnpm build
 ```
 
-Tests create and migrate a separate `jojobot_test` database on the local development PostgreSQL server. They use model/network fixtures and local Mailpit, never production credentials. On 2026-11-02, 50 integration checks, type checking, lint, and the production build passed. A separate Bailian call returned real token usage, and the administrator page was checked in a browser. The earlier baseline covered Docker and desktop/mobile viewports; one real WeChat account passed local text exchange. Welcome image sending has only been checked with a network fixture and still needs real-phone delivery verification. See the [verification record](docs/development.md#验证记录) and current limitations.
+Tests create and migrate a separate `jojobot_test` database on the local development PostgreSQL server. They use model/network fixtures and local Mailpit, never production credentials. On 2026-11-02, 51 integration checks, type checking, lint, and the production build passed. The production site passed health, email registration, administrator sign-in, and two real model replies with cache usage reported. The earlier baseline covered Docker and desktop/mobile viewports; one real WeChat account passed local text exchange. Welcome image sending has only been checked with a network fixture and still needs real-phone delivery verification. See the [verification record](docs/development.md#验证记录) and current limitations.
 
 The stack is Next.js 16, React 19, TypeScript, Tailwind CSS 4, Base UI, AI SDK, Better Auth, Drizzle, PostgreSQL 17, and pg-boss. A single shared worker serves accounts concurrently while ordering each user's turns. No per-user VM/container, Redis, or additional agent framework is required.
 
@@ -77,7 +77,7 @@ Stop the development server before changing dependencies, then restart it. Run p
 
 ## Self-hosting and contributing
 
-[Docker deployment](docs/deployment.md) describes a shared Web/Worker/PostgreSQL installation. End users of a future hosted service will not configure providers; self-hosting operators must configure them. File/object storage is not implemented yet.
+[Docker deployment](docs/deployment.md) describes a shared Web/Worker/PostgreSQL installation. Hosted users do not configure providers; self-hosting operators must configure them. File/object storage is not implemented yet.
 
 Start with the [PRD](docs/PRD.md), [architecture](docs/architecture.md), and [contribution conventions](AGENTS.md). Small, complete changes and reproducible bug reports are welcome. The full [documentation index](docs/README.md) includes the original technology and open-source research.
 
