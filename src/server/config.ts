@@ -17,7 +17,7 @@ const schema = z.object({
   MODEL_BASE_URL: z.string().optional(),
   MODEL_API_KEY: z.string().optional(),
   MODEL_NAME: z.string().optional(),
-  DAILY_POINT_LIMIT: z.coerce.number().int().min(1).max(1000000).default(100),
+  DAILY_POINT_LIMIT: z.coerce.number().int().min(1).max(1000000).default(1000),
   ADMIN_EMAIL: z.union([z.email(), z.literal("")]).default(""),
   ILINK_ENABLED: z
     .string()

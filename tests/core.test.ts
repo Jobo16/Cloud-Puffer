@@ -26,6 +26,7 @@ import {
   enqueueTurn,
   history,
   modelHistory,
+  modelTurnInput,
   usage,
 } from "../src/server/conversations";
 import {
@@ -215,6 +216,28 @@ describe("owned, durable operations", () => {
     expect(JSON.stringify(messages)).toContain("before");
     expect(JSON.stringify(messages)).not.toContain("future");
   });
+  it("reuses the exact prior user message and bounds long context", async () => {
+    const first = await seedRun({
+      status: "completed",
+      input: "第一条消息",
+      output: "第一条回复",
+      createdAt: new Date("2026-11-02T04:00:00Z"),
+    });
+    const current = await seedRun({
+      input: "新消息",
+      createdAt: new Date("2026-11-02T04:01:00Z"),
+    });
+    const messages = await modelHistory(owner, current.id);
+    expect(messages[0].content).toBe(modelTurnInput(first));
+    expect(messages[1].content).toBe("第一条回复");
+    await db()
+      .update(runs)
+      .set({ input: "长".repeat(12000), output: "答".repeat(12000) })
+      .where(eq(runs.id, first.id));
+    const shortened = await modelHistory(owner, current.id);
+    expect(JSON.stringify(shortened).length).toBeLessThan(12000);
+    expect(JSON.stringify(shortened)).toContain("中间内容已省略");
+  });
   it("atomically enqueues, deduplicates, and serializes turns per account", async () => {
     const key = randomUUID();
     const first = await enqueueTurn(owner, { text: "one", requestKey: key });
@@ -281,8 +304,8 @@ describe("owned, durable operations", () => {
     });
     expect(await usage(owner)).toMatchObject({
       used: 11,
-      limit: 100,
-      available: 89,
+      limit: 1000,
+      available: 989,
     });
   });
   it("checks points again before a queued run reaches the model", async () => {
@@ -364,8 +387,8 @@ describe("agent execution", () => {
                 usage: {
                   inputTokens: {
                     total: 10,
-                    noCache: 10,
-                    cacheRead: 0,
+                    noCache: 6,
+                    cacheRead: 4,
                     cacheWrite: 0,
                   },
                   outputTokens: { total: 5, text: 5, reasoning: 0 },
@@ -379,6 +402,7 @@ describe("agent execution", () => {
       const run = await seedRun({ source });
       await executeRun(run.id);
       expect((await getRun(run.id)).status).toBe("completed");
+      expect((await getRun(run.id)).cacheReadTokens).toBe(4);
       const first = model.doStreamCalls[0];
       expect(first.tools ?? []).toHaveLength(0);
       const prompt = JSON.stringify(first.prompt);

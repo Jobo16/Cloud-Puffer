@@ -31,7 +31,7 @@ Node 24 + pnpm 10.30.3。依次运行 README 中的安装、`pnpm run dev:setup`
 | `CHANNEL_ENCRYPTION_KEY` | 32 字节密钥的 64 位十六进制表示，保护微信凭据；丢失后需重新绑定 |
 | `SMTP_HOST/PORT/SECURE/USER/PASSWORD`、`MAIL_FROM` | 验证和密码恢复邮件；当前托管部署选用 QQ 邮箱 SMTP，实际投递待验收 |
 | `MODEL_BASE_URL/API_KEY/NAME` | 支持流式文本与工具调用的 chat-completions 服务；未配置时拒绝网页模型请求 |
-| `DAILY_POINT_LIMIT` | 每账号每日默认积分上限，当前为 100，按北京时间零点更新 |
+| `DAILY_POINT_LIMIT` | 每账号每日默认积分上限，当前为 1000，按北京时间零点更新 |
 | `ADMIN_EMAIL` | 已验证的管理员邮箱；留空时不开放后台入口 |
 | `ILINK_ENABLED` | 默认 `false`，开启扫码和共享轮询前使用独立测试微信 |
 | `QQ_ENABLED` | 默认 `false`；启用后 Worker 通过官方 SDK 连接 QQ 网关，仅处理绑定后的私聊 |

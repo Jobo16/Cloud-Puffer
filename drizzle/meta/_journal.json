@@ -43,6 +43,13 @@
       "when": 1793621920727,
       "tag": "0005_concerned_captain_stacy",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793623738132,
+      "tag": "0006_real_junta",
+      "breakpoints": true
     }
   ]
 }

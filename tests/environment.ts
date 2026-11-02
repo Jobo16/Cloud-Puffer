@@ -12,7 +12,7 @@ export const testEnvironment = {
   MODEL_BASE_URL: "http://127.0.0.1:9/v1",
   MODEL_API_KEY: "test-only",
   MODEL_NAME: "fixture",
-  DAILY_POINT_LIMIT: "100",
+  DAILY_POINT_LIMIT: "1000",
   ADMIN_EMAIL: "admin@jojobot.local",
   ILINK_ENABLED: "true",
   QQ_ENABLED: "true",

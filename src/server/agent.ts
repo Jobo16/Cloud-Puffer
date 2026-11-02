@@ -6,7 +6,7 @@ import { db } from "../db";
 import { runs } from "../db/schema";
 import { config } from "./config";
 import { buildAgentPrompt } from "./agent-prompt";
-import { modelHistory } from "./conversations";
+import { modelHistory, modelTurnInput } from "./conversations";
 import { pointStatus } from "./credits";
 import { AppError, publicError } from "./errors";
 import { stickers } from "../lib/stickers";
@@ -83,6 +83,7 @@ export async function executeRun(id: string) {
   let output = "";
   let inputTokens = 0;
   let outputTokens = 0;
+  let cacheReadTokens = 0;
   let lastSaved = 0;
   const writeOutput = async () => {
     await db()
@@ -125,15 +126,24 @@ export async function executeRun(id: string) {
       onStepFinish: async ({ usage }) => {
         inputTokens += Math.max(0, usage.inputTokens ?? 0);
         outputTokens += Math.max(0, usage.outputTokens ?? 0);
+        cacheReadTokens += Math.max(
+          0,
+          usage.inputTokenDetails.cacheReadTokens ?? 0,
+        );
         await db()
           .update(runs)
-          .set({ inputTokens, outputTokens, updatedAt: new Date() })
+          .set({
+            inputTokens,
+            outputTokens,
+            cacheReadTokens,
+            updatedAt: new Date(),
+          })
           .where(eq(runs.id, id));
       },
       system: buildAgentPrompt(settings, run.source),
       messages: [
         ...(await modelHistory(run.userId, id)),
-        { role: "user", content: run.input },
+        { role: "user", content: modelTurnInput(run) },
       ],
       tools: {
         ...(useStickers
@@ -274,9 +284,20 @@ export async function executeRun(id: string) {
         modelMessages: response.messages,
         inputTokens: Math.max(0, usage.inputTokens ?? inputTokens),
         outputTokens: Math.max(0, usage.outputTokens ?? outputTokens),
+        cacheReadTokens: Math.max(
+          0,
+          usage.inputTokenDetails.cacheReadTokens ?? cacheReadTokens,
+        ),
         updatedAt: new Date(),
       })
       .where(and(eq(runs.id, id), eq(runs.status, "running")));
+    console.info("model_usage", {
+      runId: id,
+      inputTokens: usage.inputTokens ?? inputTokens,
+      outputTokens: usage.outputTokens ?? outputTokens,
+      cacheReadTokens:
+        usage.inputTokenDetails.cacheReadTokens ?? cacheReadTokens,
+    });
   } catch {
     await db()
       .update(runs)

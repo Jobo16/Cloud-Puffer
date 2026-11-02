@@ -131,6 +131,7 @@ export const runs = pgTable(
     errorCode: text("error_code"),
     inputTokens: integer("input_tokens").default(0).notNull(),
     outputTokens: integer("output_tokens").default(0).notNull(),
+    cacheReadTokens: integer("cache_read_tokens").default(0).notNull(),
     channelId: uuid("channel_id"),
     contextToken: text("context_token"),
     deliveryStatus: text("delivery_status")

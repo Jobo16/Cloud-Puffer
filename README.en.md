@@ -20,6 +20,7 @@ Available in this preview:
 - Saved assistant name, a single system prompt, and task/memory/sticker switches, applied to the next reply across channels using real account data.
 - Persistent tasks and explicit personal memory, with on-demand recall, deduplication, editing, and forgetting through shared web/agent business rules. See the [reply and memory design](docs/memory-and-replies.md) (Chinese).
 - One conversation per account, queued model execution, incremental responses, cancellation, tool result records, history pagination, and daily points based on reported tokens.
+- Bounded model history, stable conversation prefixes for provider caching, and recorded cache-hit input tokens.
 - A verified administrator can open a small management page from Assistant › Setup to search accounts, view today's points, and adjust individual daily limits.
 - An iLink text adapter: QR binding, encrypted credentials, shared polling, durable deduplication, and conservative submission status. The first WeChat reply includes instructions for changing the contact remark and avatar, a cropped guide image, and the avatar image. **One local account passed phone QR binding, text exchange, and web continuation; delivery of the welcome images on a real phone, production use, and long-running behavior remain unverified.**
 - A shared official QQ bot adapter for private text chat: one-time account binding, shared conversation/queue, and bounded text/image replies. QQ credentials, permissions, and real-device verification remain pending.
@@ -29,7 +30,7 @@ Still planned: scheduled reminders and calendar events, search, notes, private f
 
 ## Using the workspace
 
-After sign-in you land on the conversation. Desktop keeps four sections in the sidebar — chat, tasks, memories, assistant; on mobile they live in a drawer opened from the top-left button. Name, system prompt, and capability switches live under **Assistant › Setup** and save automatically as you type; WeChat and QQ binding live under **Assistant › Connections**. Your account, today's points, and sign-out are in the account menu at the bottom of that same sidebar. The default is 100 points per Beijing day: each started 1,000 input tokens costs 1 point, and each started 1,000 output tokens costs 3 points, rounded separately per turn.
+After sign-in you land on the conversation. Desktop keeps four sections in the sidebar — chat, tasks, memories, assistant; on mobile they live in a drawer opened from the top-left button. Name, system prompt, and capability switches live under **Assistant › Setup** and save automatically as you type; WeChat and QQ binding live under **Assistant › Connections**. Your account, today's points, and sign-out are in the account menu at the bottom of that same sidebar. The default is 1,000 points per Beijing day: each started 1,000 input tokens costs 1 point, and each started 1,000 output tokens costs 3 points, rounded separately per turn.
 
 Disabling tools does not delete tasks or memory, and manual management remains available. Disabling memory removes its recall and write tools but preserves chat history. Navigation preserves drafts; save configuration before refreshing. See the [workspace guide](docs/workspace.md) (Chinese) for behavior and limits.
 

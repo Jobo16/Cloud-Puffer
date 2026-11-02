@@ -105,10 +105,10 @@ export async function enqueueTurn(
         : limit === 0
           ? "ACCOUNT_PAUSED"
           : meter.used >= limit
-          ? "LIMIT_REACHED"
-          : meter.pending >= 3
-            ? "BUSY"
-            : null);
+            ? "LIMIT_REACHED"
+            : meter.pending >= 3
+              ? "BUSY"
+              : null);
     if (errorCode && incoming.source === "web")
       throw new AppError(
         errorCode,
@@ -232,6 +232,37 @@ export async function clearHistory(userId: string) {
     return { ok: true };
   });
 }
+const beijingTime = (date: Date) =>
+  date.toLocaleString("sv-SE", { timeZone: "Asia/Shanghai" });
+
+export function modelTurnInput(
+  run: Pick<typeof runs.$inferSelect, "input" | "createdAt">,
+) {
+  return `消息发送时的北京时间：${beijingTime(run.createdAt)}\n${run.input}`;
+}
+
+function briefText(value: string, limit: number) {
+  if (value.length <= limit) return value;
+  const head = Math.floor(limit / 2);
+  return `${value.slice(0, head)}\n[中间内容已省略；如需准确内容请让用户重发]\n${value.slice(-head)}`;
+}
+
+function activitySummary(
+  activity: (typeof runs.$inferSelect)["activities"][number],
+) {
+  const result = activity.result;
+  const record =
+    result && typeof result === "object" && !Array.isArray(result)
+      ? (result as Record<string, unknown>)
+      : {};
+  const facts = Object.fromEntries(
+    ["id", "title", "dueAt", "completed", "version"].flatMap((key) =>
+      record[key] === undefined ? [] : [[key, record[key]]],
+    ),
+  );
+  return { name: activity.name, label: activity.label, ...facts };
+}
+
 export async function modelHistory(userId: string, currentId: string) {
   const [current] = await db()
     .select()
@@ -249,9 +280,11 @@ export async function modelHistory(userId: string, currentId: string) {
       ),
     )
     .orderBy(desc(runs.createdAt), desc(runs.id))
-    .limit(16);
-  let budget = 32000;
-  const chosen = [];
+    .limit(12);
+  // Keep recent turns contiguous. This is a character ceiling, not a token count.
+  // The provider remains the source of truth for token usage and billing.
+  let budget = 12000;
+  const chosen: { user: string; assistant: string }[] = [];
   for (const run of rows) {
     // 记忆工具的旧快照可能已修改或删除；下一轮由记忆模块提供当前记录。
     // 保留原聊天文字及界面操作记录，忘记记忆不等于清空聊天。
@@ -260,29 +293,27 @@ export async function modelHistory(userId: string, currentId: string) {
         a.status === "completed" &&
         !["save_memory", "update_memory", "forget_memory"].includes(a.name),
     );
-    const size =
-      run.input.length + run.output.length + JSON.stringify(activities).length;
+    const user = modelTurnInput({
+      input: briefText(run.input, 4000),
+      createdAt: run.createdAt,
+    });
+    const assistant =
+      [
+        briefText(run.output, 4000),
+        activities.length
+          ? `已确认操作：${JSON.stringify(activities.map(activitySummary))}`
+          : "",
+        run.status !== "completed" ? "本轮回复未正常结束。" : "",
+      ]
+        .filter(Boolean)
+        .join("\n") || "本轮未完成。";
+    const size = user.length + assistant.length;
     if (size > budget) break;
     budget -= size;
-    chosen.push({ ...run, activities });
+    chosen.push({ user, assistant });
   }
   return chosen.reverse().flatMap((run) => [
-    { role: "user" as const, content: run.input },
-    {
-      role: "assistant" as const,
-      content:
-        [
-          run.output,
-          run.status === "completed" && stickerById(run.stickerId)
-            ? `[已选择表情：${stickerById(run.stickerId)!.label}]`
-            : "",
-          run.activities.length
-            ? `已确认操作记录（服务端保存）：${JSON.stringify(run.activities)}`
-            : "",
-          run.status !== "completed" ? "本轮回复未正常结束。" : "",
-        ]
-          .filter(Boolean)
-          .join("\n") || "本轮未完成。",
-    },
+    { role: "user" as const, content: run.user },
+    { role: "assistant" as const, content: run.assistant },
   ]);
 }

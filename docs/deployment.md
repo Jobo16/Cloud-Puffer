@@ -9,9 +9,10 @@
 - `POSTGRES_PASSWORD`：另行生成高强度密码，不使用本地开发密码。
 - `DATABASE_URL`：`postgresql://jojobot:<URL 编码后的密码>@postgres:5432/jojobot`。
 - `BETTER_AUTH_URL`：正式 HTTPS 域名；随机生成 `BETTER_AUTH_SECRET` 和 `CHANNEL_ENCRYPTION_KEY`。
-- `DAILY_POINT_LIMIT`：默认每日积分，当前为 100；`ADMIN_EMAIL`：已验证的管理员登录邮箱。
+- `DAILY_POINT_LIMIT`：默认每日积分，当前为 1000；`ADMIN_EMAIL`：已验证的管理员登录邮箱。
 - SMTP：当前托管部署选用 QQ 邮箱 SMTP（`smtp.qq.com`、465、SSL），授权码只放在不入 Git 的私密配置中；本机已验证登录，实际发信与收件待部署验收。不要使用本地 Mailpit。
 - 模型：选择并验证支持流式输出/工具调用的供应商，填入服务端配置。
+- 对支持隐式前缀缓存的模型，应用会保持系统提示词及历史消息稳定并限制历史长度；模型是否命中以 `runs.cache_read_tokens` 和 Worker 的 `model_usage` 日志为准。缓存命中的 token 仍属于输入积分，不改变用户的换算比例。
 - `ILINK_ENABLED`：完成独立微信账号验证后再启用。一个微信不能被本地与线上同时轮询。
 - `QQ_ENABLED`：默认关闭。准备 QQ 开放平台机器人应用后配置 `QQ_APP_ID`、`QQ_APP_SECRET`，可选 `QQ_BOT_URL` 为官方分享页的 HTTPS 链接；重启 Web 和 Worker 后，用户在设置生成绑定指令并发给机器人。凭据由平台维护，不向用户分发。
 
