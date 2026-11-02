@@ -1428,6 +1428,32 @@ textarea::placeholder {
   padding: 0 22px;
   font-size: 13.5px;
 }
+.hero-steps {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-8);
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+  font-size: var(--text-sm);
+}
+.hero-steps li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.hero-steps li::before {
+  display: grid;
+  place-items: center;
+  width: var(--space-6);
+  height: var(--space-6);
+  flex: none;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--accent);
+  counter-increment: step;
+  content: counter(step);
+}
 .text-link {
   display: inline-flex;
   align-items: center;
@@ -2115,6 +2141,35 @@ textarea::placeholder {
 .page-scroll {
   padding: var(--space-4) var(--space-8) var(--space-10);
 }
+.setup-guide {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--surface-solid);
+  font-size: var(--text-sm);
+}
+.setup-guide > span,
+.setup-guide-inline {
+  color: var(--accent);
+}
+.setup-guide > p {
+  flex: 1;
+  min-width: 160px;
+}
+.main-panel > .setup-guide {
+  width: calc(100% - 2 * var(--space-8));
+  max-width: var(--reading-width);
+  margin: 0 auto var(--space-3);
+}
+.content-section > .setup-guide {
+  margin-bottom: var(--space-4);
+}
+.setup-guide-inline {
+  font-size: var(--text-sm);
+}
 .content-section,
 .assistant-editor {
   max-width: var(--content-width);
@@ -2442,6 +2497,9 @@ textarea::placeholder {
   .main-panel {
     height: 100dvh;
     border-radius: 0;
+  }
+  .main-panel > .setup-guide {
+    width: calc(100% - 2 * var(--space-4));
   }
   /* 页名居中，两侧按钮绝对定位，出现重连提示时也不会把标题挤偏 */
   .topbar {

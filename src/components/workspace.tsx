@@ -96,6 +96,11 @@ export function Workspace({
     setConfirmation({ title, description, action });
   const pendingCount = state.tasks.filter((t) => !t.completed).length;
   const current = navigation.find((item) => item.id === page) ?? navigation[0];
+  const showWechatGuide =
+    state.channel.enabled &&
+    !state.channel.connection &&
+    state.runs.length === 0 &&
+    !state.hasMore;
   function clearChat() {
     setDrawer(false);
     confirm(
@@ -234,6 +239,20 @@ export function Workspace({
             </button>
           </div>
         )}
+        {showWechatGuide && page === "chat" && (
+          <div className="setup-guide">
+            <span>1 / 3</span>
+            <p>先打开「助手」。</p>
+            <Button
+              onClick={() => {
+                setPage("assistant");
+                setError("");
+              }}
+            >
+              打开助手
+            </Button>
+          </div>
+        )}
         {/* 对话常驻挂载：切走再回来，草稿和滚动位置都还在 */}
         <div className="chat-page" hidden={page !== "chat"}>
           <ChatPanel
@@ -260,6 +279,13 @@ export function Workspace({
               />
             ) : (
               <div className="content-section">
+                {showWechatGuide && section === "profile" && (
+                  <div className="setup-guide">
+                    <span>2 / 3</span>
+                    <p>接下来选择「接入」。</p>
+                    <Button onClick={() => setSection("channels")}>打开接入</Button>
+                  </div>
+                )}
                 <div className="segmented" aria-label="助手设置">
                   {[
                     ["profile", "设定"],
@@ -290,6 +316,7 @@ export function Workspace({
                     state={state}
                     mutate={mutate}
                     confirm={confirm}
+                    showWechatGuide={showWechatGuide}
                   />
                 )}
               </div>

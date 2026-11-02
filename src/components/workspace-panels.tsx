@@ -404,7 +404,8 @@ export function ChannelsPanel({
   state,
   mutate,
   confirm,
-}: { state: AppState } & PanelProps) {
+  showWechatGuide,
+}: { state: AppState; showWechatGuide: boolean } & PanelProps) {
   const [binding, setBinding] = useState<{
     id: string;
     image: string;
@@ -457,7 +458,6 @@ export function ChannelsPanel({
   }
   return (
     <div className="channel-list">
-      <QqSettings state={state} mutate={mutate} confirm={confirm} />
       <div className="settings-card glass">
         <div className="row">
           <span className="settings-icon">
@@ -493,6 +493,9 @@ export function ChannelsPanel({
           </>
         ) : (
           <>
+            {showWechatGuide && (
+              <p className="setup-guide-inline">3 / 3 点击「连接微信」，用手机扫码确认。</p>
+            )}
             {!state.channel.enabled && (
               <p className="muted small">微信接入尚未开放，当前可通过网页使用。</p>
             )}
@@ -510,6 +513,7 @@ export function ChannelsPanel({
           微信接收受平台限制。“已提交”不代表送达，完整记录始终保留在网页。
         </p>
       </div>
+      <QqSettings state={state} mutate={mutate} confirm={confirm} />
       {error && (
         <p className="notice error" role="alert">
           {error}

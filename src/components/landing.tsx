@@ -48,7 +48,7 @@ const status = [
   {
     tone: "warn",
     label: "正在验证",
-    body: "本地已验证百炼模型和单账号微信文字收发；QQ 与生产接入仍待验证。",
+    body: "微信扫码与基础文字收发已验证；QQ 与微信长期稳定性仍待验证。",
   },
   {
     tone: "todo",
@@ -130,6 +130,11 @@ export function Landing({
                 <ArrowUpRight size={15} />
               </a>
             </div>
+            <ol className="hero-steps" aria-label="微信接入教程">
+              <li>登录后打开「助手」</li>
+              <li>选择「接入」</li>
+              <li>点击「连接微信」，用手机扫码确认</li>
+            </ol>
           </div>
 
           <figure className="hero-demo glass" aria-hidden="true">
