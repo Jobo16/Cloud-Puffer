@@ -6,7 +6,6 @@ import {
   Circle,
   CircleCheck,
   Link2,
-  LogOut,
   Pencil,
   Plus,
   Smartphone,
@@ -14,7 +13,6 @@ import {
 } from "lucide-react";
 import { clsx } from "clsx";
 import type { AppState } from "@/server/state";
-import { authClient } from "@/lib/auth-client";
 import { api } from "@/lib/api";
 import { Button, Modal } from "./ui";
 import type { Confirm, Mutate } from "./workspace";
@@ -407,17 +405,12 @@ export function MemoryPanel({
     </section>
   );
 }
-export function SettingsPanel({
+// 只在绑定那一刻用一次，所以不占一级入口，收在助手的「接入」里。
+export function ChannelsPanel({
   state,
-  user,
   mutate,
   confirm,
-  onClear,
-}: {
-  state: AppState;
-  user: { name: string; email: string };
-  onClear: () => void;
-} & PanelProps) {
+}: { state: AppState } & PanelProps) {
   const [binding, setBinding] = useState<{
     id: string;
     image: string;
@@ -426,10 +419,6 @@ export function SettingsPanel({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [code, setCode] = useState("");
-  const [passwordEditor, setPasswordEditor] = useState(false);
-  const [oldPassword, setOldPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [message, setMessage] = useState("");
   const bindingId = binding?.id;
   const bindingStatus = binding?.status;
   useEffect(() => {
@@ -473,8 +462,7 @@ export function SettingsPanel({
     }
   }
   return (
-    <section className="content-section settings-section">
-      <h2>你的空间，你来决定。</h2>
+    <div className="channel-list">
       <QqSettings state={state} mutate={mutate} confirm={confirm} />
       <div className="settings-card glass">
         <div className="row">
@@ -533,72 +521,11 @@ export function SettingsPanel({
           微信接收受平台限制。“已提交”不代表送达，完整记录始终保留在网页。
         </p>
       </div>
-      <div className="settings-card">
-        <h3>账号</h3>
-        <div className="setting-row">
-          <div>
-            <strong>{user.name}</strong>
-            <p className="muted">{user.email}</p>
-          </div>
-          <Button
-            onClick={() => {
-              setError("");
-              setPasswordEditor(true);
-            }}
-          >
-            修改密码
-          </Button>
-        </div>
-      </div>
-      <div className="settings-card">
-        <h3>对话与数据</h3>
-        <div className="setting-row">
-          <div>
-            <strong>清空主对话</strong>
-            <p className="muted">删除聊天内容；待办、记忆和今日用量保留。</p>
-          </div>
-          <Button
-            onClick={() =>
-              confirm(
-                "清空所有聊天记录？",
-                "这会删除网页与微信的主对话内容，无法恢复。待办和记忆不会被删除。",
-                async () => {
-                  const ok = await mutate("history/clear", "POST", {
-                    confirm: true,
-                  });
-                  if (ok) onClear();
-                  return ok;
-                },
-              )
-            }
-          >
-            清空对话
-          </Button>
-        </div>
-      </div>
       {error && (
         <p className="notice error" role="alert">
           {error}
         </p>
       )}
-      {message && (
-        <p className="notice" role="status">
-          {message}
-        </p>
-      )}
-      <div className="row spread">
-        <span className="fine-print">JOJOBOT · 开发预览版 · MIT</span>
-        <Button
-          onClick={async () => {
-            const result = await authClient.signOut();
-            if (result.error) setError("退出失败，请重试。");
-            else window.location.assign("/");
-          }}
-        >
-          <LogOut size={16} />
-          退出登录
-        </Button>
-      </div>
       {binding && (
         <Modal
           title="连接你的微信"
@@ -670,73 +597,6 @@ export function SettingsPanel({
           )}
         </Modal>
       )}
-      {passwordEditor && (
-        <Modal
-          title="修改密码"
-          description="更新后，其他设备需要重新登录。"
-          onClose={() => {
-            if (!busy) setPasswordEditor(false);
-          }}
-        >
-          <form
-            className="form-stack"
-            onSubmit={async (e) => {
-              e.preventDefault();
-              setBusy(true);
-              setError("");
-              try {
-                const result = await authClient.changePassword({
-                  currentPassword: oldPassword,
-                  newPassword,
-                  revokeOtherSessions: true,
-                });
-                if (result.error) setError("修改失败，请检查当前密码后重试。");
-                else {
-                  setPasswordEditor(false);
-                  setOldPassword("");
-                  setNewPassword("");
-                  setMessage("密码已更新。");
-                }
-              } catch {
-                setError("连接失败，请稍后重试。");
-              } finally {
-                setBusy(false);
-              }
-            }}
-          >
-            <label>
-              当前密码
-              <input
-                type="password"
-                autoComplete="current-password"
-                value={oldPassword}
-                onChange={(e) => setOldPassword(e.target.value)}
-                required
-              />
-            </label>
-            <label>
-              新密码
-              <input
-                type="password"
-                autoComplete="new-password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                minLength={10}
-                maxLength={128}
-                required
-              />
-            </label>
-            {error && (
-              <p role="alert" className="notice error">
-                {error}
-              </p>
-            )}
-            <Button className="primary" disabled={busy} type="submit">
-              更新密码
-            </Button>
-          </form>
-        </Modal>
-      )}
-    </section>
+    </div>
   );
 }

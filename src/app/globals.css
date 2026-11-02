@@ -384,10 +384,6 @@ svg {
   align-items: center;
   gap: var(--space-2);
 }
-/* 手机聊天页没有配置面板的顶栏，切换入口放在手机头里；桌面预览中隐藏 */
-.mobile-theme-toggle {
-  display: none;
-}
 .wordmark {
   display: inline-flex;
   align-items: center;
@@ -649,49 +645,6 @@ textarea::placeholder {
 }
 .sidebar-bottom {
   margin-top: auto;
-}
-.quota {
-  padding: var(--space-4) var(--space-3) var(--space-6);
-  font-size: var(--text-xs);
-}
-.quota progress {
-  display: block;
-  height: 4px;
-  width: 100%;
-  margin: var(--space-3) 0 var(--space-2);
-  border: none;
-  border-radius: var(--radius-pill);
-  background: var(--track);
-  overflow: hidden;
-}
-.quota progress::-webkit-progress-bar {
-  background: var(--track);
-}
-.quota progress::-webkit-progress-value {
-  background: var(--bar);
-}
-.quota progress::-moz-progress-bar {
-  background: var(--bar);
-}
-.profile {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  gap: var(--space-3);
-  padding: var(--space-4) var(--space-2) var(--space-2);
-  border-top: 1px solid var(--line);
-  text-align: left;
-}
-.profile > span:nth-child(2) {
-  min-width: 0;
-  flex: 1;
-}
-.profile strong {
-  display: block;
-  font-size: var(--text-sm);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 .avatar {
   width: 35px;
@@ -1045,8 +998,7 @@ textarea::placeholder {
   gap: var(--space-4);
   margin-bottom: var(--space-8);
 }
-.section-heading h2,
-.settings-section > h2 {
+.section-heading h2 {
   margin: var(--space-2) 0;
   font-size: 27px;
 }
@@ -1137,12 +1089,6 @@ textarea::placeholder {
   padding-top: var(--space-1);
   color: var(--faint);
 }
-.settings-section {
-  max-width: 760px;
-}
-.settings-section > h2 {
-  margin-bottom: var(--space-8);
-}
 .settings-card {
   padding: var(--space-6);
   border-radius: var(--radius);
@@ -1166,20 +1112,6 @@ textarea::placeholder {
   margin-top: var(--space-5);
 }
 .settings-card > .fine-print {
-  font-size: var(--text-xs);
-}
-.setting-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--space-5);
-  margin-top: var(--space-5);
-}
-.setting-row strong {
-  font-size: var(--text-sm);
-  font-weight: 500;
-}
-.setting-row p {
   font-size: var(--text-xs);
 }
 .dialog-backdrop {
@@ -1475,8 +1407,7 @@ textarea::placeholder {
     align-items: flex-start;
     gap: var(--space-3);
   }
-  .section-heading h2,
-  .settings-section > h2 {
+  .section-heading h2 {
     font-size: 22px;
   }
   .section-heading p {
@@ -1492,12 +1423,6 @@ textarea::placeholder {
   }
   .settings-card h3 {
     font-size: var(--text-base);
-  }
-  .setting-row {
-    align-items: flex-start;
-  }
-  .setting-row p {
-    margin-top: var(--space-1);
   }
   .settings-card > .row:first-child {
     align-items: flex-start;
@@ -2071,12 +1996,11 @@ textarea::placeholder {
   }
 }
 
-/* Desktop studio: one configuration surface and one persistent main conversation. */
+/* 工作区：一个侧栏，一次一页。主对话就是主界面，不再套一层手机框。 */
 :root {
-  --phone-width: 390px;
-  --phone-radius: 44px;
-  --studio-sidebar: 192px;
-  --studio-preview: 422px;
+  --studio-sidebar: 208px;
+  --reading-width: 720px;
+  --content-width: 760px;
 }
 [hidden] {
   display: none !important;
@@ -2088,22 +2012,256 @@ textarea::placeholder {
   width: var(--studio-sidebar);
   padding-inline: var(--space-3);
 }
-.workspace .nav-chat {
+.sidebar .wordmark {
+  margin-bottom: var(--space-8);
+}
+.sidebar-bottom {
+  margin-top: auto;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
+}
+
+/* 顶栏：页名加一句用途，右侧只留动作 */
+.topbar {
+  min-height: 88px;
+  padding: var(--space-5) var(--space-8);
+}
+.topbar-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+.topbar-title > div {
+  min-width: 0;
+}
+.topbar-sub {
+  margin-top: 3px;
+  font-size: var(--text-xs);
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.topbar .clear-chat {
+  background: transparent;
+  border-color: transparent;
+  color: var(--muted);
+}
+.topbar .clear-chat:hover:not(:disabled) {
+  background: var(--veil-60);
+  border-color: transparent;
+  color: var(--danger);
+}
+.topbar-account {
   display: none;
 }
-.workspace[data-page="chat"] .nav-assistant {
-  background: var(--raised);
-  color: var(--accent);
+
+/* 账号：一行触发，浮层里放身份、今日用量和账号动作 */
+.account {
+  position: relative;
+}
+.account-trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 40px;
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  text-align: left;
+}
+.account-trigger .avatar {
+  width: 28px;
+  height: 28px;
+  font-size: 11px;
+}
+.account-trigger > span:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+.account-trigger strong {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.account-trigger > svg {
+  flex-shrink: 0;
+  color: var(--faint);
+}
+.account-trigger:hover {
+  background: var(--veil-55);
+  color: var(--ink);
+}
+.account-compact .account-trigger {
+  width: 34px;
+  min-height: 34px;
+  padding: 0;
+  justify-content: center;
+}
+.account-compact .account-trigger .avatar {
+  width: 30px;
+  height: 30px;
+}
+.account-compact .account-trigger > span:nth-child(2),
+.account-compact .account-trigger > svg {
+  display: none;
+}
+.account-menu {
+  z-index: 60;
+  padding: var(--space-2);
+  border-radius: var(--radius);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  box-shadow: 0 18px 44px var(--ink-a20);
+  animation: account-in 0.14s ease-out;
+}
+.account-menu:focus {
+  outline: none;
+}
+.account-menu[data-direction="up"] {
+  transform-origin: bottom left;
+}
+.account-menu[data-direction="down"] {
+  transform-origin: top right;
+}
+@keyframes account-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.account-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-2) var(--space-3);
+}
+.account-head .avatar {
+  width: 34px;
+  height: 34px;
+}
+.account-head > div {
+  min-width: 0;
+}
+.account-head strong {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: 550;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.account-head div span {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.account-quota {
+  padding: var(--space-2) var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--line);
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+.account-quota strong {
+  color: var(--ink);
   font-weight: 550;
 }
-.configuration-panel .topbar {
+.account-quota-bar {
+  display: block;
+  height: 3px;
+  margin-top: var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--track);
+  overflow: hidden;
+}
+.account-quota-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--bar);
+}
+.account-items {
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--line);
+}
+.account-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 36px;
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  text-align: left;
+  color: var(--ink);
+}
+.account-item > svg {
+  flex-shrink: 0;
+  color: var(--faint);
+}
+.account-item-note {
+  margin-left: auto;
+  font-size: var(--text-xs);
+  color: var(--faint);
+}
+.account-item:hover {
+  background: var(--veil-70);
+}
+.account-signout {
+  margin-top: var(--space-2);
+  color: var(--danger);
+}
+.account-signout > svg {
+  color: var(--danger);
+}
+.account-foot {
+  padding: var(--space-2) var(--space-2) 0;
+  font-size: 11px;
+  color: var(--faint);
+}
+
+/* 对话页：一条限宽的阅读列，输入框贴着列底 */
+.chat-page {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: calc(var(--reading-width) + var(--space-8) * 2);
+  margin: 0 auto;
   padding-inline: var(--space-8);
 }
-.configuration-panel .page-scroll {
-  padding: var(--space-3) var(--space-8) var(--space-6);
+.chat-page .chat-scroll {
+  padding: var(--space-4) 0 var(--space-6);
 }
+.chat-page .welcome,
+.chat-page .messages {
+  max-width: 100%;
+}
+.chat-page .composer-area {
+  width: 100%;
+  padding: 0 0 var(--space-6);
+}
+
+/* 事项、记忆、助手共用一条内容列 */
+.page-scroll {
+  padding: var(--space-4) var(--space-8) var(--space-10);
+}
+.content-section,
 .assistant-editor {
-  max-width: 760px;
+  max-width: var(--content-width);
 }
 .editor-card {
   border-radius: var(--radius);
@@ -2247,172 +2405,10 @@ textarea::placeholder {
   color: var(--danger);
   font-size: var(--text-sm);
 }
-.preview-panel {
-  width: var(--studio-preview);
-  flex-shrink: 0;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: var(--space-2) var(--space-4) 0;
-}
-.phone-frame {
-  width: 100%;
-  max-width: var(--phone-width);
-  flex: 1;
-  min-height: 0;
-  max-height: 860px;
-  display: flex;
-  flex-direction: column;
-  border-radius: var(--phone-radius);
-  border: 6px solid var(--phone-shell);
-  background: var(--phone-bg);
-  box-shadow:
-    0 0 0 1px var(--phone-edge),
-    0 18px 48px var(--ink-a10);
-  overflow: hidden;
-}
-.phone-hardware {
-  flex-shrink: 0;
-  display: flex;
-  justify-content: center;
-  padding: var(--space-3) 0 var(--space-2);
-}
-.phone-hardware > span {
-  width: 80px;
-  height: 19px;
-  border-radius: var(--radius-pill);
-  background: var(--notch);
-}
-.phone-header {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-2) var(--space-5) var(--space-4);
-  flex-shrink: 0;
-}
-.phone-header > div {
-  min-width: 0;
-  flex: 1;
-}
-.phone-header strong {
-  display: block;
-  font-size: var(--text-sm);
-  font-weight: 600;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.phone-header .jojo-mark {
-  width: 30px;
-  height: 30px;
-}
-.phone-home {
-  display: grid;
-  place-items: center;
-  padding: var(--space-2) 0;
-  flex-shrink: 0;
-}
-.phone-home > span {
-  width: 100px;
-  height: 4px;
-  border-radius: var(--radius-pill);
-  background: var(--notch);
-}
-.preview-panel .chat-scroll {
-  padding: var(--space-4);
-}
-.preview-panel .welcome {
-  padding: var(--space-4) 0 var(--space-6);
-}
-.preview-panel .welcome-symbol {
-  width: 68px;
-  height: 68px;
-  margin-bottom: var(--space-5);
-  border-radius: var(--radius);
-}
-.preview-panel .welcome-symbol .large {
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-sm);
-  gap: 6px;
-}
-.preview-panel .welcome-symbol .large > span {
-  height: 14px;
-  width: 4px;
-}
-.preview-panel .welcome-symbol .large > span:last-child {
-  height: 10px;
-}
-.preview-panel .welcome h2 {
-  font-size: 20px;
-  max-width: 100%;
-  overflow-wrap: anywhere;
-}
-.preview-panel .welcome > p {
-  font-size: var(--text-xs);
-}
-.preview-panel .suggestions {
-  flex-direction: column;
-  gap: var(--space-2);
-  margin-top: var(--space-6);
-  max-width: 280px;
-}
-.preview-panel .suggestion {
-  padding: var(--space-3);
-  text-align: left;
-}
-.preview-panel .suggestion > svg:last-child {
-  display: block;
-}
-.preview-panel .composer-area {
-  padding: 0 var(--space-3);
-}
-.preview-panel .composer {
-  padding: var(--space-3);
-}
-.preview-panel .composer textarea {
-  font-size: var(--text-sm);
-  min-height: 34px;
-}
-.preview-panel .model-notice {
-  font-size: 10px;
-  gap: var(--space-1);
-  text-align: center;
-}
-.preview-panel .model-notice > span:last-child {
-  margin-left: 0;
-}
-.preview-panel .composer-area > .notice {
-  margin-bottom: var(--space-2);
-}
-.preview-panel .assistant-message {
-  gap: var(--space-2);
-}
-.preview-panel .assistant-message > .jojo-mark {
-  width: 24px;
-  height: 24px;
-}
-.preview-panel .messages {
-  font-size: var(--text-sm);
-}
-.preview-panel .message-text {
-  max-width: 92%;
-  padding: var(--space-2) var(--space-3);
-}
-.preview-panel .turn {
-  margin-bottom: var(--space-6);
-}
-.preview-panel .user-message {
-  margin-bottom: var(--space-4);
-}
-.preview-panel .thinking {
-  flex-wrap: wrap;
-}
+
 @media (min-width: 1024px) and (max-width: 1250px) {
   :root {
-    --studio-sidebar: 72px;
-    --studio-preview: 382px;
+    --studio-sidebar: 76px;
   }
   .workspace .sidebar {
     padding-inline: var(--space-2);
@@ -2422,22 +2418,16 @@ textarea::placeholder {
   }
   .sidebar .wordmark > span:not(.jojo-mark),
   .sidebar .nav-item > span,
-  .sidebar .profile > span:not(.avatar),
-  .sidebar .profile > svg,
-  .sidebar .quota {
+  .account-trigger > span:nth-child(2),
+  .account-trigger > svg {
     display: none;
   }
-  .sidebar .nav-item {
+  .sidebar .nav-item,
+  .account-trigger {
     justify-content: center;
-  }
-  .sidebar .profile {
-    justify-content: center;
-  }
-  .configuration-panel .page-scroll,
-  .configuration-panel .topbar {
-    padding-inline: var(--space-5);
   }
 }
+
 @media (max-width: 1023px) {
   .workspace {
     display: block;
@@ -2447,7 +2437,7 @@ textarea::placeholder {
     position: fixed;
     inset: auto 0 0;
     width: auto;
-    height: calc(68px + env(safe-area-inset-bottom));
+    height: calc(64px + env(safe-area-inset-bottom));
     padding: var(--space-2) var(--space-3)
       calc(var(--space-2) + env(safe-area-inset-bottom));
     border-radius: var(--radius) var(--radius) 0 0;
@@ -2463,79 +2453,56 @@ textarea::placeholder {
     justify-content: space-around;
     gap: var(--space-1);
   }
-  .workspace .nav-chat {
-    display: flex;
-  }
   .nav-item {
     flex: 1;
     flex-direction: column;
     gap: var(--space-1);
     padding: var(--space-1);
-    min-height: 50px;
-    font-size: 9px;
+    min-height: 48px;
+    font-size: 10px;
   }
   .nav-count {
     display: none;
-  }
-  .workspace[data-page="chat"] .nav-assistant {
-    background: none;
-    color: var(--muted);
-    font-weight: 400;
   }
   .workspace .nav-item.active {
     background: var(--accent-soft);
     color: var(--accent);
     box-shadow: none;
   }
-  .configuration-panel {
-    height: calc(100dvh - 68px - env(safe-area-inset-bottom));
+  .main-panel {
+    height: calc(100dvh - 64px - env(safe-area-inset-bottom));
     border-radius: 0;
   }
-  .workspace[data-page="chat"] .configuration-panel {
-    display: none;
+  .topbar {
+    min-height: 68px;
+    padding: var(--space-3) var(--space-5);
   }
-  .configuration-panel .topbar {
-    min-height: 76px;
-    padding-inline: var(--space-5);
-  }
-  .configuration-panel .page-scroll {
-    padding: var(--space-3) var(--space-5) var(--space-6);
-  }
-  .preview-panel {
-    display: none;
-    width: 100%;
-    height: calc(100dvh - 68px - env(safe-area-inset-bottom));
-    padding: 0;
-  }
-  .workspace[data-page="chat"] .preview-panel {
-    display: flex;
-  }
-  .phone-hardware,
-  .phone-home {
-    display: none;
-  }
-  .phone-frame {
-    width: 100%;
-    max-width: none;
-    max-height: none;
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
-  }
-  .phone-header {
-    padding: var(--space-5);
-  }
-  .mobile-theme-toggle {
+  .mobile-brand {
     display: inline-flex;
   }
-  .preview-panel .composer-area {
-    padding: 0 var(--space-4) var(--space-3);
+  .topbar-sub {
+    display: none;
   }
-  .preview-panel .composer textarea {
+  .topbar-account {
+    display: block;
+  }
+  .topbar .clear-chat > span {
+    display: none;
+  }
+  .chat-page {
+    padding-inline: var(--space-5);
+  }
+  .chat-page .chat-scroll {
+    padding: var(--space-2) 0 var(--space-4);
+  }
+  .chat-page .composer-area {
+    padding-bottom: var(--space-3);
+  }
+  .composer textarea {
     font-size: 16px;
   }
-  .preview-panel .chat-scroll {
-    padding-inline: var(--space-5);
+  .page-scroll {
+    padding: var(--space-4) var(--space-5) var(--space-8);
   }
   .editor-card {
     padding: var(--space-5);

@@ -129,8 +129,8 @@ Glasscn 的 `glass-variants.ts` 已提供 CSS 模糊/半透明方案。但 `Glas
 
 目标是日常使用的个人助手。参考 Apple 的功能层级：玻璃承载导航和控制，内容保持清晰。Apple 官方也将 Liquid Glass 定位为浮在内容之上的导航与控制层，且官方原生组件面向 SwiftUI/UIKit/AppKit，不能直接安装进 React 网页。依据：[Apple Materials](https://developer.apple.com/design/human-interface-guidelines/materials)、[Liquid Glass 概览](https://developer.apple.com/documentation/technologyoverviews/liquid-glass)。
 
-- **桌面：**轻量侧栏、左侧配置与资料管理、右侧常驻手机主对话；保存人设和工具开关后可直接试聊。
-- **手机：**默认单列聊天，底部导航切换助手配置、事项、记忆和连接设置；无需在手机上再套一层设备边框。
+- **桌面：**轻量侧栏加单页内容。一级入口为对话、事项、记忆、助手，对话按阅读宽度限栏；账号与用量收在左下角个人菜单。
+- **手机：**同样的四个入口，导航移到底部；默认落在对话，个人入口放到顶栏右侧。
 - **材质：**侧栏、导航和输入区用柔和磨砂；弹层提高底色不透明度；正文不叠加多层玻璃，不逐条消息增加模糊滤镜。
 - **颜色：**以中性底色与克制强调色为主，背景允许静态低饱和渐变；实际颜色、圆角、间距和字号由项目样式令牌维护。
 - **排版：**系统字体栈，统一字号和间距；使用开源图标，保持触控区域与焦点可见。

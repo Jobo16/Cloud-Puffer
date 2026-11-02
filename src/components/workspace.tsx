@@ -5,8 +5,8 @@ import {
   Brain,
   ListTodo,
   MessageCircle,
-  Settings,
   SlidersHorizontal,
+  Trash2,
   X,
 } from "lucide-react";
 import { clsx } from "clsx";
@@ -15,10 +15,11 @@ import { api } from "@/lib/api";
 import { Button, Mark, Modal } from "./ui";
 import { ChatPanel } from "./chat-panel";
 import { AssistantEditor } from "./assistant-editor";
-import { TasksPanel, MemoryPanel, SettingsPanel } from "./workspace-panels";
+import { ChannelsPanel, MemoryPanel, TasksPanel } from "./workspace-panels";
 import { ThemeToggle } from "./theme-toggle";
+import { AccountMenu } from "./account-menu";
 
-type Page = "assistant" | "chat" | "tasks" | "memories" | "settings";
+type Page = "chat" | "tasks" | "memories" | "assistant";
 export type Mutate = (
   path: string,
   method: string,
@@ -29,12 +30,27 @@ export type Confirm = (
   description: string,
   action: () => Promise<boolean>,
 ) => void;
+// 按发生的频率排：每天用的在前，一个月动一次的在后
 const navigation = [
-  { id: "chat", label: "聊聊", icon: MessageCircle },
-  { id: "assistant", label: "助手配置", icon: SlidersHorizontal },
-  { id: "tasks", label: "我的事项", icon: ListTodo },
-  { id: "memories", label: "记忆", icon: Brain },
-  { id: "settings", label: "设置与连接", icon: Settings },
+  {
+    id: "chat",
+    label: "对话",
+    icon: MessageCircle,
+    summary: "网页和微信共用这一条记录",
+  },
+  {
+    id: "tasks",
+    label: "事项",
+    icon: ListTodo,
+    summary: "随手记下，也可以让 JOJO 替你加",
+  },
+  { id: "memories", label: "记忆", icon: Brain, summary: "你说要记的，才会留下" },
+  {
+    id: "assistant",
+    label: "助手",
+    icon: SlidersHorizontal,
+    summary: "名字、说话方式，以及在哪里找到它",
+  },
 ] as const;
 
 export function Workspace({
@@ -46,6 +62,7 @@ export function Workspace({
 }) {
   const [state, setState] = useState(initial);
   const [page, setPage] = useState<Page>("chat");
+  const [section, setSection] = useState<"profile" | "channels">("profile");
   const [error, setError] = useState("");
   const [connected, setConnected] = useState(true);
   const [chatKey, setChatKey] = useState(0);
@@ -86,6 +103,7 @@ export function Workspace({
   const confirm: Confirm = (title, description, action) =>
     setConfirmation({ title, description, action });
   const pendingCount = state.tasks.filter((t) => !t.completed).length;
+  const current = navigation.find((item) => item.id === page) ?? navigation[0];
   return (
     <div className="workspace" data-page={page}>
       <aside className="sidebar glass">
@@ -115,54 +133,62 @@ export function Workspace({
           ))}
         </nav>
         <div className="sidebar-bottom">
-          <div className="quota">
-            <div className="row spread">
-              <span>今日对话</span>
-              <span>
-                {state.quota.used}
-                <span className="muted"> / {state.quota.limit}</span>
-              </span>
-            </div>
-            <progress
-              aria-label="今日对话用量"
-              value={state.quota.used}
-              max={state.quota.limit}
-            />
-          </div>
-          <button className="profile" onClick={() => setPage("settings")}>
-            <span className="avatar">
-              {user.name.slice(0, 1).toUpperCase()}
-            </span>
-            <span>
-              <strong>{user.name}</strong>
-            </span>
-            <Settings size={17} />
-          </button>
+          <AccountMenu
+            user={user}
+            quota={state.quota}
+            direction="up"
+            onError={setError}
+          />
         </div>
       </aside>
-      <main
-        className="main-panel configuration-panel"
-        aria-label="助手配置与资料"
-      >
+      <main className="main-panel">
         <header className="topbar">
-          <div>
+          <div className="topbar-title">
             <span className="mobile-brand">
               <Mark />
             </span>
-            <h1>
-              {page === "chat"
-                ? "助手配置"
-                : navigation.find((n) => n.id === page)?.label}
-            </h1>
+            <div>
+              <h1>{current.label}</h1>
+              <p className="topbar-sub">{current.summary}</p>
+            </div>
           </div>
           <div className="topbar-actions">
-            <ThemeToggle />
             {!connected && (
               <span className="connection" title="正在重连">
                 <span className="status-dot offline" />
                 <span className="sr-only">正在重连</span>
               </span>
             )}
+            {page === "chat" && (
+              <Button
+                className="clear-chat"
+                onClick={() =>
+                  confirm(
+                    "清空所有聊天记录？",
+                    "这会删除网页与微信的主对话内容，无法恢复。事项、记忆和今日用量保留。",
+                    async () => {
+                      const ok = await mutate("history/clear", "POST", {
+                        confirm: true,
+                      });
+                      if (ok) setChatKey((key) => key + 1);
+                      return ok;
+                    },
+                  )
+                }
+              >
+                <Trash2 size={15} />
+                <span>清空对话</span>
+              </Button>
+            )}
+            <ThemeToggle />
+            <AccountMenu
+              user={user}
+              quota={state.quota}
+              direction="down"
+              compact
+              className="topbar-account"
+              onError={setError}
+            />
           </div>
         </header>
         {error && (
@@ -173,18 +199,17 @@ export function Workspace({
             </button>
           </div>
         )}
-        <div
-          className="page-scroll"
-          hidden={page !== "chat" && page !== "assistant"}
-        >
-          <AssistantEditor
-            preferences={state.preferences}
-            onSaved={(preferences) =>
-              setState((current) => ({ ...current, preferences }))
-            }
+        {/* 对话常驻挂载：切走再回来，草稿和滚动位置都还在 */}
+        <div className="chat-page" hidden={page !== "chat"}>
+          <ChatPanel
+            key={chatKey}
+            state={state}
+            refresh={refresh}
+            onManage={setPage}
+            active={page === "chat"}
           />
         </div>
-        {page !== "chat" && page !== "assistant" && (
+        {page !== "chat" && (
           <div className="page-scroll">
             {page === "tasks" ? (
               <TasksPanel
@@ -199,41 +224,43 @@ export function Workspace({
                 confirm={confirm}
               />
             ) : (
-              <SettingsPanel
-                state={state}
-                user={user}
-                mutate={mutate}
-                confirm={confirm}
-                onClear={() => setChatKey((key) => key + 1)}
-              />
+              <div className="content-section">
+                <div className="segmented" aria-label="助手设置">
+                  {[
+                    ["profile", "设定"],
+                    ["channels", "接入"],
+                  ].map(([key, label]) => (
+                    <button
+                      key={key}
+                      aria-pressed={section === key}
+                      className={clsx(section === key && "selected")}
+                      onClick={() => setSection(key as "profile" | "channels")}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                {/* 设定面板常驻挂载：切到「接入」再回来，改了一半的字段还在 */}
+                <div hidden={section !== "profile"}>
+                  <AssistantEditor
+                    preferences={state.preferences}
+                    onSaved={(preferences) =>
+                      setState((current) => ({ ...current, preferences }))
+                    }
+                  />
+                </div>
+                {section === "channels" && (
+                  <ChannelsPanel
+                    state={state}
+                    mutate={mutate}
+                    confirm={confirm}
+                  />
+                )}
+              </div>
             )}
           </div>
         )}
       </main>
-      <aside className="preview-panel" aria-label="主对话实时预览">
-        <div className="phone-frame">
-          <div className="phone-hardware" aria-hidden="true">
-            <span />
-          </div>
-          <header className="phone-header">
-            <Mark />
-            <div>
-              <strong>{state.preferences.agentName}</strong>
-            </div>
-            <ThemeToggle className="mobile-theme-toggle" />
-          </header>
-          <ChatPanel
-            key={chatKey}
-            state={state}
-            refresh={refresh}
-            onManage={setPage}
-            active={page === "chat"}
-          />
-          <div className="phone-home" aria-hidden="true">
-            <span />
-          </div>
-        </div>
-      </aside>
       {confirmation && (
         <Modal
           title={confirmation.title}
