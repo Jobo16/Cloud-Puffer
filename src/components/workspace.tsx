@@ -32,25 +32,10 @@ export type Confirm = (
 ) => void;
 // 按发生的频率排：每天用的在前，一个月动一次的在后
 const navigation = [
-  {
-    id: "chat",
-    label: "对话",
-    icon: MessageCircle,
-    summary: "网页和微信共用这一条记录",
-  },
-  {
-    id: "tasks",
-    label: "事项",
-    icon: ListTodo,
-    summary: "随手记下，也可以让 JOJO 替你加",
-  },
-  { id: "memories", label: "记忆", icon: Brain, summary: "你说要记的，才会留下" },
-  {
-    id: "assistant",
-    label: "助手",
-    icon: SlidersHorizontal,
-    summary: "名字、说话方式，以及在哪里找到它",
-  },
+  { id: "chat", label: "对话", icon: MessageCircle },
+  { id: "tasks", label: "事项", icon: ListTodo },
+  { id: "memories", label: "记忆", icon: Brain },
+  { id: "assistant", label: "助手", icon: SlidersHorizontal },
 ] as const;
 
 export function Workspace({
@@ -147,10 +132,7 @@ export function Workspace({
             <span className="mobile-brand">
               <Mark />
             </span>
-            <div>
-              <h1>{current.label}</h1>
-              <p className="topbar-sub">{current.summary}</p>
-            </div>
+            <h1>{current.label}</h1>
           </div>
           <div className="topbar-actions">
             {!connected && (
@@ -205,7 +187,6 @@ export function Workspace({
             key={chatKey}
             state={state}
             refresh={refresh}
-            onManage={setPage}
             active={page === "chat"}
           />
         </div>

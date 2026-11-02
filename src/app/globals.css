@@ -804,20 +804,6 @@ textarea::placeholder {
   background: var(--accent-fill);
   color: white;
 }
-.model-notice {
-  font-size: var(--text-xs);
-  color: var(--muted);
-  margin-bottom: var(--space-3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  flex-wrap: wrap;
-}
-.model-notice button {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
 .messages {
   max-width: 750px;
   margin: auto;
@@ -993,9 +979,6 @@ textarea::placeholder {
 .section-heading h2 {
   margin: var(--space-2) 0;
   font-size: 27px;
-}
-.section-heading p {
-  font-size: var(--text-sm);
 }
 .segmented {
   display: inline-flex;
@@ -1388,10 +1371,6 @@ textarea::placeholder {
     font-size: 16px;
     min-height: 34px;
   }
-  .model-notice {
-    font-size: 10px;
-    gap: var(--space-1);
-  }
   .page-scroll {
     padding: var(--space-5);
   }
@@ -1401,9 +1380,6 @@ textarea::placeholder {
   }
   .section-heading h2 {
     font-size: 22px;
-  }
-  .section-heading p {
-    font-size: var(--text-xs);
   }
   .section-heading > .button {
     font-size: var(--text-xs);
@@ -2013,7 +1989,7 @@ textarea::placeholder {
   border-top: 1px solid var(--line);
 }
 
-/* 顶栏：页名加一句用途，右侧只留动作 */
+/* 顶栏：只有页名和动作 */
 .topbar {
   min-height: 88px;
   padding: var(--space-5) var(--space-8);
@@ -2023,17 +1999,6 @@ textarea::placeholder {
   align-items: center;
   gap: var(--space-3);
   min-width: 0;
-}
-.topbar-title > div {
-  min-width: 0;
-}
-.topbar-sub {
-  margin-top: 3px;
-  font-size: var(--text-xs);
-  color: var(--muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 .topbar .clear-chat {
   background: transparent;
@@ -2480,9 +2445,6 @@ textarea::placeholder {
   }
   .mobile-brand {
     display: inline-flex;
-  }
-  .topbar-sub {
-    display: none;
   }
   .topbar-account {
     display: block;

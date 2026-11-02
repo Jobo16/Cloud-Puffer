@@ -39,10 +39,7 @@ export function QqSettings({
           <span className="settings-icon">
             <MessageCircle size={22} />
           </span>
-          <div>
-            <h3>在 QQ 里，接着聊</h3>
-            <p className="muted">私聊与网页共用对话、待办和记忆。</p>
-          </div>
+          <h3>在 QQ 里，接着聊</h3>
         </div>
         {state.qq.connection ? (
           <>

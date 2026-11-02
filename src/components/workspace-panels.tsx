@@ -131,12 +131,7 @@ export function TasksPanel({
   return (
     <section className="content-section">
       <div className="section-heading">
-        <div>
-          <h2>慢慢来，一件一件。</h2>
-          <p className="muted">
-            {tasks.filter((t) => !t.completed).length} 件待办，给今天一点清晰。
-          </p>
-        </div>
+        <h2>慢慢来，一件一件。</h2>
         <Button
           className="primary"
           onClick={() => setEditor({ key: crypto.randomUUID() })}
@@ -327,12 +322,7 @@ export function MemoryPanel({
   return (
     <section className="content-section">
       <div className="section-heading">
-        <div>
-          <h2>被记住的，是你在意的。</h2>
-          <p className="muted">
-            只保存你明确要求记住的事，随时可以修改或忘记。
-          </p>
-        </div>
+        <h2>被记住的，是你在意的。</h2>
         <Button
           className="primary"
           onClick={() => setEditor({ key: crypto.randomUUID() })}
@@ -469,10 +459,7 @@ export function ChannelsPanel({
           <span className="settings-icon">
             <Smartphone size={22} />
           </span>
-          <div>
-            <h3>在微信里，接着聊</h3>
-            <p className="muted">网页与微信共用一条对话、待办和记忆。</p>
-          </div>
+          <h3>在微信里，接着聊</h3>
         </div>
         {state.channel.connection ? (
           <>
@@ -502,11 +489,9 @@ export function ChannelsPanel({
           </>
         ) : (
           <>
-            <p className="muted small">
-              {state.channel.enabled
-                ? "使用你的微信扫码，将 JOJO 带到熟悉的聊天窗口。"
-                : "微信接入尚未开放，当前可通过网页使用。"}
-            </p>
+            {!state.channel.enabled && (
+              <p className="muted small">微信接入尚未开放，当前可通过网页使用。</p>
+            )}
             <Button
               className="primary"
               disabled={!state.channel.enabled || busy}

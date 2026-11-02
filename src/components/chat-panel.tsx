@@ -28,12 +28,10 @@ const deliveryLabels = {
 export function ChatPanel({
   state,
   refresh,
-  onManage,
   active,
 }: {
   state: AppState;
   refresh: () => Promise<void>;
-  onManage: (page: "tasks" | "memories") => void;
   active: boolean;
 }) {
   const [draft, setDraft] = useState("");
@@ -275,14 +273,6 @@ export function ChatPanel({
           <p className="notice error" role="alert">
             {error}
           </p>
-        )}
-        {!state.modelReady && (
-          <div className="model-notice">
-            <span className="status-dot offline" />
-            对话服务未连接，可先整理
-            <button onClick={() => onManage("tasks")}>待办</button>和
-            <button onClick={() => onManage("memories")}>记忆</button>。
-          </div>
         )}
         {/* 用量只在快用完时出现，平时不占视线 */}
         {state.quota.limit - state.quota.used <= 5 && (
