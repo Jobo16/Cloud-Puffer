@@ -350,7 +350,8 @@ describe("agent execution", () => {
       expect(names).toContain("create_task");
       expect(names).toContain("save_memory");
       expect(names?.includes("choose_sticker")).toBe(source !== "wechat");
-      expect(JSON.stringify(second.prompt)).toContain(
+      // Long-term memory is recalled through tools, never injected automatically.
+      expect(JSON.stringify(second.prompt)).not.toContain(
         "仅在启用记忆时注入的偏好",
       );
     },

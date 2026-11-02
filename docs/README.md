@@ -7,6 +7,7 @@
 - [工作区使用说明](workspace.md)：四个一级入口、助手设定、个人菜单、渠道和额度说明。
 - [开发与验证](development.md)：启动、配置、测试和未完成范围。
 - [当前架构](architecture.md)：模块、配置生效、数据权限、队列与 iLink/QQ 行为。
+- [自然回复与个人记忆](memory-and-replies.md)：表达规则、按需记忆、更新与忘记，以及对 IELTS Buddy 的取舍。
 - [Docker 部署](deployment.md)：服务器配置、在线迁移与验收步骤。
 - [产品需求](PRD.md)：已确认决策及完整首版验收目标。
 - [技术与 UI 选型](technical-selection.md)：原始选型与玻璃组件比较，落地差异以架构为准。

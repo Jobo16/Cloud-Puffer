@@ -278,13 +278,18 @@ export async function modelHistory(userId: string, currentId: string) {
   let budget = 32000;
   const chosen = [];
   for (const run of rows) {
+    // 记忆工具的旧快照可能已修改或删除；下一轮由记忆模块提供当前记录。
+    // 保留原聊天文字及界面操作记录，忘记记忆不等于清空聊天。
+    const activities = run.activities.filter(
+      (a) =>
+        a.status === "completed" &&
+        !["save_memory", "update_memory", "forget_memory"].includes(a.name),
+    );
     const size =
-      run.input.length +
-      run.output.length +
-      JSON.stringify(run.activities).length;
+      run.input.length + run.output.length + JSON.stringify(activities).length;
     if (size > budget) break;
     budget -= size;
-    chosen.push(run);
+    chosen.push({ ...run, activities });
   }
   return chosen.reverse().flatMap((run) => [
     { role: "user" as const, content: run.input },
@@ -297,7 +302,7 @@ export async function modelHistory(userId: string, currentId: string) {
             ? `[已选择表情：${stickerById(run.stickerId)!.label}]`
             : "",
           run.activities.length
-            ? `已确认操作记录（服务端保存）：${JSON.stringify(run.activities.filter((a) => a.status === "completed"))}`
+            ? `已确认操作记录（服务端保存）：${JSON.stringify(run.activities)}`
             : "",
           run.status !== "completed" ? "本轮回复未正常结束。" : "",
         ]
