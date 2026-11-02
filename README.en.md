@@ -77,7 +77,7 @@ Stop the development server before changing dependencies, then restart it. Run p
 
 ## Self-hosting and contributing
 
-[Docker deployment](docs/deployment.md) describes a shared Web/Worker/PostgreSQL installation. Hosted users do not configure providers; self-hosting operators must configure them. File/object storage is not implemented yet.
+[Docker deployment](docs/deployment.md) describes a shared Web/Worker/PostgreSQL installation and the fixed release, backup, image, and build-cache cleanup flow. Hosted users do not configure providers; self-hosting operators must configure them. File/object storage is not implemented yet.
 
 Start with the [PRD](docs/PRD.md), [architecture](docs/architecture.md), and [contribution conventions](AGENTS.md). Small, complete changes and reproducible bug reports are welcome. The full [documentation index](docs/README.md) includes the original technology and open-source research.
 

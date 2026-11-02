@@ -21,20 +21,29 @@
 
 `ADMIN_EMAIL` 只指定权限归属，不自动创建账号。部署后用该邮箱完成正常注册与邮箱验证，才会在「助手 › 设定」看到后台入口；其他账号访问 `/app/admin` 或 `/api/admin` 会被拒绝。后台可修改个人每日积分上限，0 暂停新对话。积分按模型报告的 token 事后结算，不能代替全平台成本硬上限。
 
-## 首次启动与后续更新
+## 固定发布流程
 
 镜像从国内的 `docker.1ms.run` 拉取 Node.js 和 PostgreSQL 基础镜像，依赖通过 `registry.npmmirror.com` 下载；这两个镜像源只用于本项目，不修改服务器上其他项目的 Docker 配置。
 
 首次发布时服务器到 GitHub 的连接和国内镜像站的镜像层下载中断：本地已推送的同一提交通过 Git bundle 放入服务器 Git 检出，基础镜像从国内源取得 amd64 版本后导入服务器，再在服务器执行 Docker 构建。服务器检出目录须保持干净；后续优先从 `origin/main` 快进拉取，若网络仍不可用，可用已推送提交的 Git bundle 快进，不同步未提交文件。生产密钥仅传入受限的 `.env.production`。
 
+本地先完成 `pnpm typecheck`、`pnpm lint`、`pnpm test`、`pnpm build`，确认工作区无未提交修改，再提交并推送 `main`。服务器检出目录必须干净，快进到该提交后执行项目脚本：
+
 ```sh
-docker compose --env-file .env.production build
-docker compose --env-file .env.production up -d postgres
-docker compose --env-file .env.production run --rm migrate
-docker compose --env-file .env.production up -d web worker
+ssh server-renovation 'cd /opt/apps/jojobot/repo && git fetch origin main && git merge --ff-only FETCH_HEAD && ./scripts/deploy-server.sh'
 ```
 
-后续更新也先执行兼容迁移，再更新应用；迁移期间保留已有 Web、Worker 在线，不先 `down`。如果迁移拿不到锁，退出并调查，不增加停服迁移开关。`IMAGE_TAG` 可指定本次发布标识。当前只运行一个共享 Worker，关闭时等待已领取任务结束。
+服务器无法访问 GitHub 时，从**已推送的**本地 `main` 制作 Git bundle，然后仍在服务器快进并运行同一脚本：
+
+```sh
+git bundle create .local/jojobot-deploy.bundle main
+scp .local/jojobot-deploy.bundle server-renovation:/opt/stacks/jojobot/deploy.bundle
+ssh server-renovation 'cd /opt/apps/jojobot/repo && git bundle verify /opt/stacks/jojobot/deploy.bundle && git fetch /opt/stacks/jojobot/deploy.bundle main && git merge --ff-only FETCH_HEAD && ./scripts/deploy-server.sh'
+```
+
+`deploy-server.sh` 加独占锁、检查干净的 `main` 和至少 4 GiB 空间，以提交短哈希构建并检查运行镜像；启动 PostgreSQL 后保存权限 0600 的迁移前备份，再执行兼容迁移、切换 Web/Worker，并检查本机及公网健康接口。脚本成功后才删除本项目除当前版和上一版以外的镜像，最后将**共享** Docker 构建缓存收敛到最多 3 GB、保留至少 2 GB；这可能让其他项目下次构建变慢，但不会删除容器、数据库卷、用户文件或备份。不要使用 `docker system prune --volumes` 或 `docker compose down -v`。备份不自动轮删，需另行建立异地加密备份和保留策略。
+
+迁移期间保留已有 Web、Worker 在线，不先 `down`。如果迁移拿不到锁，退出并调查，不增加停服迁移开关。`IMAGE_TAG` 在成功切换前写入私密配置；发布失败时不清理旧镜像，先排查，再按迁移兼容性决定是否切回上一版。当前只运行一个共享 Worker，关闭时等待已领取任务结束。
 
 配置工作区依赖 `0002_safe_wallflower.sql`（添加名字、提示词及能力开关）和 `0003_merge_prompt.sql`。`0003` 把原先分开的人设与自定义提示词拼接成 `system_prompt`，随后删除 `persona`、`instructions` 两列，属于非兼容变更：必须在同一次发布窗口内执行迁移并重启 Web 与 Worker，旧进程不能在迁移后继续读写配置。迁移顺序和内容见[开发文档](development.md#数据与模块)。
 

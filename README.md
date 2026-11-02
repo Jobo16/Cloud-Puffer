@@ -77,7 +77,7 @@ pnpm build
 
 ## 自行部署与参与开发
 
-[Docker 部署说明](docs/deployment.md)提供 Web、Worker、PostgreSQL 共享部署方式。托管服务的普通用户无需配置供应商；自行部署的维护者需要完成配置。目前尚未接入文件及对象存储。
+[Docker 部署说明](docs/deployment.md)提供 Web、Worker、PostgreSQL 共享部署方式及固定发布、备份、镜像和构建缓存清理流程。托管服务的普通用户无需配置供应商；自行部署的维护者需要完成配置。目前尚未接入文件及对象存储。
 
 先阅读[产品需求](docs/PRD.md)、[实现架构](docs/architecture.md)和[工作约定](AGENTS.md)。欢迎提交边界清晰的改进或可复现的问题；原始选型与开源项目调研见[文档索引](docs/README.md)。
 
