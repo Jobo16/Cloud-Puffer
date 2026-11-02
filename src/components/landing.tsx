@@ -198,26 +198,136 @@ export function Landing({
         </section>
       </main>
 
-      <footer className="landing-footer glass">
-        <Link href="/" className="wordmark">
-          <Mark />
-          <span>JOJOBOT</span>
-        </Link>
-        <div>
-          <a
-            href={`${repository}/blob/main/LICENSE`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            MIT License
-          </a>
-          <a
-            href={`${repository}/blob/main/README.en.md`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            English README ↗
-          </a>
+      <footer className="site-footer">
+        <div className="footer-top">
+          <div className="footer-brand">
+            <Link className="wordmark" href="/">
+              <Mark />
+              <span>JOJOBOT</span>
+            </Link>
+            <p>
+              开源的私人 AI 助手。待办、记忆和对话都在一个账号里，网页和微信共用同一条记录。
+            </p>
+          </div>
+          <nav className="footer-cols" aria-label="页脚导航">
+            <div className="footer-col">
+              <h3>产品</h3>
+              <ul>
+                <li>
+                  <a href="#what">能做什么</a>
+                </li>
+                <li>
+                  <a href="#status">当前进度</a>
+                </li>
+                <li>
+                  <a href="#open-source">开源与许可</a>
+                </li>
+                <li>
+                  <button type="button" onClick={enter}>
+                    {session?.user.emailVerified ? "我的空间" : "登录 / 注册"}
+                  </button>
+                </li>
+              </ul>
+            </div>
+            <div className="footer-col">
+              <h3>文档</h3>
+              <ul>
+                <li>
+                  <a
+                    href={`${repository}/blob/main/docs/workspace.md`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    使用说明
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href={`${repository}/blob/main/docs/deployment.md`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    自己部署
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href={`${repository}/blob/main/docs/architecture.md`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    实现架构
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href={`${repository}/blob/main/docs/PRD.md`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    产品规划
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div className="footer-col">
+              <h3>项目</h3>
+              <ul>
+                <li>
+                  <a href={repository} target="_blank" rel="noreferrer">
+                    源代码
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href={`${repository}/issues`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    问题反馈
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href={`${repository}/blob/main/README.en.md`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    English README
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </nav>
+        </div>
+        <div className="footer-bottom">
+          <p>
+            © 2026 JOJOBOT
+            <span aria-hidden="true">·</span>
+            <a href="https://jobo.ink" target="_blank" rel="noreferrer">
+              JOBO 维护
+            </a>
+            <span aria-hidden="true">·</span>
+            开发预览版
+          </p>
+          <div className="footer-links">
+            <a
+              href={`${repository}/blob/main/LICENSE`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              MIT License
+            </a>
+            <a
+              className="footer-icon"
+              href={repository}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="GitHub 仓库"
+            >
+              <Code2 size={16} />
+            </a>
+          </div>
         </div>
       </footer>
 

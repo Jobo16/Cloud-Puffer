@@ -1605,8 +1605,7 @@ textarea::placeholder {
   padding: 0 var(--space-4);
   font-size: 12px;
 }
-.landing-nav .wordmark,
-.landing-footer .wordmark {
+.landing-nav .wordmark {
   gap: 10px;
   font-size: 13px;
   font-weight: 550;
@@ -1849,40 +1848,111 @@ textarea::placeholder {
   line-height: 1.85;
 }
 
-.landing-footer {
+/* 页脚：站点信息区。发丝线之后直接排链接列，不套第二层面板。 */
+.site-footer {
+  margin-top: clamp(48px, 8vh, 80px);
+  border-top: 1px solid var(--hairline);
+  padding: var(--space-10) 0 var(--space-8);
+}
+.footer-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: var(--space-12);
+}
+.footer-brand .wordmark {
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 550;
+  letter-spacing: 0.04em;
+}
+.footer-brand .jojo-mark {
+  width: 26px;
+  height: 26px;
+  border-radius: 9px;
+  gap: 4px;
+}
+.footer-brand .jojo-mark > span {
+  width: 3px;
+  height: 9px;
+}
+.footer-brand .jojo-mark > span:last-child {
+  height: 5px;
+}
+.footer-brand p {
+  max-width: 22rem;
+  margin-top: var(--space-4);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.85;
+  text-wrap: pretty;
+}
+.footer-cols {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-6);
+}
+.footer-col h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 550;
+  letter-spacing: 0.02em;
+}
+.footer-col ul {
+  display: grid;
+  gap: 10px;
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.footer-col a,
+.footer-col button {
+  color: var(--muted);
+  font-size: 13px;
+  text-align: left;
+  transition: color 0.15s;
+}
+.footer-col button {
+  padding: 0;
+}
+.footer-col a:hover,
+.footer-col button:hover {
+  color: var(--ink);
+}
+.footer-bottom {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-5);
-  margin-top: var(--space-4);
-  padding: 14px 18px;
-  border-radius: var(--radius);
-}
-.landing-footer .jojo-mark {
-  width: 24px;
-  height: 24px;
-  border-radius: 8px;
-  gap: 4px;
-}
-.landing-footer .jojo-mark > span {
-  height: 8px;
-  width: 3px;
-}
-.landing-footer .jojo-mark > span:last-child {
-  height: 5px;
-}
-.landing-footer > div {
-  display: flex;
   gap: var(--space-4);
-  font-family: var(--font-mono);
-  letter-spacing: 0.04em;
+  margin-top: var(--space-10);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--hairline);
+  color: var(--muted);
+  font-size: 12px;
 }
-.landing-footer a {
-  color: var(--faint);
+.footer-bottom p {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.footer-bottom p span {
+  opacity: 0.55;
+}
+.footer-bottom a {
   transition: color 0.15s;
 }
-.landing-footer a:hover {
+.footer-bottom a:hover {
   color: var(--ink);
+}
+.footer-links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+.footer-icon {
+  display: inline-flex;
+  color: var(--faint);
 }
 .auth-form input {
   font-size: 16px;
@@ -1910,6 +1980,14 @@ textarea::placeholder {
   }
   .hero-demo {
     max-width: 520px;
+  }
+  /* 窄一些时品牌单独成行，三列链接才不至于挤到贴边 */
+  .footer-top {
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+  .footer-brand p {
+    max-width: 34rem;
   }
 }
 
@@ -1978,11 +2056,18 @@ textarea::placeholder {
     gap: var(--space-5);
     margin-top: var(--space-6);
   }
-  .landing-footer {
-    flex-wrap: wrap;
-    gap: var(--space-3);
-    margin-top: var(--space-3);
-    padding: 12px 14px;
+  .site-footer {
+    margin-top: var(--space-10);
+    padding: var(--space-8) 0 var(--space-6);
+  }
+  .footer-cols {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-8) var(--space-4);
+  }
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-top: var(--space-8);
   }
 }
 
