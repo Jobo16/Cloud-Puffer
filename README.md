@@ -1,33 +1,33 @@
-![JOJOBOT — A little order, a little ease](docs/assets/github-cover.svg)
+![JOJOBOT — 一点秩序，一点从容](docs/assets/github-cover.svg)
 
 # JOJOBOT
 
-**A personal AI assistant for everyday life, across web and chat.**
+**在网页和聊天窗口中，帮你打理日常的个人 AI 助手。**
 
-[简体中文](README.zh-CN.md) · [What works](#project-status) · [Run locally](#run-locally) · [Architecture](docs/architecture.md) · [Roadmap](docs/PRD.md)
+[English](README.en.md) · [当前状态](#当前状态) · [本地运行](#本地运行) · [实现架构](docs/architecture.md) · [产品规划](docs/PRD.md)
 
-JOJOBOT keeps one conversation, tasks, and personal memory together for each account. It runs as one shared service, without a separate machine for every user.
+JOJOBOT 为每个账号保留一条跨渠道对话、待办和个人记忆，由同一套共享服务承载。
 
-## Project status
+## 当前状态
 
-> **Development preview.** You can run the application locally. The hosted service is not public, and the WeChat and QQ adapters still need real-account verification. Model, private file storage, and production email providers have not been selected.
+> **开发预览版。** 应用可以在本地运行；托管服务尚未公开，微信与 QQ 仍需真实账号验收。模型、私有文件存储和正式发信供应商尚未选定。
 
-Available in this preview:
+当前预览版已有：
 
-- A public project homepage with modal sign-in, registration, and password recovery.
-- Open email/password registration, email verification, password changes, and session revocation.
-- An Apple-inspired glass workspace with desktop and mobile layouts.
-- Persistent tasks and explicit personal memory, editable from the web or through agent tools.
-- One conversation per account, queued model execution, incremental responses, cancellation, tool result records, history pagination, and daily message limits.
-- An iLink text adapter: QR binding, encrypted credentials, shared polling, durable deduplication, and conservative submission status. **Real WeChat account/device verification remains pending.**
-- A shared official QQ bot adapter for private text chat: one-time account binding, shared conversation/queue, and bounded text/image replies. QQ credentials, permissions, and real-device verification remain pending.
-- Natural-language reply guidance and four original built-in stickers for web/QQ, with a per-account opt-out and no consecutive reuse of the same sticker. Reading incoming images and learning a user's writing style are not implemented.
+- 展示开源项目的公开首页，登录、注册和找回密码使用浮窗。
+- 邮箱密码开放注册、邮箱验证、修改密码和登录会话撤销。
+- 参考 Apple 的玻璃风格工作区，支持桌面与手机布局。
+- 持久化的待办和明确保存的个人记忆，网页与 Agent 工具复用业务规则。
+- 每账号一条主对话、后台执行、逐步显示回复、停止执行、操作记录、历史翻页和每日消息额度。
+- iLink 文本适配：扫码绑定、凭据加密、共享轮询、持久化去重与投递状态。**JOJOBOT 的真实微信账号与手机验收仍待完成。**
+- QQ 官方机器人私聊适配：一次性账号绑定、共用主对话与队列、限制条数的文字和图片回复。QQ 凭据、权限与真实设备收发仍待验证。
+- 自然语气约定与四张原创内置表情，用于网页和 QQ，可按账号关闭，避免相邻轮次重复同一张。尚不支持理解用户发来的图片或自动学习说话风格。
 
-Still planned: scheduled reminders and calendar events, search, notes, private files, document generation/retrieval, operational administration, and platform-wide cost limits. A task deadline does **not** currently send a reminder.
+后续开发：定时提醒、起止时间日程、搜索、笔记、私有文件、资料检索与文档生成、运营管理及全平台成本上限。现在的待办截止时间**不会触发提醒**。
 
-## Run locally
+## 本地运行
 
-Requires Node.js 24, pnpm 10.30.3, and Docker Compose.
+需要 Node.js 24、pnpm 10.30.3 和 Docker Compose。
 
 ```sh
 pnpm install --frozen-lockfile
@@ -37,21 +37,21 @@ pnpm db:migrate
 pnpm dev
 ```
 
-In another terminal:
+另开一个终端运行：
 
 ```sh
 pnpm worker
 ```
 
-Open [localhost:3030](http://localhost:3030). Verification/reset messages go to the local [Mailpit inbox](http://localhost:18025); they are not sent to the internet. Registration does not require an invitation code. `dev:setup` preserves an existing `.env` and generates private secrets only when the file is absent.
+打开 [localhost:3030](http://localhost:3030)。注册无需邀请码，验证与重设密码邮件在本地 [Mailpit 收件箱](http://localhost:18025) 查看，不会发送到互联网。`dev:setup` 仅在 `.env` 不存在时生成私密配置，不覆盖现有文件。
 
-The default configuration has **no model connection**. Tasks and memory work without one; chatting reports that the model is unavailable. Configure `MODEL_BASE_URL`, `MODEL_API_KEY`, and `MODEL_NAME` in `.env` for an OpenAI-compatible chat-completions provider that supports streaming and tool calls, then restart Web and Worker. Provider compatibility still needs verification with the chosen supplier.
+默认**未连接模型**。待办和记忆可以直接使用；聊天会如实提示服务尚未配置。在 `.env` 填入 `MODEL_BASE_URL`、`MODEL_API_KEY`、`MODEL_NAME`，使用支持流式回复及工具调用的 OpenAI 兼容 chat-completions 服务，再重启 Web 和 Worker。选定供应商后仍需完成兼容性验证。
 
-WeChat is disabled by default. Set `ILINK_ENABLED=true` to begin integration testing with a separate test WeChat account. Do not connect the same account to two deployments. An accepted API submission is not proof of delivery or reading; uncertain sends are not automatically retried.
+微信默认关闭。设置 `ILINK_ENABLED=true` 后，可使用独立测试微信进行接入验证。不要让同一微信账号同时连接两套部署。“已提交微信”不代表送达或已读；投递不确定时不会自动重复发送。
 
-QQ is also disabled by default. After deployment preparation, set `QQ_ENABLED`, `QQ_APP_ID`, and `QQ_APP_SECRET` for a platform-owned QQ bot; `QQ_BOT_URL` optionally links to its sharing page. Users bind from Settings by privately sending the one-time command to that bot. See [QQ and DSH plugin research](docs/research/qq-and-dsh-plugins-2026-11-02.md) and [deployment requirements](docs/deployment.md). No DSH plugin runtime is installed.
+QQ 也默认关闭。部署准备完成后配置平台机器人的 `QQ_ENABLED`、`QQ_APP_ID`、`QQ_APP_SECRET`；可通过 `QQ_BOT_URL` 提供机器人分享链接。用户在设置生成一次性绑定指令，在 QQ 私聊发给机器人即可绑定。准入和插件分析见 [QQ 与 DSH 插件调研](docs/research/qq-and-dsh-plugins-2026-11-02.md)，外部验收见[部署说明](docs/deployment.md)。未安装 DSH 插件运行环境。
 
-## Development
+## 开发与检查
 
 ```sh
 pnpm typecheck
@@ -60,18 +60,18 @@ pnpm test
 pnpm build
 ```
 
-Tests create and migrate a separate `jojobot_test` database on the local development PostgreSQL server. They use model/network fixtures and local Mailpit, never production credentials. See [development and verification](docs/development.md) for details, configuration, and current limitations.
+测试在本地开发 PostgreSQL 中创建并迁移独立的 `jojobot_test` 数据库，使用模型/网络测试替身及本地 Mailpit，不读取生产凭据。配置、检查细节与当前限制见[开发与验证](docs/development.md)。
 
-The stack is Next.js 16, React 19, TypeScript, Tailwind CSS 4, Base UI, AI SDK, Better Auth, Drizzle, PostgreSQL 17, and pg-boss. A single shared worker serves accounts concurrently while ordering each user's turns. No per-user VM/container, Redis, or additional agent framework is required.
+技术栈：Next.js 16、React 19、TypeScript、Tailwind CSS 4、Base UI、AI SDK、Better Auth、Drizzle、PostgreSQL 17、pg-boss。一个共享 Worker 并发服务多个用户，同一用户的对话按顺序执行；无需每用户容器、Redis 或额外 Agent 框架。
 
-Stop the development server before changing dependencies, then restart it. Installing packages while Turbopack is watching can cause repeated reloads while pnpm reorganizes dependencies.
+修改依赖前先停止开发服务，安装完成后重启。pnpm 重排依赖目录时，正在运行的 Turbopack 可能持续触发热更新。
 
-## Self-hosting and contributing
+## 自行部署与参与开发
 
-[Docker deployment](docs/deployment.md) describes a shared Web/Worker/PostgreSQL installation. End users of a future hosted service will not configure providers; self-hosting operators must configure them. File/object storage is not implemented yet.
+[Docker 部署说明](docs/deployment.md)提供 Web、Worker、PostgreSQL 共享部署方式。未来托管服务的普通用户无需配置供应商；自行部署的维护者需要完成配置。目前尚未接入文件及对象存储。
 
-Start with the [PRD](docs/PRD.md), [architecture](docs/architecture.md), and [contribution conventions](AGENTS.md). Small, complete changes and reproducible bug reports are welcome. The full [documentation index](docs/README.md) includes the original technology and open-source research.
+先阅读[产品需求](docs/PRD.md)、[实现架构](docs/architecture.md)和[工作约定](AGENTS.md)。欢迎提交边界清晰的改进或可复现的问题；原始选型与开源调研见[文档索引](docs/README.md)。
 
-## License
+## 许可证
 
-[MIT](LICENSE). Copyright © 2026 JOBO. See [third-party notices](THIRD_PARTY_NOTICES.md) for the adapted glass material and dependency licenses.
+[MIT](LICENSE)，Copyright © 2026 JOBO。玻璃材质改编与依赖许可见[第三方声明](THIRD_PARTY_NOTICES.md)。
