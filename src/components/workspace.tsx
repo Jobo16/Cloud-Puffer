@@ -16,6 +16,7 @@ import { Button, Mark, Modal } from "./ui";
 import { ChatPanel } from "./chat-panel";
 import { AssistantEditor } from "./assistant-editor";
 import { TasksPanel, MemoryPanel, SettingsPanel } from "./workspace-panels";
+import { ThemeToggle } from "./theme-toggle";
 
 type Page = "assistant" | "chat" | "tasks" | "memories" | "settings";
 export type Mutate = (
@@ -154,12 +155,15 @@ export function Workspace({
                 : navigation.find((n) => n.id === page)?.label}
             </h1>
           </div>
-          {!connected && (
-            <span className="connection" title="正在重连">
-              <span className="status-dot offline" />
-              <span className="sr-only">正在重连</span>
-            </span>
-          )}
+          <div className="topbar-actions">
+            <ThemeToggle />
+            {!connected && (
+              <span className="connection" title="正在重连">
+                <span className="status-dot offline" />
+                <span className="sr-only">正在重连</span>
+              </span>
+            )}
+          </div>
         </header>
         {error && (
           <div className="workspace-notice notice error" role="alert">
@@ -216,6 +220,7 @@ export function Workspace({
             <div>
               <strong>{state.preferences.agentName}</strong>
             </div>
+            <ThemeToggle className="mobile-theme-toggle" />
           </header>
           <ChatPanel
             key={chatKey}

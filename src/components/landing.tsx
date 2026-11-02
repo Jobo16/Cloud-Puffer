@@ -15,6 +15,7 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { Button, Mark, Modal } from "./ui";
 import { AuthForm } from "./login";
+import { ThemeToggle } from "./theme-toggle";
 
 const repository = "https://github.com/Jobo16/JOJOBOT";
 
@@ -57,6 +58,7 @@ export function Landing({
             <Code2 size={16} />
             <span>GitHub</span>
           </a>
+          <ThemeToggle />
           <span className="nav-divider" aria-hidden="true" />
           <Button className="primary" onClick={enter}>
             {session?.user.emailVerified ? "我的空间" : "登录 / 注册"}

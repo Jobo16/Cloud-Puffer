@@ -16,17 +16,79 @@
 }
 
 :root {
+  color-scheme: light;
   --sticker-size: 160px;
   --ink: #15181d;
   --muted: #525a66;
   --faint: #6e747e;
   --accent: #185fa5;
+  /* 承载白字的实底强调色；深色下另取一档，避免蓝底发灰 */
+  --accent-fill: #185fa5;
   --accent-soft: #e6eef7;
   --bg: #eef1f0;
   --line: rgb(21 24 29 / 12%);
   --hairline: var(--line);
   --surface-solid: #f7f7f4;
   --danger: #a24339;
+  --danger-soft: #f6eae4;
+  --ok: #6d9d7b;
+  --warn: #ae9471;
+  --on-ink: #ffffff;
+  --ink-hover: #262a32;
+
+  /* 材质：顶光 / 底色 / 描边 / 内高光 / 投影，与 jobo.ink 同一套配方 */
+  --glass-top: rgb(255 255 255 / 50%);
+  --glass-fill: rgb(255 255 255 / 46%);
+  --glass-border: rgb(255 255 255 / 62%);
+  --glass-hi: rgb(255 255 255 / 80%);
+  --glass-shadow: rgb(21 24 29 / 50%);
+  --halo: rgb(255 255 255 / 55%);
+
+  /* 白色叠加层阶：深色下整体压到 3.5%–12% */
+  --veil-35: rgb(255 255 255 / 35%);
+  --veil-40: rgb(255 255 255 / 40%);
+  --veil-50: rgb(255 255 255 / 50%);
+  --veil-55: rgb(255 255 255 / 55%);
+  --veil-60: rgb(255 255 255 / 60%);
+  --veil-62: rgb(255 255 255 / 62%);
+  --veil-70: rgb(255 255 255 / 70%);
+  --veil-80: rgb(255 255 255 / 80%);
+
+  /* 墨色叠加层阶：阴影、描边、按下态 */
+  --ink-a4: rgb(21 24 29 / 4%);
+  --ink-a6: rgb(21 24 29 / 6%);
+  --ink-a8: rgb(21 24 29 / 8%);
+  --ink-a10: rgb(21 24 29 / 10%);
+  --ink-a20: rgb(21 24 29 / 20%);
+
+  /* 面：主区、浮层、底部 tab 栏、气泡、代码块等 */
+  --raised: #ffffff;
+  --panel-fill: rgb(252 252 250 / 78%);
+  --panel-float: rgb(249 250 251 / 90%);
+  --sheet: rgb(248 250 251 / 92%);
+  --backdrop: rgb(240 242 244 / 42%);
+  --bubble: #e8edf3;
+  --chip: #e9eef4;
+  --code-bg: #eceff4;
+  --track: #e3e6eb;
+  --bar: #7fa6c9;
+  --avatar-bg: #dee3ea;
+  --placeholder: #8d939c;
+  --focus-line: #a8b3c0;
+  --rule-strong: #b6c0cd;
+  --switch-track: #ccd2da;
+  --switch-knob: #ffffff;
+  --notch: #15181d;
+  --phone-shell: #fafafa;
+  --phone-bg: #f4f6f8;
+  --phone-edge: #cdd3db;
+
+  --stage-mist:
+    radial-gradient(60% 50% at 10% 4%, #c2d7ef 0%, transparent 64%),
+    radial-gradient(48% 46% at 92% 10%, #dcd4ee 0%, transparent 66%),
+    radial-gradient(56% 50% at 78% 94%, #cde3d8 0%, transparent 62%),
+    linear-gradient(180deg, #eef1f0 0%, #e6eae8 100%);
+
   --radius-sm: 12px;
   --radius: 18px;
   --radius-lg: 24px;
@@ -47,6 +109,76 @@
   --text-xl: 24px;
   --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
 }
+
+/* 深色：底子近黑，玻璃改成「白 5% + 1px 白描边」，层级靠亮度差不靠投影；
+   背景柔光保留色相但压到 20%–30%，否则整页发灰。 */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --ink: #e8ecf1;
+  --muted: #a3abb6;
+  --faint: #7d8592;
+  --accent: #7fb0e0;
+  --accent-fill: #2f7fc4;
+  --accent-soft: rgb(127 176 224 / 16%);
+  --bg: #0e1115;
+  --line: rgb(255 255 255 / 11%);
+  --surface-solid: #161a1f;
+  --danger: #e08b80;
+  --danger-soft: rgb(224 139 128 / 14%);
+  --ok: #7bbf92;
+  --warn: #d0a86e;
+  --on-ink: #0e1115;
+  --ink-hover: #f2f6fa;
+
+  --glass-top: rgb(255 255 255 / 7%);
+  --glass-fill: rgb(255 255 255 / 5%);
+  --glass-border: rgb(255 255 255 / 10%);
+  --glass-hi: rgb(255 255 255 / 9%);
+  --glass-shadow: rgb(0 0 0 / 60%);
+  --halo: rgb(255 255 255 / 4%);
+
+  --veil-35: rgb(255 255 255 / 3.5%);
+  --veil-40: rgb(255 255 255 / 4%);
+  --veil-50: rgb(255 255 255 / 5%);
+  --veil-55: rgb(255 255 255 / 6%);
+  --veil-60: rgb(255 255 255 / 6.5%);
+  --veil-62: rgb(255 255 255 / 7%);
+  --veil-70: rgb(255 255 255 / 9%);
+  --veil-80: rgb(255 255 255 / 12%);
+
+  --ink-a4: rgb(255 255 255 / 3%);
+  --ink-a6: rgb(255 255 255 / 4%);
+  --ink-a8: rgb(255 255 255 / 5%);
+  --ink-a10: rgb(255 255 255 / 7%);
+  --ink-a20: rgb(255 255 255 / 14%);
+
+  --raised: rgb(255 255 255 / 9%);
+  --panel-fill: rgb(22 26 31 / 86%);
+  --panel-float: rgb(24 28 34 / 92%);
+  --sheet: rgb(16 20 25 / 94%);
+  --backdrop: rgb(6 8 11 / 55%);
+  --bubble: rgb(255 255 255 / 10%);
+  --chip: rgb(255 255 255 / 6%);
+  --code-bg: rgb(255 255 255 / 7%);
+  --track: rgb(255 255 255 / 12%);
+  --bar: #6fa3d4;
+  --avatar-bg: rgb(255 255 255 / 12%);
+  --placeholder: #7f8895;
+  --focus-line: rgb(255 255 255 / 26%);
+  --rule-strong: rgb(255 255 255 / 22%);
+  --switch-track: rgb(255 255 255 / 18%);
+  --switch-knob: #f2f5f9;
+  --notch: #06080b;
+  --phone-shell: #1b2027;
+  --phone-bg: #10141a;
+  --phone-edge: rgb(255 255 255 / 14%);
+
+  --stage-mist:
+    radial-gradient(60% 50% at 10% 4%, rgb(58 104 156 / 30%) 0%, transparent 64%),
+    radial-gradient(48% 46% at 92% 10%, rgb(96 78 152 / 26%) 0%, transparent 66%),
+    radial-gradient(56% 50% at 78% 94%, rgb(46 110 88 / 24%) 0%, transparent 62%),
+    linear-gradient(180deg, #0f1317 0%, #0a0c0f 100%);
+}
 * {
   box-sizing: border-box;
 }
@@ -58,11 +190,7 @@ body {
 body {
   color: var(--ink);
   background-color: var(--bg);
-  background-image:
-    radial-gradient(60% 50% at 10% 4%, #c2d7ef 0%, transparent 64%),
-    radial-gradient(48% 46% at 92% 10%, #dcd4ee 0%, transparent 66%),
-    radial-gradient(56% 50% at 78% 94%, #cde3d8 0%, transparent 62%),
-    linear-gradient(180deg, #eef1f0 0%, #e6eae8 100%);
+  background-image: var(--stage-mist);
   background-attachment: fixed;
   font-family:
     -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC",
@@ -134,18 +262,18 @@ svg {
   flex-shrink: 0;
 }
 /* Adapted from glasscn-components' MIT frosted material. See THIRD_PARTY_NOTICES.md. */
-/* 材质配方与 jobo.ink 一致，见该仓库 DESIGN.md 第 2 节 */
+/* 材质与深浅两套取值见 jobo.ink 仓库 DESIGN.md 第 2、7 节；改令牌必须两处同改 */
 .glass {
   background:
-    linear-gradient(135deg, rgb(255 255 255 / 50%) 0%, rgb(255 255 255 / 0) 42%),
-    rgb(255 255 255 / 46%);
-  border: 1px solid rgb(255 255 255 / 62%);
+    linear-gradient(135deg, var(--glass-top) 0%, transparent 42%),
+    var(--glass-fill);
+  border: 1px solid var(--glass-border);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 80%),
-    0 22px 50px -30px rgb(21 24 29 / 50%),
-    0 1px 2px rgb(21 24 29 / 4%);
+    inset 0 1px 0 var(--glass-hi),
+    0 22px 50px -30px var(--glass-shadow),
+    0 1px 2px var(--ink-a4);
 }
 .row {
   display: flex;
@@ -188,7 +316,7 @@ svg {
   min-height: 36px;
   padding: 0 var(--space-4);
   border-radius: var(--radius-pill);
-  background: rgb(255 255 255 / 55%);
+  background: var(--veil-55);
   border: 1px solid var(--hairline);
   font-size: 12.5px;
   font-weight: 500;
@@ -199,8 +327,8 @@ svg {
     transform 0.15s;
 }
 .button:hover:not(:disabled) {
-  background: rgb(255 255 255 / 82%);
-  border-color: rgb(21 24 29 / 20%);
+  background: var(--veil-80);
+  border-color: var(--ink-a20);
 }
 .button:active:not(:disabled) {
   transform: translateY(1px);
@@ -208,10 +336,10 @@ svg {
 .button.primary {
   background: var(--ink);
   border-color: transparent;
-  color: white;
+  color: var(--on-ink);
 }
 .button.primary:hover:not(:disabled) {
-  background: #262a32;
+  background: var(--ink-hover);
   border-color: transparent;
 }
 .button.danger {
@@ -227,6 +355,30 @@ svg {
   background: transparent;
   min-width: 36px;
   min-height: 36px;
+}
+/* 主题切换：只留图标，悬停给一层薄白，不抢主按钮的重量 */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-color: transparent;
+  color: var(--muted);
+}
+.theme-toggle:hover:not(:disabled) {
+  background: var(--veil-70);
+  color: var(--ink);
+}
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+/* 手机聊天页没有配置面板的顶栏，切换入口放在手机头里；桌面预览中隐藏 */
+.mobile-theme-toggle {
+  display: none;
 }
 .wordmark {
   display: inline-flex;
@@ -244,7 +396,7 @@ svg {
   height: 33px;
   width: 33px;
   border-radius: var(--radius-sm);
-  background: var(--accent);
+  background: var(--accent-fill);
   transform: rotate(-7deg);
   flex-shrink: 0;
 }
@@ -275,7 +427,7 @@ svg {
   font-size: 10px;
   font-weight: 400;
   padding: var(--space-1) var(--space-2);
-  background: rgb(255 255 255 / 50%);
+  background: var(--veil-50);
   border-radius: var(--radius-pill);
   color: var(--muted);
   margin-left: var(--space-2);
@@ -298,7 +450,7 @@ input,
 textarea {
   width: 100%;
   min-width: 0;
-  background: rgb(255 255 255 / 70%);
+  background: var(--veil-70);
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   color: var(--ink);
@@ -310,7 +462,7 @@ textarea {
 }
 input::placeholder,
 textarea::placeholder {
-  color: #8d939c;
+  color: var(--placeholder);
 }
 .notice {
   padding: var(--space-3) var(--space-4);
@@ -323,7 +475,7 @@ textarea::placeholder {
   gap: var(--space-2);
 }
 .notice.error {
-  background: #f6eae4;
+  background: var(--danger-soft);
   color: var(--danger);
 }
 .login-page {
@@ -374,7 +526,7 @@ textarea::placeholder {
   position: absolute;
   width: 280px;
   height: 140px;
-  border: 1px solid #d5e1d8;
+  border: 1px solid var(--hairline);
   border-radius: 50%;
   transform: rotate(-18deg);
 }
@@ -477,12 +629,12 @@ textarea::placeholder {
   color: var(--muted);
 }
 .nav-item:hover {
-  background: rgb(255 255 255 / 35%);
+  background: var(--veil-35);
 }
 .nav-item.active {
-  background: white;
+  background: var(--raised);
   color: var(--accent);
-  box-shadow: 0 2px 6px rgb(21 24 29 / 4%);
+  box-shadow: 0 2px 6px var(--ink-a4);
   font-weight: 550;
 }
 .nav-count {
@@ -507,17 +659,17 @@ textarea::placeholder {
   margin: var(--space-3) 0 var(--space-2);
   border: none;
   border-radius: var(--radius-pill);
-  background: #e3e6eb;
+  background: var(--track);
   overflow: hidden;
 }
 .quota progress::-webkit-progress-bar {
-  background: #e3e6eb;
+  background: var(--track);
 }
 .quota progress::-webkit-progress-value {
-  background: #7fa6c9;
+  background: var(--bar);
 }
 .quota progress::-moz-progress-bar {
-  background: #7fa6c9;
+  background: var(--bar);
 }
 .profile {
   display: flex;
@@ -545,7 +697,7 @@ textarea::placeholder {
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: #dee3ea;
+  background: var(--avatar-bg);
   font-size: var(--text-sm);
   flex-shrink: 0;
 }
@@ -555,7 +707,7 @@ textarea::placeholder {
   display: flex;
   flex-direction: column;
   border-radius: var(--radius-lg);
-  background: rgb(252 252 250 / 78%);
+  background: var(--panel-fill);
   overflow: hidden;
 }
 .topbar {
@@ -584,11 +736,11 @@ textarea::placeholder {
   height: 6px;
   width: 6px;
   border-radius: 50%;
-  background: #6d9d7b;
+  background: var(--ok);
   flex-shrink: 0;
 }
 .status-dot.offline {
-  background: #ae9471;
+  background: var(--warn);
 }
 .mobile-brand {
   display: none;
@@ -625,7 +777,7 @@ textarea::placeholder {
   place-items: center;
   margin-bottom: var(--space-8);
   transform: rotate(5deg);
-  background: rgb(232 238 246 / 65%);
+  background: var(--accent-soft);
 }
 .welcome h2 {
   font-size: 32px;
@@ -653,14 +805,14 @@ textarea::placeholder {
   font-size: var(--text-xs);
   white-space: nowrap;
   box-shadow: none;
-  background: rgb(255 255 255 / 55%);
+  background: var(--veil-55);
 }
 .suggestion > svg:last-child {
   margin-left: auto;
-  color: #929aa5;
+  color: var(--faint);
 }
 .suggestion:hover {
-  background: white;
+  background: var(--raised);
 }
 .composer-area {
   flex-shrink: 0;
@@ -671,8 +823,8 @@ textarea::placeholder {
 .composer {
   border-radius: var(--radius);
   padding: var(--space-4);
-  background: rgb(255 255 255 / 80%);
-  box-shadow: 0 4px 30px rgb(21 24 29 / 6%);
+  background: var(--veil-80);
+  box-shadow: 0 4px 30px var(--ink-a6);
 }
 .composer textarea {
   padding: 0;
@@ -689,7 +841,7 @@ textarea::placeholder {
   outline: none;
 }
 .composer:focus-within {
-  outline: 1px solid #a8b3c0;
+  outline: 1px solid var(--focus-line);
 }
 .composer-actions {
   display: flex;
@@ -702,7 +854,7 @@ textarea::placeholder {
   height: 34px;
   min-height: 34px;
   padding: 0;
-  background: var(--accent);
+  background: var(--accent-fill);
   color: white;
 }
 .model-notice {
@@ -735,7 +887,7 @@ textarea::placeholder {
 .message-text {
   padding: var(--space-3) var(--space-5);
   border-radius: var(--radius) var(--radius) var(--space-1) var(--radius);
-  background: #e8edf3;
+  background: var(--bubble);
   max-width: 85%;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -789,7 +941,7 @@ textarea::placeholder {
 .markdown pre {
   overflow-x: auto;
   padding: var(--space-4);
-  background: #eceff4;
+  background: var(--code-bg);
   border-radius: var(--radius-sm);
   font-size: var(--text-sm);
 }
@@ -813,7 +965,7 @@ textarea::placeholder {
   text-align: left;
 }
 .markdown blockquote {
-  border-left: 2px solid #b6c0cd;
+  border-left: 2px solid var(--rule-strong);
   padding-left: var(--space-4);
   color: var(--muted);
 }
@@ -827,7 +979,7 @@ textarea::placeholder {
   display: flex;
   align-items: center;
   gap: var(--space-1);
-  background: #e9eef4;
+  background: var(--chip);
   padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
   font-size: var(--text-xs);
@@ -844,7 +996,7 @@ textarea::placeholder {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #8b9cb0;
+  background: var(--faint);
   animation: breathe 1.5s infinite;
 }
 .thinking button {
@@ -914,9 +1066,9 @@ textarea::placeholder {
   color: var(--muted);
 }
 .segmented button.selected {
-  background: white;
+  background: var(--raised);
   color: var(--accent);
-  box-shadow: 0 1px 5px rgb(0 0 0 / 4%);
+  box-shadow: 0 1px 5px var(--ink-a4);
 }
 .record-list {
   margin-bottom: var(--space-5);
@@ -952,7 +1104,7 @@ textarea::placeholder {
 }
 .task-check {
   padding: var(--space-1) 0;
-  color: #8f99a6;
+  color: var(--faint);
 }
 .completed .record-content strong {
   text-decoration: line-through;
@@ -970,7 +1122,7 @@ textarea::placeholder {
 .empty-state svg {
   display: block;
   margin: 0 auto var(--space-5);
-  color: #8f99a6;
+  color: var(--faint);
 }
 .empty-state h3 {
   color: var(--ink);
@@ -981,7 +1133,7 @@ textarea::placeholder {
 }
 .memory-icon {
   padding-top: var(--space-1);
-  color: #8f99a6;
+  color: var(--faint);
 }
 .settings-section {
   max-width: 760px;
@@ -992,7 +1144,7 @@ textarea::placeholder {
 .settings-card {
   padding: var(--space-6);
   border-radius: var(--radius);
-  background: rgb(255 255 255 / 55%);
+  background: var(--veil-55);
   margin-bottom: var(--space-5);
 }
 .settings-card p {
@@ -1031,7 +1183,7 @@ textarea::placeholder {
 .dialog-backdrop {
   position: fixed;
   inset: 0;
-  background: rgb(240 242 244 / 42%);
+  background: var(--backdrop);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   z-index: 50;
@@ -1047,11 +1199,11 @@ textarea::placeholder {
   overflow-y: auto;
   border-radius: var(--radius-lg);
   padding: var(--space-8);
-  background: rgb(255 255 255 / 74%);
+  background: var(--panel-float);
   backdrop-filter: blur(26px) saturate(180%);
   -webkit-backdrop-filter: blur(26px) saturate(180%);
-  border: 1px solid rgb(255 255 255 / 70%);
-  box-shadow: 0 40px 90px -40px rgb(21 24 29 / 55%);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 40px 90px -40px var(--glass-shadow);
 }
 .dialog h2 {
   font-size: var(--text-xl);
@@ -1188,7 +1340,7 @@ textarea::placeholder {
       calc(var(--space-2) + env(safe-area-inset-bottom));
     border-radius: var(--radius) var(--radius) 0 0;
     z-index: 20;
-    background: rgb(248 250 251 / 92%);
+    background: var(--sheet);
     border-bottom: none;
   }
   .sidebar > .wordmark,
@@ -1209,7 +1361,7 @@ textarea::placeholder {
     font-size: 9px;
   }
   .nav-item.active {
-    background: #e5ebf3;
+    background: var(--accent-soft);
     box-shadow: none;
   }
   .nav-count {
@@ -1413,7 +1565,7 @@ textarea::placeholder {
     background 0.15s;
 }
 .nav-link:hover {
-  background: rgb(255 255 255 / 70%);
+  background: var(--veil-70);
   color: var(--ink);
 }
 .nav-divider {
@@ -1501,24 +1653,20 @@ textarea::placeholder {
   position: absolute;
   width: 420px;
   height: 280px;
-  border: 1px solid rgb(21 24 29 / 10%);
+  border: 1px solid var(--ink-a10);
   border-radius: 50%;
   transform: rotate(-28deg);
 }
 .orbit-two {
   width: 440px;
   height: 300px;
-  border-color: rgb(21 24 29 / 8%);
+  border-color: var(--ink-a8);
   transform: rotate(45deg);
 }
 .art-halo {
   position: absolute;
   inset: 0;
-  background: radial-gradient(
-    58% 48% at 50% 46%,
-    rgb(255 255 255 / 55%),
-    transparent 72%
-  );
+  background: radial-gradient(58% 48% at 50% 46%, var(--halo), transparent 72%);
 }
 .personal-card {
   position: relative;
@@ -1530,7 +1678,7 @@ textarea::placeholder {
   justify-content: center;
   padding: var(--space-6);
   border-radius: var(--radius-lg);
-  background: rgb(255 255 255 / 62%);
+  background: var(--veil-62);
   transform: rotate(-5deg);
 }
 .art-mark {
@@ -1605,7 +1753,7 @@ textarea::placeholder {
   place-items: center;
   border: 1px solid var(--hairline);
   border-radius: 14px;
-  background: rgb(255 255 255 / 55%);
+  background: var(--veil-55);
   color: var(--accent);
 }
 .channel-line {
@@ -1874,7 +2022,7 @@ textarea::placeholder {
   display: none;
 }
 .workspace[data-page="chat"] .nav-assistant {
-  background: white;
+  background: var(--raised);
   color: var(--accent);
   font-weight: 550;
 }
@@ -1996,7 +2144,7 @@ textarea::placeholder {
   flex-shrink: 0;
   border: 0;
   border-radius: var(--radius-pill);
-  background: #ccd2da;
+  background: var(--switch-track);
   cursor: pointer;
   transition: background 0.15s;
 }
@@ -2008,12 +2156,12 @@ textarea::placeholder {
   left: 3px;
   top: 3px;
   border-radius: 50%;
-  background: white;
-  box-shadow: 0 1px 3px rgb(0 0 0 / 12%);
+  background: var(--switch-knob);
+  box-shadow: 0 1px 3px var(--ink-a10);
   transition: transform 0.15s;
 }
 .capability input:checked {
-  background: var(--accent);
+  background: var(--accent-fill);
 }
 .capability input:checked::before {
   transform: translateX(16px);
@@ -2037,7 +2185,7 @@ textarea::placeholder {
   justify-content: space-between;
   gap: var(--space-3);
   flex-wrap: wrap;
-  background: rgb(249 250 251 / 90%);
+  background: var(--panel-float);
 }
 .editor-save strong {
   display: flex;
@@ -2067,11 +2215,11 @@ textarea::placeholder {
   display: flex;
   flex-direction: column;
   border-radius: var(--phone-radius);
-  border: 6px solid #fafafa;
-  background: #f4f6f8;
+  border: 6px solid var(--phone-shell);
+  background: var(--phone-bg);
   box-shadow:
-    0 0 0 1px #cdd3db,
-    0 18px 48px rgb(21 24 29 / 10%);
+    0 0 0 1px var(--phone-edge),
+    0 18px 48px var(--ink-a10);
   overflow: hidden;
 }
 .phone-hardware {
@@ -2084,7 +2232,7 @@ textarea::placeholder {
   width: 80px;
   height: 19px;
   border-radius: var(--radius-pill);
-  background: var(--ink);
+  background: var(--notch);
 }
 .phone-header {
   display: flex;
@@ -2119,7 +2267,7 @@ textarea::placeholder {
   width: 100px;
   height: 4px;
   border-radius: var(--radius-pill);
-  background: var(--ink);
+  background: var(--notch);
 }
 .preview-panel .chat-scroll {
   padding: var(--space-4);
@@ -2254,7 +2402,7 @@ textarea::placeholder {
       calc(var(--space-2) + env(safe-area-inset-bottom));
     border-radius: var(--radius) var(--radius) 0 0;
     z-index: 20;
-    background: rgb(248 250 251 / 95%);
+    background: var(--sheet);
   }
   .sidebar > .wordmark,
   .sidebar-bottom {
@@ -2326,6 +2474,9 @@ textarea::placeholder {
   }
   .phone-header {
     padding: var(--space-5);
+  }
+  .mobile-theme-toggle {
+    display: inline-flex;
   }
   .preview-panel .composer-area {
     padding: 0 var(--space-4) var(--space-3);
