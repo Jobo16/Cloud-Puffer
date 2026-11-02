@@ -41,7 +41,7 @@ scp .local/jojobot-deploy.bundle server-renovation:/opt/stacks/jojobot/deploy.bu
 ssh server-renovation 'cd /opt/apps/jojobot/repo && git bundle verify /opt/stacks/jojobot/deploy.bundle && git fetch /opt/stacks/jojobot/deploy.bundle main && git merge --ff-only FETCH_HEAD && ./scripts/deploy-server.sh'
 ```
 
-`deploy-server.sh` 加独占锁、检查干净的 `main` 和至少 4 GiB 空间，以提交短哈希构建并检查运行镜像；启动 PostgreSQL 后保存权限 0600 的迁移前备份，再执行兼容迁移、切换 Web/Worker，并检查本机及公网健康接口。脚本成功后才删除本项目除当前版和上一版以外的镜像，最后将**共享** Docker 构建缓存收敛到最多 3 GB、保留至少 2 GB；这可能让其他项目下次构建变慢，但不会删除容器、数据库卷、用户文件或备份。不要使用 `docker system prune --volumes` 或 `docker compose down -v`。备份不自动轮删，需另行建立异地加密备份和保留策略。
+`deploy-server.sh` 加独占锁、检查干净的 `main` 和至少 4 GiB 空间，以提交短哈希构建并检查运行镜像；启动 PostgreSQL 后保存权限 0600 的迁移前备份，再执行兼容迁移、切换 Web/Worker，并检查本机及公网健康接口。脚本成功后才删除本项目除当前版和上一版以外的镜像，最后以 3 GB 为目标清理**共享** Docker 构建缓存，并设置 2 GB 缓存保留量。Docker 可能保留被镜像引用的层，因此 `docker system df` 显示的构建缓存总量未必低于 3 GB。清理可能让其他项目下次构建变慢，但不会删除容器、数据库卷、用户文件或备份。不要使用 `docker system prune --volumes` 或 `docker compose down -v`。备份不自动轮删，需另行建立异地加密备份和保留策略。
 
 迁移期间保留已有 Web、Worker 在线，不先 `down`。如果迁移拿不到锁，退出并调查，不增加停服迁移开关。`IMAGE_TAG` 在成功切换前写入私密配置；发布失败时不清理旧镜像，先排查，再按迁移兼容性决定是否切回上一版。当前只运行一个共享 Worker，关闭时等待已领取任务结束。
 
@@ -69,6 +69,8 @@ docker compose --env-file .env.production logs --tail=50 worker
 2026-11-02 首次托管验收：`/api/health` 在服务器本机及 HTTPS 域名均返回 ready；Worker 就绪；生产管理员邮箱完成注册与验证，登录后 `/api/admin` 和 `/app/admin` 均返回 200，默认每日额度为 1000 分。独立临时账号完成两轮真实模型回复，第二轮报告输入 3505 token，其中缓存命中 3072 token；临时账号随后删除。尚未验证 QQ、微信生产渠道、完整模型工具调用与长期运行。
 
 同日后续微信验收：用户确认手机扫码和基础文字收发正常；生产库有一个 `connected` 微信连接，8 轮微信消息均已完成且提交接口返回 `accepted`。手机确认只覆盖这次基础文字场景，欢迎图片实际送达、断线恢复和长期稳定性仍待验收。
+
+同日固定发布流程验收：`43d5f5e` 由已推送的 Git bundle 快进到服务器，运行 `scripts/deploy-server.sh` 成功；迁移前备份为 0600，本机及公网 `/api/health` 返回 ready，Web 和 Worker 正常启动。运行镜像从上一版约 1.27 GB 降至约 1.17 GB；清理后可用空间从发布前 8.3 GB 增至 9.3 GB。BuildKit 仍报告约 3.58 GB 缓存，其中包含被其他镜像引用的层；这是清理目标而非硬上限。
 
 ## QQ 部署后验收
 
