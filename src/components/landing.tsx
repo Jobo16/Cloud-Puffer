@@ -2,14 +2,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-  ArrowRight,
   ArrowUpRight,
   Brain,
   Code2,
-  Globe,
-  Heart,
   ListTodo,
-  MessageCircle,
+  SlidersHorizontal,
   Smartphone,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
@@ -18,6 +15,47 @@ import { AuthForm } from "./login";
 import { ThemeToggle } from "./theme-toggle";
 
 const repository = "https://github.com/Jobo16/JOJOBOT";
+
+const capabilities = [
+  {
+    icon: ListTodo,
+    title: "待办",
+    body: "「周五前交材料」说出来就成一条待办，之后可以改时间、补说明、标完成。",
+  },
+  {
+    icon: Brain,
+    title: "记忆",
+    body: "明确说「记住我不喜欢开会」，它就存下来。记忆列在网页上，可以改，也可以删。",
+  },
+  {
+    icon: Smartphone,
+    title: "渠道",
+    body: "在微信里说一句，回到网页接着看。两个入口共用同一条对话和同一份待办。",
+  },
+  {
+    icon: SlidersHorizontal,
+    title: "人设",
+    body: "名字、人设、提示词和能力开关都在工作区里调，下一轮回复按新设定走。",
+  },
+];
+
+const status = [
+  {
+    tone: "ok",
+    label: "已经可用",
+    body: "账号与邮箱验证、网页主对话、待办、个人记忆、表情回复，以及按账号保存的助手配置。",
+  },
+  {
+    tone: "warn",
+    label: "正在验证",
+    body: "微信实机收发、QQ 官方机器人，以及模型接入——本地默认不连模型。",
+  },
+  {
+    tone: "todo",
+    label: "还没做",
+    body: "定时提醒、带起止时间的日程、联网搜索、文件与文档，以及运营后台。",
+  },
+] as const;
 
 export function Landing({
   openAuth,
@@ -41,12 +79,12 @@ export function Landing({
           <Mark />
           <span>JOJOBOT</span>
         </Link>
-        <nav aria-label="项目导航">
-          <a className="nav-link" href="#possibilities">
+        <nav aria-label="页面导航">
+          <a className="nav-link" href="#what">
             能做什么
           </a>
-          <a className="nav-link" href="#open-source">
-            为什么开源
+          <a className="nav-link" href="#status">
+            当前进度
           </a>
           <a
             className="nav-link nav-github"
@@ -66,23 +104,21 @@ export function Landing({
           </Button>
         </nav>
       </header>
+
       <main>
         <section className="landing-hero">
-          <div className="panel glass hero-copy">
+          <div className="hero-lede">
             <h1>
-              生活很满，
+              一句话，
               <br />
-              心里留点<span>空白。</span>
+              把事<span>记下。</span>
             </h1>
             <p>
-              一个随时在的个人 AI 助手。
-              <br />
-              记下小事，理清思路，在熟悉的地方接着聊。
+              JOJOBOT 是一个开源的私人 AI 助手。待办、记忆和对话都在同一个账号里，网页和微信共用一条对话，换设备接着说。
             </p>
             <div className="hero-actions">
               <Button className="primary" onClick={enter}>
-                进入我的空间
-                <ArrowRight size={16} />
+                {session?.user.emailVerified ? "进入我的空间" : "免费注册"}
               </Button>
               <a
                 className="text-link"
@@ -90,142 +126,78 @@ export function Landing({
                 target="_blank"
                 rel="noreferrer"
               >
-                看看源代码
+                源代码
                 <ArrowUpRight size={15} />
               </a>
             </div>
           </div>
-          <aside className="panel glass hero-art" aria-hidden="true">
-            <div className="art-orbit orbit-one" />
-            <div className="art-orbit orbit-two" />
-            <div className="art-halo" />
-            <div className="personal-card glass">
-              <div className="art-mark">
-                <Mark large />
-              </div>
-              <span className="art-title">你好，我是 JOJO。</span>
-              <p>想到什么，慢慢说。</p>
+
+          <figure className="hero-demo glass" aria-hidden="true">
+            <div className="demo-head">
+              <Mark />
+              <span>JOJO</span>
             </div>
-          </aside>
+            <div className="demo-thread">
+              <p className="demo-bubble">帮我记个待办：周五前交材料</p>
+              <p className="demo-said">记下了。</p>
+              <div className="demo-task">
+                <span className="demo-check" />
+                <span>周五前交材料</span>
+                <em>待办</em>
+              </div>
+              <p className="demo-bubble">以后回答简短一点</p>
+              <p className="demo-said">好。</p>
+            </div>
+          </figure>
         </section>
 
-        <section className="panel glass landing-features" id="possibilities">
-          <div className="landing-section-title">
-            <h2>
-              把小事安顿好，
-              <br className="mobile-only" />
-              把时间还给生活。
-            </h2>
-          </div>
-          <div className="feature-list">
-            {[
-              {
-                icon: MessageCircle,
-                number: "01",
-                title: "想到，就说出来。",
-                body: "聊一个想法，梳理一件事。对话保存在自己的空间，随时回来继续。",
-              },
-              {
-                icon: ListTodo,
-                number: "02",
-                title: "小事，也有着落。",
-                body: "记下待办、补充说明、标记完成。可以自己整理，也可以交给接入模型后的 JOJO。",
-              },
-              {
-                icon: Brain,
-                number: "03",
-                title: "懂你，由你决定。",
-                body: "明确告诉 JOJO 要记住什么。偏好和记忆可以查看、修改，也可以随时忘记。",
-              },
-            ].map(({ icon: Icon, number, title, body }) => (
-              <article className="feature-row" key={number}>
-                <span className="feature-number mono">{number}</span>
-                <div className="feature-copy">
+        <section className="landing-block" id="what">
+          <h2>它能替你做什么</h2>
+          <div className="landing-capabilities">
+            {capabilities.map(({ icon: Icon, title, body }) => (
+              <article className="landing-capability" key={title}>
+                <Icon size={18} />
+                <div>
                   <h3>{title}</h3>
                   <p>{body}</p>
                 </div>
-                <span className="feature-icon">
-                  <Icon size={19} />
-                </span>
               </article>
             ))}
           </div>
         </section>
 
-        <section className="panel glass channel-banner">
-          <div className="channel-inner">
-            <div className="channel-symbols" aria-hidden="true">
-              <span>
-                <Globe size={24} />
-              </span>
-              <span className="channel-line" />
-              <span>
-                <Smartphone size={24} />
-              </span>
-            </div>
-            <div className="channel-copy">
-              <h2>一个助手，不止一个聊天窗口。</h2>
-              <p>
-                网页与微信 iLink 共用一条主对话。接入适配已开始，微信实机验证进行中。
-              </p>
-            </div>
+        <section className="status-panel" id="status">
+          <h2>现在能做到哪一步</h2>
+          <p>
+            这是开发预览版，托管服务还没公开。下面是目前的真实状态，也可以先在自己的机器上跑起来看。
+          </p>
+          <div className="status-grid">
+            {status.map(({ tone, label, body }) => (
+              <div className="status-col" key={label}>
+                <h3 data-tone={tone}>{label}</h3>
+                <p>{body}</p>
+              </div>
+            ))}
           </div>
         </section>
 
-        <section className="panel glass open-source-section" id="open-source">
-          <div className="os-grid">
-            <div className="os-copy">
-              <h2>
-                一个人的助手，
-                <br />
-                一起做得更好。
-              </h2>
-              <p>
-                JOJOBOT 采用 MIT 许可证。可以阅读代码、自己部署，也可以一起完善它。个人助手不止属于少数人。
-              </p>
-              <a
-                className="text-link"
-                href={repository}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <Code2 size={17} />在 GitHub 上参与
-                <ArrowUpRight size={15} />
-              </a>
-            </div>
-            <div className="project-notes">
-              <div>
-                <Code2 size={18} />
-                <span>
-                  <strong>共享云端，独立空间</strong>
-                  <p>
-                    多用户共用服务，每个人的对话与数据按账号隔离，无需为每个人准备一台服务器。
-                  </p>
-                </span>
-              </div>
-              <div>
-                <Globe size={18} />
-                <span>
-                  <strong>使用简单，部署开放</strong>
-                  <p>
-                    托管服务面向无需配置的日常使用；自行部署时，由维护者配置模型与邮件服务。
-                  </p>
-                </span>
-              </div>
-              <div>
-                <Heart size={18} />
-                <span>
-                  <strong>从小而实用开始</strong>
-                  <p>
-                    当前是开发预览。提醒、搜索和文档能力还在路上，欢迎通过 Issue
-                    分享反馈。
-                  </p>
-                </span>
-              </div>
-            </div>
-          </div>
+        <section className="landing-block landing-os" id="open-source">
+          <h2>代码在 GitHub 上，MIT 许可。</h2>
+          <p>
+            可以读、可以改、可以自己部署；不想折腾的话，托管服务跑的是同一份代码。多个账号共用一套服务，对话、待办和记忆按账号分开。
+          </p>
+          <a
+            className="text-link"
+            href={repository}
+            target="_blank"
+            rel="noreferrer"
+          >
+            查看仓库和文档
+            <ArrowUpRight size={15} />
+          </a>
         </section>
       </main>
+
       <footer className="landing-footer glass">
         <Link href="/" className="wordmark">
           <Mark />
@@ -240,14 +212,15 @@ export function Landing({
             MIT License
           </a>
           <a
-            href={`${repository}/blob/main/README.md`}
+            href={`${repository}/blob/main/README.en.md`}
             target="_blank"
             rel="noreferrer"
           >
-            English docs ↗
+            English README ↗
           </a>
         </div>
       </footer>
+
       {login && (
         <Modal
           title="JOJOBOT 账号"
