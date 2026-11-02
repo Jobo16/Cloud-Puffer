@@ -148,7 +148,7 @@ export function AccountMenu({
           onClick={() => setOpen(false)}
         >
           <ArrowUpRight size={16} />
-          关于与开源
+          关于与代码
           <span className="account-item-note">GitHub</span>
         </a>
       </div>
@@ -165,7 +165,7 @@ export function AccountMenu({
         <LogOut size={16} />
         退出登录
       </button>
-      <p className="account-foot">开发预览版 · MIT</p>
+      <p className="account-foot">开发预览版 · 非商业许可</p>
     </div>
   );
 

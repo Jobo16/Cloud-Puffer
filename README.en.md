@@ -81,4 +81,4 @@ Start with the [PRD](docs/PRD.md), [architecture](docs/architecture.md), and [co
 
 ## License
 
-[MIT](LICENSE). Copyright © 2026 JOBO. See [third-party notices](THIRD_PARTY_NOTICES.md) for the adapted glass material and dependency licenses.
+Original project code and artwork in this release are available under [PolyForm Noncommercial 1.0.0](LICENSE), with the copyright notice in [NOTICE](NOTICE). You may read, modify, and use them for noncommercial purposes; commercial use requires separate permission from the rights holder. This is a source-available license, not an OSI-approved open-source license. Previously published MIT versions retain their original permissions. Third-party components keep their own licenses; see [third-party notices](THIRD_PARTY_NOTICES.md).
