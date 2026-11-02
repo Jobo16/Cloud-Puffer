@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
-import { ArrowUpRight, KeyRound, LogOut, MoreHorizontal } from "lucide-react";
+import { ArrowUpRight, AtSign, KeyRound, LogOut, MoreHorizontal } from "lucide-react";
 import { clsx } from "clsx";
 import type { AppState } from "@/server/state";
 import { authClient } from "@/lib/auth-client";
@@ -150,6 +150,18 @@ export function AccountMenu({
           <ArrowUpRight size={16} />
           关于与代码
           <span className="account-item-note">GitHub</span>
+        </a>
+        <a
+          role="menuitem"
+          className="account-item"
+          href="https://jobo.ink"
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => setOpen(false)}
+        >
+          <AtSign size={16} />
+          联系作者
+          <span className="account-item-note">jobo.ink</span>
         </a>
       </div>
       <button
