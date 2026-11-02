@@ -23,7 +23,7 @@ const deliveryLabels = {
   not_sent: "未发送",
 };
 
-// This is the real main conversation; the phone frame is only its desktop presentation.
+// 真实主对话。桌面和手机共用同一套面板，只是可用宽度不同。
 export function ChatPanel({
   state,
   refresh,

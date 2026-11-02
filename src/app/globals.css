@@ -78,10 +78,6 @@
   --rule-strong: #b6c0cd;
   --switch-track: #ccd2da;
   --switch-knob: #ffffff;
-  --notch: #15181d;
-  --phone-shell: #fafafa;
-  --phone-bg: #f4f6f8;
-  --phone-edge: #cdd3db;
 
   --stage-mist:
     radial-gradient(60% 50% at 10% 4%, #c2d7ef 0%, transparent 64%),
@@ -168,10 +164,6 @@
   --rule-strong: rgb(255 255 255 / 22%);
   --switch-track: rgb(255 255 255 / 18%);
   --switch-knob: #f2f5f9;
-  --notch: #06080b;
-  --phone-shell: #1b2027;
-  --phone-bg: #10141a;
-  --phone-edge: rgb(255 255 255 / 14%);
 
   --stage-mist:
     radial-gradient(60% 50% at 10% 4%, rgb(58 104 156 / 30%) 0%, transparent 64%),
