@@ -11,7 +11,7 @@ const deliveryLabels = {
   pending: "等待提交",
   submitting: "正在提交",
   accepted: "已提交 · 未确认送达",
-  partial: "部分提交成功 · 完整回复见网页",
+  partial: "部分内容已提交",
   unknown: "投递结果不确定 · 不会自动重发",
   failed: "提交失败 · 完整回复见网页",
   not_sent: "未发送",

@@ -4,8 +4,10 @@ import {
   createHash,
   randomBytes,
 } from "node:crypto";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
-import { and, eq, lt, or } from "drizzle-orm";
+import { and, eq, inArray, lt, or } from "drizzle-orm";
 import QRCode from "qrcode";
 import { z } from "zod";
 import { db, transaction } from "../db";
@@ -15,7 +17,22 @@ import { enqueueTurn, runErrors } from "./conversations";
 import { AppError } from "./errors";
 
 const ORIGIN = "https://ilinkai.weixin.qq.com";
+const CDN_ORIGIN = "https://novac2c.cdn.weixin.qq.com/c2c";
 const baseInfo = { channel_version: "0.1.0", bot_agent: "JOJOBOT/0.1.0" };
+const welcome =
+  "欢迎来到云上小肥鱼！你可以给这个微信联系人换备注和头像：点聊天右上角的设置，进入「更多」，在「备注名」填「小肥鱼」或你喜欢的名字；在「头像」选用我随后发的图片。下面先发操作示意图，再发头像图；长按头像图保存到手机即可。";
+const welcomeImages = [
+  {
+    key: "guide",
+    load: () =>
+      readFile(join(process.cwd(), "public/guides/wechat-rename.jpg")),
+  },
+  {
+    key: "avatar",
+    load: () =>
+      readFile(join(process.cwd(), "public/guides/wechat-avatar.jpg")),
+  },
+] as const;
 export function allowedIlinkOrigin(value: string) {
   const url = new URL(value.includes("://") ? value : `https://${value}`);
   if (
@@ -424,6 +441,75 @@ export async function superviseChannels(signal: AbortSignal) {
     await Promise.allSettled(polling);
   }
 }
+async function uploadWelcomeImage(
+  channel: typeof channels.$inferSelect,
+  image: Buffer,
+) {
+  const key = randomBytes(16);
+  const filekey = randomBytes(16).toString("hex");
+  const cipher = createCipheriv("aes-128-ecb", key, null);
+  const encrypted = Buffer.concat([cipher.update(image), cipher.final()]);
+  const upload = z
+    .object({
+      upload_full_url: z.string().optional(),
+      upload_param: z.string().optional(),
+    })
+    .parse(
+      await request(
+        channel.baseUrl,
+        "/ilink/bot/getuploadurl",
+        {
+          filekey,
+          media_type: 1,
+          to_user_id: channel.peerId,
+          rawsize: image.length,
+          rawfilemd5: createHash("md5").update(image).digest("hex"),
+          filesize: encrypted.length,
+          no_need_thumb: true,
+          aeskey: key.toString("hex"),
+          base_info: baseInfo,
+        },
+        decryptToken(channel.tokenCipher),
+      ),
+    );
+  const url = upload.upload_full_url
+    ? new URL(upload.upload_full_url)
+    : upload.upload_param
+      ? new URL(
+          `${CDN_ORIGIN}/upload?encrypted_query_param=${encodeURIComponent(upload.upload_param)}&filekey=${filekey}`,
+        )
+      : null;
+  if (
+    !url ||
+    url.protocol !== "https:" ||
+    !url.hostname.endsWith(".cdn.weixin.qq.com") ||
+    url.port ||
+    url.username ||
+    url.password
+  )
+    throw new Error("WECHAT_GUIDE_UPLOAD_URL");
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/octet-stream" },
+    body: new Uint8Array(encrypted),
+    signal: AbortSignal.timeout(15000),
+    redirect: "error",
+  });
+  const downloadParam = response.headers.get("x-encrypted-param");
+  if (response.status !== 200 || !downloadParam)
+    throw new Error("WECHAT_GUIDE_UPLOAD_FAILED");
+  return {
+    type: 2,
+    image_item: {
+      media: {
+        encrypt_query_param: downloadParam,
+        aes_key: Buffer.from(key.toString("hex")).toString("base64"),
+        encrypt_type: 1,
+      },
+      mid_size: encrypted.length,
+    },
+  };
+}
 export async function deliverRun(id: string) {
   const [run] = await db()
     .select()
@@ -463,14 +549,29 @@ export async function deliverRun(id: string) {
     .where(and(eq(runs.id, id), eq(runs.deliveryStatus, "pending")))
     .returning();
   if (!claimed) return;
+  const [previous] = await db()
+    .select({ id: runs.id })
+    .from(runs)
+    .where(
+      and(
+        eq(runs.userId, run.userId),
+        eq(runs.source, "wechat"),
+        inArray(runs.deliveryStatus, ["accepted", "partial", "unknown"]),
+      ),
+    )
+    .limit(1);
+  const firstReply = !previous;
   const text =
     run.output ||
     runErrors[run.errorCode ?? ""] ||
     "这次回复未完成，请在网页查看。";
+  const message = firstReply ? `${welcome}\n\n${text}` : text;
   const body =
-    text.length > 3800
-      ? `${text.slice(0, 3700)}\n\n内容较长，完整回复已保存在网页主对话中。`
-      : text;
+    message.length > 3800
+      ? `${message.slice(0, 3700)}\n\n内容较长，完整回复已保存在网页主对话中。`
+      : message;
+  let textAccepted = false;
+  let imageSubmitting = false;
   try {
     await request(
       channel.baseUrl,
@@ -489,6 +590,38 @@ export async function deliverRun(id: string) {
       },
       decryptToken(channel.tokenCipher),
     );
+    textAccepted = true;
+    if (firstReply)
+      for (const imageFile of welcomeImages) {
+        const image = await uploadWelcomeImage(channel, await imageFile.load());
+        const [active] = await db()
+          .select({ id: channels.id })
+          .from(channels)
+          .where(
+            and(eq(channels.id, channel.id), eq(channels.status, "connected")),
+          );
+        if (!active)
+          throw new AppError("CHANNEL_CHANGED", 409, "微信连接已变更。");
+        imageSubmitting = true;
+        await request(
+          channel.baseUrl,
+          "/ilink/bot/sendmessage",
+          {
+            msg: {
+              from_user_id: "",
+              to_user_id: channel.peerId,
+              client_id: `cloud-puffer-${imageFile.key}-${id}`,
+              message_type: 2,
+              message_state: 2,
+              context_token: run.contextToken,
+              item_list: [image],
+            },
+            base_info: baseInfo,
+          },
+          decryptToken(channel.tokenCipher),
+        );
+        imageSubmitting = false;
+      }
     await db()
       .update(runs)
       .set({ deliveryStatus: "accepted", updatedAt: new Date() })
@@ -497,11 +630,22 @@ export async function deliverRun(id: string) {
     const definite =
       error instanceof AppError &&
       ["ILINK_REJECTED", "ILINK_EXPIRED"].includes(error.code);
+    const status = textAccepted
+      ? imageSubmitting && !definite
+        ? "unknown"
+        : "partial"
+      : definite
+        ? "failed"
+        : "unknown";
     await db()
       .update(runs)
       .set({
-        deliveryStatus: definite ? "failed" : "unknown",
-        deliveryError: definite ? error.code : "UNKNOWN",
+        deliveryStatus: status,
+        deliveryError: textAccepted
+          ? "WECHAT_GUIDE_IMAGE_FAILED"
+          : definite
+            ? error.code
+            : "UNKNOWN",
         updatedAt: new Date(),
       })
       .where(eq(runs.id, id));

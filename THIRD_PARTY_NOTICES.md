@@ -30,4 +30,6 @@ SOFTWARE.
 
 The QQ adapter uses `@tencent-connect/qqbot-nodejs` 1.0.5 (MIT, Copyright © 2026 Tencent); its license is retained in the installed package. DSH projects were research references only; no DSH plugin source or runtime is bundled. Artwork in `public/stickers` is original Cloud Puffer material, covered by this repository's MIT license.
 
+The cropped setup guide in `public/guides` uses screenshots supplied by the project owner to explain WeChat's contact settings. WeChat interface names and marks belong to their respective owners. The separate avatar image was also supplied by the project owner.
+
 Base UI, Next.js, React, Tailwind CSS, AI SDK, Better Auth, Drizzle, pg-boss, Lucide, and other packages retain their own licenses distributed with the installed packages. Cloud Puffer's MIT license does not replace those notices. Exact versions and transitive packages are recorded in `pnpm-lock.yaml`.

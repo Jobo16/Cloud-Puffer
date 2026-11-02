@@ -674,6 +674,11 @@ describe("channel and HTTP boundaries", () => {
         tokenCipher: encryptToken("test-token"),
       })
       .returning();
+    await seedRun({
+      source: "wechat",
+      channelId: channel.id,
+      deliveryStatus: "accepted",
+    });
     const run = await seedRun({
       source: "wechat",
       status: "completed",
@@ -706,6 +711,11 @@ describe("channel and HTTP boundaries", () => {
         tokenCipher: encryptToken("test-token"),
       })
       .returning();
+    await seedRun({
+      source: "wechat",
+      channelId: channel.id,
+      deliveryStatus: "accepted",
+    });
     const run = await seedRun({
       source: "wechat",
       status: "completed",
@@ -730,6 +740,124 @@ describe("channel and HTTP boundaries", () => {
     await deliverRun(pending.id);
     expect((await getRun(pending.id)).deliveryStatus).toBe("not_sent");
     expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+  it("includes the rename guide only in the first WeChat reply", async () => {
+    const [channel] = await db()
+      .insert(channels)
+      .values({
+        userId: owner,
+        botId: randomUUID(),
+        peerId: randomUUID(),
+        baseUrl: "https://ilinkai.weixin.qq.com",
+        tokenCipher: encryptToken("test-token"),
+      })
+      .returning();
+    const fetcher = vi.fn(async (input: string | URL, init?: RequestInit) => {
+      const path = new URL(String(input)).pathname;
+      if (path.endsWith("/getuploadurl"))
+        return Response.json({
+          upload_full_url: "https://novac2c.cdn.weixin.qq.com/c2c/upload",
+        });
+      if (path.endsWith("/upload")) {
+        expect(init?.body).toBeInstanceOf(Uint8Array);
+        return new Response("", {
+          status: 200,
+          headers: { "x-encrypted-param": "download-param" },
+        });
+      }
+      if (path.endsWith("/sendmessage"))
+        return new Response("", { status: 200 });
+      throw new Error(`Unexpected request: ${path}`);
+    });
+    vi.stubGlobal("fetch", fetcher);
+    const first = await seedRun({
+      source: "wechat",
+      status: "completed",
+      output: "你好！",
+      contextToken: "context",
+      channelId: channel.id,
+      deliveryStatus: "pending",
+    });
+    await deliverRun(first.id);
+    expect((await getRun(first.id)).deliveryStatus).toBe("accepted");
+    const second = await seedRun({
+      source: "wechat",
+      status: "completed",
+      output: "第二次回复",
+      contextToken: "context",
+      channelId: channel.id,
+      deliveryStatus: "pending",
+    });
+    await deliverRun(second.id);
+    const sends = fetcher.mock.calls
+      .filter(([url]) => String(url).endsWith("/sendmessage"))
+      .map(([, init]) => JSON.parse(String(init?.body)).msg);
+    expect(sends).toHaveLength(4);
+    expect(sends[0].item_list[0].text_item.text).toContain("备注名");
+    expect(sends[0].item_list[0].text_item.text).toContain("你好！");
+    expect(sends[1].item_list[0]).toMatchObject({
+      type: 2,
+      image_item: {
+        media: { encrypt_query_param: "download-param", encrypt_type: 1 },
+      },
+    });
+    expect(sends[2].item_list[0].type).toBe(2);
+    expect(sends[1].client_id).not.toBe(sends[2].client_id);
+    expect(sends[3].item_list[0].text_item.text).toBe("第二次回复");
+    expect(
+      fetcher.mock.calls.filter(([url]) =>
+        String(url).endsWith("/getuploadurl"),
+      ),
+    ).toHaveLength(2);
+  });
+  it("keeps the first reply when a welcome image cannot be uploaded", async () => {
+    const [channel] = await db()
+      .insert(channels)
+      .values({
+        userId: owner,
+        botId: randomUUID(),
+        peerId: randomUUID(),
+        baseUrl: "https://ilinkai.weixin.qq.com",
+        tokenCipher: encryptToken("test-token"),
+      })
+      .returning();
+    const fetcher = vi.fn(async (input: string | URL) => {
+      const path = new URL(String(input)).pathname;
+      if (path.endsWith("/sendmessage"))
+        return new Response("", { status: 200 });
+      if (path.endsWith("/getuploadurl"))
+        return Response.json({
+          upload_full_url: "https://novac2c.cdn.weixin.qq.com/c2c/upload",
+        });
+      if (path.endsWith("/upload")) return new Response("", { status: 503 });
+      throw new Error(`Unexpected request: ${path}`);
+    });
+    vi.stubGlobal("fetch", fetcher);
+    const first = await seedRun({
+      source: "wechat",
+      status: "completed",
+      output: "你好！",
+      contextToken: "context",
+      channelId: channel.id,
+      deliveryStatus: "pending",
+    });
+    await deliverRun(first.id);
+    expect((await getRun(first.id)).deliveryStatus).toBe("partial");
+    const second = await seedRun({
+      source: "wechat",
+      status: "completed",
+      output: "继续聊",
+      contextToken: "context",
+      channelId: channel.id,
+      deliveryStatus: "pending",
+    });
+    await deliverRun(second.id);
+    expect((await getRun(second.id)).deliveryStatus).toBe("accepted");
+    expect(
+      fetcher.mock.calls.filter(([url]) =>
+        String(url).endsWith("/getuploadurl"),
+      ),
+    ).toHaveLength(1);
   });
   it("rejects unauthenticated API access and oversized request bodies", async () => {
     await expect(

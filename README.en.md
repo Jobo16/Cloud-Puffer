@@ -20,7 +20,7 @@ Available in this preview:
 - Saved assistant name, a single system prompt, and task/memory/sticker switches, applied to the next reply across channels using real account data.
 - Persistent tasks and explicit personal memory, editable from the web or through agent tools.
 - One conversation per account, queued model execution, incremental responses, cancellation, tool result records, history pagination, and daily message limits.
-- An iLink text adapter: QR binding, encrypted credentials, shared polling, durable deduplication, and conservative submission status. **One local account passed phone QR binding, text exchange, and web continuation; production and long-running behavior remain unverified.**
+- An iLink text adapter: QR binding, encrypted credentials, shared polling, durable deduplication, and conservative submission status. The first WeChat reply includes instructions for changing the contact remark and avatar, a cropped guide image, and the avatar image. **One local account passed phone QR binding, text exchange, and web continuation; delivery of the welcome images on a real phone, production use, and long-running behavior remain unverified.**
 - A shared official QQ bot adapter for private text chat: one-time account binding, shared conversation/queue, and bounded text/image replies. QQ credentials, permissions, and real-device verification remain pending.
 - Natural-language reply guidance and four original built-in stickers for web/QQ, with a per-account opt-out and no consecutive reuse of the same sticker. Reading incoming images and learning a user's writing style are not implemented.
 
@@ -67,7 +67,7 @@ pnpm test
 pnpm build
 ```
 
-Tests create and migrate a separate `jojobot_test` database on the local development PostgreSQL server. They use model/network fixtures and local Mailpit, never production credentials. On 2026-11-02, 37 integration checks, type checking, lint, production and Docker builds passed, alongside desktop/mobile viewport checks. A separate local check used a Bailian model and one real WeChat account for text exchange. See the [verification record](docs/development.md#验证记录) and current limitations.
+Tests create and migrate a separate `jojobot_test` database on the local development PostgreSQL server. They use model/network fixtures and local Mailpit, never production credentials. On 2026-11-02, 39 integration checks, type checking, lint, and the production build passed. The earlier baseline covered Docker and desktop/mobile viewports; a separate local check used a Bailian model and one real WeChat account for text exchange. Welcome image sending has only been checked with a network fixture and still needs real-phone delivery verification. See the [verification record](docs/development.md#验证记录) and current limitations.
 
 The stack is Next.js 16, React 19, TypeScript, Tailwind CSS 4, Base UI, AI SDK, Better Auth, Drizzle, PostgreSQL 17, and pg-boss. A single shared worker serves accounts concurrently while ordering each user's turns. No per-user VM/container, Redis, or additional agent framework is required.
 
