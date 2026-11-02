@@ -1,16 +1,18 @@
+![JOJOBOT — A little order, a little ease](docs/assets/github-cover.svg)
+
 # JOJOBOT
 
-**Your personal AI agent on the web and WeChat.**
+**A personal AI assistant for everyday life, across web and chat.**
 
-English | [简体中文](README.zh-CN.md)
+[简体中文](README.zh-CN.md) · [What works](#project-status) · [Run locally](#run-locally) · [Architecture](docs/architecture.md) · [Roadmap](docs/PRD.md)
 
-An open-source personal assistant for everyday life. One shared cloud service, private data per account, and one conversation across channels — without a dedicated machine for every user.
+JOJOBOT keeps one conversation, tasks, and personal memory together for each account. It runs as one shared service, without a separate machine for every user.
 
 ## Project status
 
-**Development preview, not a complete first release.** The repository now contains a runnable application. Model, storage, and production email providers have not been selected; no public hosted service has been launched.
+> **Development preview.** You can run the application locally. The hosted service is not public, and the WeChat and QQ adapters still need real-account verification. Model, private file storage, and production email providers have not been selected.
 
-Implemented in this increment:
+Available in this preview:
 
 - A public project homepage with modal sign-in, registration, and password recovery.
 - Open email/password registration, email verification, password changes, and session revocation.

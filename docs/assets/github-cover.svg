@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
+  <title id="title">JOJOBOT</title>
+  <desc id="desc">A little order, a little ease. An open-source personal assistant in development preview.</desc>
+  <rect width="1200" height="360" rx="28" fill="#f7f9f6"/>
+  <path d="M0 267 C210 203 394 277 571 241 S929 152 1200 216 V360 H0Z" fill="#e3ece6"/>
+  <path d="M785 0 H1200 V360 H1040 C955 303 908 268 820 246 C708 218 735 99 785 0Z" fill="#cedeea" opacity=".48"/>
+  <rect x="64" y="66" width="75" height="75" rx="21" fill="#345e52"/>
+  <rect x="88" y="91" width="9" height="30" rx="4.5" fill="#fff"/>
+  <rect x="108" y="98" width="9" height="23" rx="4.5" fill="#fff"/>
+  <text x="166" y="123" fill="#253c38" font-family="Arial, Helvetica, sans-serif" font-size="58" font-weight="700" letter-spacing="-2">JOJOBOT</text>
+  <text x="68" y="198" fill="#345e52" font-family="Arial, Helvetica, sans-serif" font-size="35" font-weight="600">A little order, a little ease.</text>
+  <text x="68" y="245" fill="#6f807b" font-family="Arial, Helvetica, sans-serif" font-size="24">Your open-source personal assistant</text>
+  <rect x="68" y="281" width="315" height="44" rx="22" fill="#345e52"/>
+  <text x="91" y="310" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="700" letter-spacing="1.1">DEVELOPMENT PREVIEW</text>
+  <path d="M830 113 C812 113 798 128 798 146 V215 C798 232 812 246 830 246 H895 L918 268 V246 H960 C978 246 992 232 992 215 V146 C992 128 978 113 960 113Z" fill="#fff" stroke="#dde5df" stroke-width="2"/>
+  <rect x="832" y="155" width="89" height="11" rx="5.5" fill="#e3ece6"/>
+  <rect x="832" y="180" width="123" height="11" rx="5.5" fill="#cedeea"/>
+  <path d="M1000 80 C987 80 976 91 976 104 V151 C976 165 987 176 1000 176 H1031 L1048 194 V176 H1074 C1088 176 1099 165 1099 151 V104 C1099 91 1088 80 1074 80Z" fill="#345e52"/>
+  <rect x="1000" y="113" width="50" height="8" rx="4" fill="#e3ece6"/>
+  <rect x="1000" y="135" width="73" height="8" rx="4" fill="#e3ece6"/>
+</svg>
