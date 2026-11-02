@@ -8,6 +8,7 @@ import {
   Plus,
   Square,
 } from "lucide-react";
+import { clsx } from "clsx";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { AppState } from "@/server/state";
@@ -282,6 +283,20 @@ export function ChatPanel({
             <button onClick={() => onManage("tasks")}>待办</button>和
             <button onClick={() => onManage("memories")}>记忆</button>。
           </div>
+        )}
+        {/* 用量只在快用完时出现，平时不占视线 */}
+        {state.quota.limit - state.quota.used <= 5 && (
+          <p
+            className={clsx(
+              "quota-hint",
+              state.quota.used >= state.quota.limit && "spent",
+            )}
+            role="status"
+          >
+            {state.quota.used >= state.quota.limit
+              ? "今天的对话次数用完了，北京时间零点恢复。"
+              : `今天还能聊 ${state.quota.limit - state.quota.used} 次。`}
+          </p>
         )}
         <form className="composer glass" onSubmit={send}>
           <textarea

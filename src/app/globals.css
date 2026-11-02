@@ -2246,6 +2246,15 @@ textarea::placeholder {
   width: 100%;
   padding: 0 0 var(--space-6);
 }
+.quota-hint {
+  margin-bottom: var(--space-2);
+  text-align: center;
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+.quota-hint.spent {
+  color: var(--danger);
+}
 
 /* 事项、记忆、助手共用一条内容列 */
 .page-scroll {
