@@ -10,7 +10,7 @@ JOJOBOT keeps one conversation, tasks, and personal memory together for each acc
 
 ## Project status
 
-> **Development preview.** You can run the application locally. The hosted service is not public, and the WeChat and QQ adapters still need real-account verification. Model, private file storage, and production email providers have not been selected.
+> **Development preview.** You can run the application locally. One WeChat account and a Bailian model have passed local text-chat verification. QQ, production deployment, and long-running reliability still need verification. Private file storage and production email providers have not been selected.
 
 Available in this preview:
 
@@ -20,7 +20,7 @@ Available in this preview:
 - Saved assistant name, a single system prompt, and task/memory/sticker switches, applied to the next reply across channels using real account data.
 - Persistent tasks and explicit personal memory, editable from the web or through agent tools.
 - One conversation per account, queued model execution, incremental responses, cancellation, tool result records, history pagination, and daily message limits.
-- An iLink text adapter: QR binding, encrypted credentials, shared polling, durable deduplication, and conservative submission status. **Real WeChat account/device verification remains pending.**
+- An iLink text adapter: QR binding, encrypted credentials, shared polling, durable deduplication, and conservative submission status. **One local account passed phone QR binding, text exchange, and web continuation; production and long-running behavior remain unverified.**
 - A shared official QQ bot adapter for private text chat: one-time account binding, shared conversation/queue, and bounded text/image replies. QQ credentials, permissions, and real-device verification remain pending.
 - Natural-language reply guidance and four original built-in stickers for web/QQ, with a per-account opt-out and no consecutive reuse of the same sticker. Reading incoming images and learning a user's writing style are not implemented.
 
@@ -52,7 +52,7 @@ pnpm worker
 
 Open [localhost:3030](http://localhost:3030). Verification/reset messages go to the local [Mailpit inbox](http://localhost:18025); they are not sent to the internet. Registration does not require an invitation code. `dev:setup` preserves an existing `.env` and generates private secrets only when the file is absent.
 
-The default configuration has **no model connection**. Tasks and memory work without one; chatting reports that the model is unavailable. Configure `MODEL_BASE_URL`, `MODEL_API_KEY`, and `MODEL_NAME` in `.env` for an OpenAI-compatible chat-completions provider that supports streaming and tool calls, then restart Web and Worker. Provider compatibility still needs verification with the chosen supplier.
+The default configuration has **no model connection**. Tasks and memory work without one; chatting reports that the model is unavailable. Configure `MODEL_BASE_URL`, `MODEL_API_KEY`, and `MODEL_NAME` in `.env` for an OpenAI-compatible chat-completions provider that supports streaming and tool calls, then restart Web and Worker. Local text replies have been verified with Bailian `qwen3.8-flash`; the full tool-call path still needs verification.
 
 WeChat is disabled by default. Set `ILINK_ENABLED=true` to begin integration testing with a separate test WeChat account. Do not connect the same account to two deployments. An accepted API submission is not proof of delivery or reading; uncertain sends are not automatically retried.
 
@@ -67,7 +67,7 @@ pnpm test
 pnpm build
 ```
 
-Tests create and migrate a separate `jojobot_test` database on the local development PostgreSQL server. They use model/network fixtures and local Mailpit, never production credentials. On 2026-11-02, 37 integration checks, type checking, lint, production and Docker builds passed, alongside desktop/mobile viewport checks. These results do not verify a real model provider or channel delivery. See the [verification record](docs/development.md#验证记录) and current limitations.
+Tests create and migrate a separate `jojobot_test` database on the local development PostgreSQL server. They use model/network fixtures and local Mailpit, never production credentials. On 2026-11-02, 37 integration checks, type checking, lint, production and Docker builds passed, alongside desktop/mobile viewport checks. A separate local check used a Bailian model and one real WeChat account for text exchange. See the [verification record](docs/development.md#验证记录) and current limitations.
 
 The stack is Next.js 16, React 19, TypeScript, Tailwind CSS 4, Base UI, AI SDK, Better Auth, Drizzle, PostgreSQL 17, and pg-boss. A single shared worker serves accounts concurrently while ordering each user's turns. No per-user VM/container, Redis, or additional agent framework is required.
 

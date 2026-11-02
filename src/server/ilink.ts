@@ -185,12 +185,21 @@ export async function pollBinding(
   if (!binding || binding.expiresAt.getTime() < Date.now())
     return { status: "expired" };
   if (binding.status === "confirmed") return { status: "confirmed" };
-  const status = bindSchema.parse(
-    await request(
+  let response;
+  try {
+    response = await request(
       binding.baseUrl,
       `/ilink/bot/get_qrcode_status?qrcode=${encodeURIComponent(binding.qrCode)}${verifyCode ? `&verify_code=${encodeURIComponent(verifyCode)}` : ""}`,
-    ),
-  );
+      undefined,
+      undefined,
+      AbortSignal.timeout(40_000),
+    );
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "TimeoutError")
+      return { status: "wait" };
+    throw error;
+  }
+  const status = bindSchema.parse(response);
   return transaction(async (tx) => {
     await tx.select().from(user).where(eq(user.id, userId)).for("update");
     const [current] = await tx
