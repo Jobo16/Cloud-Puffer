@@ -114,7 +114,6 @@ export function ChatPanel({
             <div className="welcome-symbol glass">
               <Mark large />
             </div>
-            <span className="eyebrow">A SPACE FOR YOUR EVERYDAY</span>
             <h2>把想到的，交给 {state.preferences.agentName}。</h2>
             <p>
               记一件事，理一个思路，或只是聊聊天。
@@ -279,11 +278,9 @@ export function ChatPanel({
         {!state.modelReady && (
           <div className="model-notice">
             <span className="status-dot offline" />
-            对话服务尚未连接。你可以先管理
-            <span>
-              <button onClick={() => onManage("tasks")}>待办</button>和
-              <button onClick={() => onManage("memories")}>记忆</button>。
-            </span>
+            对话服务未连接，可先整理
+            <button onClick={() => onManage("tasks")}>待办</button>和
+            <button onClick={() => onManage("memories")}>记忆</button>。
           </div>
         )}
         <form className="composer glass" onSubmit={send}>
@@ -307,8 +304,7 @@ export function ChatPanel({
               }
             }}
           />
-          <div className="row spread">
-            <span className="composer-hint">你的想法，在这里接着聊</span>
+          <div className="composer-actions">
             <Button
               type="submit"
               className="send-button"
@@ -319,7 +315,6 @@ export function ChatPanel({
             </Button>
           </div>
         </form>
-        <p className="composer-footnote">助手也可能出错，重要信息记得确认。</p>
       </div>
     </div>
   );

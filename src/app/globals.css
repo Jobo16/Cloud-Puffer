@@ -458,11 +458,7 @@ textarea::placeholder {
 }
 .sidebar .wordmark {
   margin-left: var(--space-3);
-}
-.sidebar-caption {
-  margin: var(--space-4) var(--space-3) var(--space-10);
-  color: var(--muted);
-  font-size: var(--text-xs);
+  margin-bottom: var(--space-10);
 }
 .sidebar nav {
   display: flex;
@@ -523,9 +519,6 @@ textarea::placeholder {
 .quota progress::-moz-progress-bar {
   background: #7fa6c9;
 }
-.quota .fine-print {
-  font-size: 10px;
-}
 .profile {
   display: flex;
   align-items: center;
@@ -545,11 +538,6 @@ textarea::placeholder {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-.profile small {
-  display: block;
-  font-size: 10px;
-  color: var(--muted);
 }
 .avatar {
   width: 35px;
@@ -582,10 +570,6 @@ textarea::placeholder {
 .topbar h1 {
   font-size: var(--text-lg);
   line-height: 1.5;
-}
-.topbar-subtitle {
-  font-size: var(--text-xs);
-  color: var(--muted);
 }
 .connection {
   display: flex;
@@ -642,10 +626,6 @@ textarea::placeholder {
   margin-bottom: var(--space-8);
   transform: rotate(5deg);
   background: rgb(232 238 246 / 65%);
-}
-.welcome .eyebrow {
-  font-size: 9px;
-  letter-spacing: 2.5px;
 }
 .welcome h2 {
   font-size: 32px;
@@ -711,12 +691,10 @@ textarea::placeholder {
 .composer:focus-within {
   outline: 1px solid #a8b3c0;
 }
-.composer .row {
+.composer-actions {
+  display: flex;
+  justify-content: flex-end;
   margin-top: var(--space-2);
-}
-.composer-hint {
-  color: #939ba6;
-  font-size: 10px;
 }
 .button.send-button {
   border-radius: var(--radius-sm);
@@ -727,12 +705,6 @@ textarea::placeholder {
   background: var(--accent);
   color: white;
 }
-.composer-footnote {
-  text-align: center;
-  margin-top: var(--space-3);
-  color: #939aa4;
-  font-size: 10px;
-}
 .model-notice {
   font-size: var(--text-xs);
   color: var(--muted);
@@ -742,9 +714,6 @@ textarea::placeholder {
   justify-content: center;
   gap: var(--space-2);
   flex-wrap: wrap;
-}
-.model-notice > span:last-child {
-  margin-left: calc(-1 * var(--space-2));
 }
 .model-notice button {
   text-decoration: underline;
@@ -1223,7 +1192,6 @@ textarea::placeholder {
     border-bottom: none;
   }
   .sidebar > .wordmark,
-  .sidebar-caption,
   .sidebar-bottom {
     display: none;
   }
@@ -1263,9 +1231,6 @@ textarea::placeholder {
   .topbar h1 {
     font-size: var(--text-base);
   }
-  .topbar-subtitle {
-    display: none;
-  }
   .mobile-brand {
     display: inline-flex;
   }
@@ -1297,9 +1262,6 @@ textarea::placeholder {
   .welcome > p {
     font-size: var(--text-xs);
   }
-  .welcome .eyebrow {
-    font-size: 8px;
-  }
   .suggestions {
     flex-direction: column;
     max-width: 300px;
@@ -1323,19 +1285,9 @@ textarea::placeholder {
     font-size: 16px;
     min-height: 34px;
   }
-  .composer-footnote {
-    margin-top: var(--space-2);
-    font-size: 9px;
-  }
   .model-notice {
     font-size: 10px;
     gap: var(--space-1);
-  }
-  .model-notice > span:last-child {
-    margin-left: 0;
-  }
-  .composer-hint {
-    font-size: 9px;
   }
   .page-scroll {
     padding: var(--space-5);
@@ -1355,10 +1307,6 @@ textarea::placeholder {
     font-size: var(--text-xs);
     padding: var(--space-2) var(--space-3);
     margin-top: var(--space-6);
-  }
-  .section-heading .eyebrow {
-    font-size: 8px;
-    letter-spacing: 1.5px;
   }
   .settings-card {
     padding: var(--space-5);
@@ -1502,25 +1450,6 @@ textarea::placeholder {
   justify-content: center;
   padding: var(--space-10);
 }
-.hero-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  width: fit-content;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  color: var(--faint);
-  transition: color 0.15s;
-}
-.hero-eyebrow:hover {
-  color: var(--ink);
-}
-.hero-eyebrow .status-dot {
-  width: 5px;
-  height: 5px;
-  background: var(--accent);
-}
 .hero-copy h1 {
   margin-top: var(--space-4);
   font-size: clamp(2rem, 4.6vw, 3.2rem);
@@ -1616,60 +1545,14 @@ textarea::placeholder {
   font-size: 12.5px;
   color: var(--muted);
 }
-.art-card-bottom {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  margin-top: var(--space-6);
-  font-family: var(--font-mono);
-  font-size: 7.5px;
-  letter-spacing: 0.1em;
-  color: var(--faint);
-}
-.floating-note {
-  position: absolute;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
-  border-radius: var(--radius-pill);
-  background: rgb(255 255 255 / 66%);
-  font-size: 11px;
-  color: var(--muted);
-}
-.note-tasks {
-  left: 16px;
-  top: 16px;
-  transform: rotate(-5deg);
-}
-.note-memory {
-  right: 16px;
-  bottom: 16px;
-  transform: rotate(3deg);
-}
 .landing-features,
 .channel-banner,
 .open-source-section {
   padding: var(--space-8);
   scroll-margin-top: var(--space-6);
 }
-.section-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-4);
-}
-.landing-section-title {
-  margin-top: var(--space-6);
-}
 .landing-section-title h2 {
   font-size: clamp(1.5rem, 2.6vw, 2rem);
-}
-.landing-section-title > p {
-  margin-top: var(--space-3);
-  color: var(--muted);
-  font-size: 13.5px;
 }
 .feature-list {
   margin-top: var(--space-8);
@@ -1740,14 +1623,6 @@ textarea::placeholder {
   color: var(--muted);
   font-size: 13.5px;
   line-height: 1.8;
-}
-.development-tag {
-  margin-left: auto;
-  padding: 4px 10px;
-  border: 1px solid var(--hairline);
-  border-radius: var(--radius-pill);
-  background: rgb(255 255 255 / 50%);
-  white-space: nowrap;
 }
 .os-grid {
   display: grid;
@@ -1868,9 +1743,6 @@ textarea::placeholder {
     width: 360px;
     height: 250px;
   }
-  .note-memory {
-    right: 12px;
-  }
   .os-grid {
     gap: var(--space-8);
   }
@@ -1937,18 +1809,6 @@ textarea::placeholder {
     width: 320px;
     height: 210px;
   }
-  .floating-note {
-    padding: 6px 11px;
-    font-size: 10px;
-  }
-  .note-tasks {
-    left: 10px;
-    top: 10px;
-  }
-  .note-memory {
-    right: 10px;
-    bottom: 10px;
-  }
   .landing-features,
   .channel-banner,
   .open-source-section {
@@ -1979,9 +1839,6 @@ textarea::placeholder {
   .channel-copy h2 {
     font-size: 18px;
   }
-  .development-tag {
-    margin-left: 0;
-  }
   .os-grid {
     grid-template-columns: 1fr;
     gap: var(--space-6);
@@ -1991,9 +1848,6 @@ textarea::placeholder {
     gap: var(--space-3);
     margin-top: var(--space-3);
     padding: 12px 14px;
-  }
-  .landing-footer > span {
-    display: none;
   }
   .mobile-only {
     display: inline;
@@ -2033,17 +1887,6 @@ textarea::placeholder {
 .assistant-editor {
   max-width: 760px;
 }
-.editor-intro {
-  margin: var(--space-2) 0 var(--space-8);
-}
-.editor-intro h2 {
-  font-size: var(--text-xl);
-  margin: var(--space-2) 0;
-}
-.editor-intro p {
-  color: var(--muted);
-  font-size: var(--text-sm);
-}
 .assistant-editor fieldset {
   border: 0;
   padding: 0;
@@ -2072,13 +1915,7 @@ textarea::placeholder {
 .editor-section-title h3 {
   font-size: var(--text-base);
 }
-.editor-section-title p {
-  font-size: var(--text-xs);
-  color: var(--muted);
-  margin-top: var(--space-1);
-}
-.editor-section-title > svg,
-.capability-count {
+.editor-section-title > svg {
   margin-left: auto;
   color: var(--muted);
 }
@@ -2112,11 +1949,6 @@ textarea::placeholder {
 }
 .editor-card > label + label {
   margin-top: var(--space-6);
-}
-.field-description {
-  font-size: var(--text-xs);
-  color: var(--muted);
-  font-weight: 400;
 }
 .editor-card textarea {
   font-size: var(--text-sm);
@@ -2155,13 +1987,6 @@ textarea::placeholder {
   display: block;
   font-weight: 500;
 }
-.capability-copy small {
-  display: block;
-  color: var(--muted);
-  font-weight: 400;
-  font-size: var(--text-xs);
-  margin-top: var(--space-1);
-}
 .capability input {
   appearance: none;
   position: relative;
@@ -2196,10 +2021,6 @@ textarea::placeholder {
 .capability input:disabled {
   cursor: wait;
 }
-.capability-count {
-  font-size: var(--text-xs);
-  white-space: nowrap;
-}
 .capability-note {
   color: var(--muted);
   font-size: var(--text-xs);
@@ -2225,11 +2046,6 @@ textarea::placeholder {
   font-size: var(--text-sm);
   font-weight: 500;
 }
-.editor-save span {
-  display: block;
-  color: var(--muted);
-  font-size: var(--text-xs);
-}
 .editor-save .notice {
   width: 100%;
 }
@@ -2241,24 +2057,6 @@ textarea::placeholder {
   flex-direction: column;
   align-items: center;
   padding: var(--space-2) var(--space-4) 0;
-}
-.preview-heading {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: var(--text-sm);
-  padding: var(--space-2) var(--space-2) var(--space-5);
-}
-.preview-heading .row {
-  gap: var(--space-2);
-}
-.preview-badge {
-  font-size: var(--text-xs);
-  color: var(--muted);
-  padding: var(--space-1) var(--space-3);
-  background: rgb(255 255 255 / 50%);
-  border-radius: var(--radius-pill);
 }
 .phone-frame {
   width: 100%;
@@ -2307,18 +2105,9 @@ textarea::placeholder {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.phone-header small {
-  display: block;
-  color: var(--muted);
-  font-size: var(--text-xs);
-}
 .phone-header .jojo-mark {
   width: 30px;
   height: 30px;
-}
-.phone-header .connection {
-  font-size: 10px;
-  gap: var(--space-1);
 }
 .phone-home {
   display: grid;
@@ -2331,12 +2120,6 @@ textarea::placeholder {
   height: 4px;
   border-radius: var(--radius-pill);
   background: var(--ink);
-}
-.preview-caption {
-  font-size: var(--text-xs);
-  color: var(--muted);
-  padding-top: var(--space-4);
-  text-align: center;
 }
 .preview-panel .chat-scroll {
   padding: var(--space-4);
@@ -2371,10 +2154,6 @@ textarea::placeholder {
 .preview-panel .welcome > p {
   font-size: var(--text-xs);
 }
-.preview-panel .welcome .eyebrow {
-  font-size: 8px;
-  letter-spacing: 1.5px;
-}
 .preview-panel .suggestions {
   flex-direction: column;
   gap: var(--space-2);
@@ -2397,17 +2176,6 @@ textarea::placeholder {
 .preview-panel .composer textarea {
   font-size: var(--text-sm);
   min-height: 34px;
-}
-.preview-panel .composer-hint {
-  display: none;
-}
-.preview-panel .composer .row {
-  justify-content: flex-end;
-  margin-top: var(--space-1);
-}
-.preview-panel .composer-footnote {
-  font-size: 9px;
-  margin-top: var(--space-2);
 }
 .preview-panel .model-notice {
   font-size: 10px;
@@ -2455,7 +2223,6 @@ textarea::placeholder {
     margin: 0 auto var(--space-8);
   }
   .sidebar .wordmark > span:not(.jojo-mark),
-  .sidebar-caption,
   .sidebar .nav-item > span,
   .sidebar .profile > span:not(.avatar),
   .sidebar .profile > svg,
@@ -2490,7 +2257,6 @@ textarea::placeholder {
     background: rgb(248 250 251 / 95%);
   }
   .sidebar > .wordmark,
-  .sidebar-caption,
   .sidebar-bottom {
     display: none;
   }
@@ -2546,8 +2312,6 @@ textarea::placeholder {
   .workspace[data-page="chat"] .preview-panel {
     display: flex;
   }
-  .preview-heading,
-  .preview-caption,
   .phone-hardware,
   .phone-home {
     display: none;
@@ -2574,12 +2338,6 @@ textarea::placeholder {
   }
   .editor-card {
     padding: var(--space-5);
-  }
-  .editor-intro {
-    margin-bottom: var(--space-6);
-  }
-  .editor-intro h2 {
-    font-size: 22px;
   }
   .editor-save {
     padding: var(--space-3);

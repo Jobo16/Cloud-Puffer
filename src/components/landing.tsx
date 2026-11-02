@@ -18,16 +18,6 @@ import { AuthForm } from "./login";
 
 const repository = "https://github.com/Jobo16/JOJOBOT";
 
-function SectionHead({ no, label }: { no: string; label: string }) {
-  return (
-    <div className="section-head">
-      <span className="mono">
-        {no} — {label}
-      </span>
-    </div>
-  );
-}
-
 export function Landing({
   openAuth,
   token,
@@ -77,16 +67,6 @@ export function Landing({
       <main>
         <section className="landing-hero">
           <div className="panel glass hero-copy">
-            <a
-              className="hero-eyebrow"
-              href={`${repository}#project-status`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <span className="status-dot" />
-              开源 · 开发预览版
-              <ArrowUpRight size={12} />
-            </a>
             <h1>
               生活很满，
               <br />
@@ -123,31 +103,17 @@ export function Landing({
               </div>
               <span className="art-title">你好，我是 JOJO。</span>
               <p>想到什么，慢慢说。</p>
-              <div className="art-card-bottom">
-                <span>YOUR PERSONAL AGENT</span>
-                <Heart size={14} />
-              </div>
-            </div>
-            <div className="floating-note note-tasks glass">
-              <ListTodo size={17} />
-              <span>琐事，有个落点。</span>
-            </div>
-            <div className="floating-note note-memory glass">
-              <Brain size={17} />
-              <span>偏好，值得被记住。</span>
             </div>
           </aside>
         </section>
 
         <section className="panel glass landing-features" id="possibilities">
-          <SectionHead no="01" label="能做什么" />
           <div className="landing-section-title">
             <h2>
               把小事安顿好，
               <br className="mobile-only" />
               把时间还给生活。
             </h2>
-            <p>从对话、待办和记忆开始，慢慢成为更懂你的助手。</p>
           </div>
           <div className="feature-list">
             {[
@@ -185,7 +151,6 @@ export function Landing({
         </section>
 
         <section className="panel glass channel-banner">
-          <SectionHead no="02" label="聊天窗口" />
           <div className="channel-inner">
             <div className="channel-symbols" aria-hidden="true">
               <span>
@@ -202,12 +167,10 @@ export function Landing({
                 网页与微信 iLink 共用一条主对话。接入适配已开始，微信实机验证进行中。
               </p>
             </div>
-            <span className="development-tag mono">正在打磨</span>
           </div>
         </section>
 
         <section className="panel glass open-source-section" id="open-source">
-          <SectionHead no="03" label="为什么开源" />
           <div className="os-grid">
             <div className="os-copy">
               <h2>
@@ -266,7 +229,6 @@ export function Landing({
           <Mark />
           <span>JOJOBOT</span>
         </Link>
-        <span className="mono">一点秩序，一点从容。</span>
         <div>
           <a
             href={`${repository}/blob/main/LICENSE`}

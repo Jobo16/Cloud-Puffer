@@ -7,7 +7,6 @@ import {
   MessageCircle,
   Settings,
   SlidersHorizontal,
-  Smartphone,
   X,
 } from "lucide-react";
 import { clsx } from "clsx";
@@ -93,7 +92,6 @@ export function Workspace({
           <Mark />
           <span>JOJOBOT</span>
         </Link>
-        <span className="sidebar-caption">一点秩序，一点从容。</span>
         <nav aria-label="主导航">
           {navigation.map(({ id, label, icon: Icon }) => (
             <button
@@ -129,7 +127,6 @@ export function Workspace({
               value={state.quota.used}
               max={state.quota.limit}
             />
-            <span className="fine-print">每天零点更新 · 北京时间</span>
           </div>
           <button className="profile" onClick={() => setPage("settings")}>
             <span className="avatar">
@@ -137,7 +134,6 @@ export function Workspace({
             </span>
             <span>
               <strong>{user.name}</strong>
-              <small>我的个人空间</small>
             </span>
             <Settings size={17} />
           </button>
@@ -157,20 +153,13 @@ export function Workspace({
                 ? "助手配置"
                 : navigation.find((n) => n.id === page)?.label}
             </h1>
-            <span className="topbar-subtitle">
-              {page === "chat" || page === "assistant"
-                ? "按你的习惯，塑造你的助手。"
-                : page === "tasks"
-                  ? "给大大小小的事，找个落点。"
-                  : page === "memories"
-                    ? "你决定 JOJO 记住什么。"
-                    : "让助手融入你的日常。"}
-            </span>
           </div>
-          <span className="connection">
-            <span className={clsx("status-dot", !connected && "offline")} />
-            {connected ? "已同步" : "正在重连"}
-          </span>
+          {!connected && (
+            <span className="connection" title="正在重连">
+              <span className="status-dot offline" />
+              <span className="sr-only">正在重连</span>
+            </span>
+          )}
         </header>
         {error && (
           <div className="workspace-notice notice error" role="alert">
@@ -218,13 +207,6 @@ export function Workspace({
         )}
       </main>
       <aside className="preview-panel" aria-label="主对话实时预览">
-        <header className="preview-heading">
-          <span className="row">
-            <Smartphone size={17} />
-            实时预览
-          </span>
-          <span className="preview-badge">主对话</span>
-        </header>
         <div className="phone-frame">
           <div className="phone-hardware" aria-hidden="true">
             <span />
@@ -233,12 +215,7 @@ export function Workspace({
             <Mark />
             <div>
               <strong>{state.preferences.agentName}</strong>
-              <small>你的个人助手</small>
             </div>
-            <span className="connection">
-              <span className={clsx("status-dot", !connected && "offline")} />
-              {connected ? "已同步" : "正在重连"}
-            </span>
           </header>
           <ChatPanel
             key={chatKey}
@@ -251,7 +228,6 @@ export function Workspace({
             <span />
           </div>
         </div>
-        <p className="preview-caption">与微信、QQ 共用真实对话和资料</p>
       </aside>
       {confirmation && (
         <Modal

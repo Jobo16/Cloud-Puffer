@@ -134,7 +134,6 @@ export function TasksPanel({
     <section className="content-section">
       <div className="section-heading">
         <div>
-          <span className="eyebrow">ONE THING AT A TIME</span>
           <h2>慢慢来，一件一件。</h2>
           <p className="muted">
             {tasks.filter((t) => !t.completed).length} 件待办，给今天一点清晰。
@@ -331,7 +330,6 @@ export function MemoryPanel({
     <section className="content-section">
       <div className="section-heading">
         <div>
-          <span className="eyebrow">A LITTLE MORE YOU</span>
           <h2>被记住的，是你在意的。</h2>
           <p className="muted">
             只保存你明确要求记住的事，随时可以修改或忘记。
@@ -476,7 +474,6 @@ export function SettingsPanel({
   }
   return (
     <section className="content-section settings-section">
-      <span className="eyebrow">MAKE YOURSELF AT HOME</span>
       <h2>你的空间，你来决定。</h2>
       <QqSettings state={state} mutate={mutate} confirm={confirm} />
       <div className="settings-card glass">
