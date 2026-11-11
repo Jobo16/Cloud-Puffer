@@ -2,11 +2,13 @@ import { and, desc, eq, inArray, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db, transaction } from "../db";
 import {
+  agentDevices,
   channels,
   qqConnections,
   conversations,
   runs,
   user,
+  userPreferences,
 } from "../db/schema";
 import { stickerById } from "../lib/stickers";
 import { config, modelConfigured } from "./config";
@@ -28,20 +30,18 @@ export const runErrors: Record<string, string> = {
   INTERRUPTED: "服务重启中断了这次回复，已完成的操作保留，请先查看结果再继续。",
   UNSUPPORTED_MESSAGE: "当前开发版本仅支持文字消息，文件和语音接入仍在开发中。",
   MESSAGE_TOO_LONG: "消息太长了，请分成几条发送（每条最多 12,000 字符）。",
+  LOCAL_AGENT_OFFLINE: "本地 Agent 未连接，请在自己的电脑上启动连接程序。",
+  LOCAL_AGENT_FAILED: "本地 Agent 未完成这次回复，请查看电脑上的运行状态。",
 };
 export const usage = pointStatus;
-type Incoming = {
+export type InboundTurn = z.input<typeof turnInput> & {
   source: "web" | "wechat" | "qq";
   channelId?: string;
   contextToken?: string;
   errorCode?: string;
 };
-export async function enqueueTurn(
-  userId: string,
-  input: z.input<typeof turnInput>,
-  incoming: Incoming = { source: "web" },
-) {
-  const data = turnInput.parse(input);
+export async function enqueueTurn(userId: string, incoming: InboundTurn) {
+  const data = turnInput.parse(incoming);
   return transaction(async (tx, client) => {
     const [owner] = await tx
       .select()
@@ -98,21 +98,46 @@ export async function enqueueTurn(
     }
     const meter = await creditUsage(userId, tx);
     const limit = pointLimit(owner.dailyPointLimit);
+    const [selection] = await tx
+      .select({ agentDeviceId: userPreferences.agentDeviceId })
+      .from(userPreferences)
+      .where(eq(userPreferences.userId, userId));
+    const [device] = selection?.agentDeviceId
+      ? await tx
+          .select()
+          .from(agentDevices)
+          .where(
+            and(
+              eq(agentDevices.id, selection.agentDeviceId),
+              eq(agentDevices.userId, userId),
+            ),
+          )
+      : [];
+    const local = Boolean(selection?.agentDeviceId);
+    const online =
+      device &&
+      !device.revokedAt &&
+      device.lastSeenAt &&
+      device.lastSeenAt.getTime() > Date.now() - 30_000;
     const errorCode =
       incoming.errorCode ??
-      (!modelConfigured()
-        ? "MODEL_NOT_CONFIGURED"
-        : limit === 0
-          ? "ACCOUNT_PAUSED"
-          : meter.used >= limit
-            ? "LIMIT_REACHED"
-            : meter.pending >= 3
-              ? "BUSY"
-              : null);
+      (local && !online
+        ? "LOCAL_AGENT_OFFLINE"
+        : !local && !modelConfigured()
+          ? "MODEL_NOT_CONFIGURED"
+          : limit === 0
+            ? "ACCOUNT_PAUSED"
+            : !local && meter.used >= limit
+              ? "LIMIT_REACHED"
+              : meter.pending >= 3
+                ? "BUSY"
+                : null);
     if (errorCode && incoming.source === "web")
       throw new AppError(
         errorCode,
-        errorCode === "MODEL_NOT_CONFIGURED" ? 503 : 429,
+        ["MODEL_NOT_CONFIGURED", "LOCAL_AGENT_OFFLINE"].includes(errorCode)
+          ? 503
+          : 429,
         runErrors[errorCode],
       );
     await tx.insert(conversations).values({ userId }).onConflictDoNothing();
@@ -128,6 +153,7 @@ export async function enqueueTurn(
         input: data.text,
         requestKey: data.requestKey,
         source: incoming.source,
+        agentDeviceId: local ? device?.id : null,
         channelId: incoming.channelId,
         contextToken: incoming.contextToken,
         status: errorCode ? "failed" : "queued",
@@ -135,14 +161,15 @@ export async function enqueueTurn(
         deliveryStatus: incoming.source !== "web" ? "pending" : "not_sent",
       })
       .returning();
-    await queue().send(
-      AGENT_QUEUE,
-      { runId: run.id },
-      {
-        singletonKey: userId,
-        db: { executeSql: (text, values) => client.query(text, values) },
-      },
-    );
+    if (!local || errorCode)
+      await queue().send(
+        AGENT_QUEUE,
+        { runId: run.id },
+        {
+          singletonKey: userId,
+          db: { executeSql: (text, values) => client.query(text, values) },
+        },
+      );
     return runView(run);
   });
 }

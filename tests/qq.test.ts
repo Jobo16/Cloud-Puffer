@@ -205,11 +205,12 @@ describe("QQ ownership and ingestion", () => {
     expect(state).not.toContain("qq-test-secret");
     expect(state).not.toContain("incoming-id");
     await expect(
-      enqueueTurn(
-        stranger,
-        { text: "steal", requestKey: randomUUID() },
-        { source: "qq", channelId: connection.id },
-      ),
+      enqueueTurn(stranger, {
+        source: "qq",
+        text: "steal",
+        requestKey: randomUUID(),
+        channelId: connection.id,
+      }),
     ).rejects.toMatchObject({ code: "CHANNEL_CHANGED" });
   });
   it("never sends binding secrets to the model and explicitly rejects media input", async () => {

@@ -357,19 +357,14 @@ async function pollChannel(id: string, signal: AbortSignal) {
       for (const message of updates.msgs) {
         const input = inboundText(message, channel.peerId);
         if (!input) continue;
-        await enqueueTurn(
-          channel.userId,
-          {
-            text: input.text,
-            requestKey: `${channel.id}:${createHash("sha256").update(input.key).digest("hex")}`,
-          },
-          {
-            source: "wechat",
-            channelId: channel.id,
-            contextToken: message.context_token,
-            errorCode: input.errorCode,
-          },
-        );
+        await enqueueTurn(channel.userId, {
+          source: "wechat",
+          text: input.text,
+          requestKey: `${channel.id}:${createHash("sha256").update(input.key).digest("hex")}`,
+          channelId: channel.id,
+          contextToken: message.context_token,
+          errorCode: input.errorCode,
+        });
       }
       // Cursor advances only after durable, deduplicated ingestion of the entire batch.
       if (updates.get_updates_buf)

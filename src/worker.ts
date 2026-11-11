@@ -6,6 +6,7 @@ import { AGENT_QUEUE, createWorkerQueue } from "./server/queue";
 import { executeRun } from "./server/agent";
 import { deliverRun, superviseChannels } from "./server/ilink";
 import { createQqBot, deliverQqRun } from "./server/qq";
+import { expireLocalRuns } from "./server/agent-devices";
 
 // This first increment intentionally supports one shared worker, with four concurrent users.
 // The DB lease prevents an accidental second worker from polling the same iLink accounts.
@@ -24,9 +25,13 @@ let channelTask: Promise<void> | undefined;
 let qqTask: Promise<void> | undefined;
 const qqBot = createQqBot();
 let stopping = false;
+const localRunSweep = setInterval(() => {
+  void expireLocalRuns().catch(() => console.error("local_run_sweep_failed"));
+}, 30_000);
 const shutdown = async () => {
   if (stopping) return;
   stopping = true;
+  clearInterval(localRunSweep);
   controller.abort();
   await channelTask;
   await qqTask;

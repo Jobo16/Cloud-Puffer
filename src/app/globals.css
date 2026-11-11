@@ -166,9 +166,21 @@
   --switch-knob: #f2f5f9;
 
   --stage-mist:
-    radial-gradient(60% 50% at 10% 4%, rgb(58 104 156 / 30%) 0%, transparent 64%),
-    radial-gradient(48% 46% at 92% 10%, rgb(96 78 152 / 26%) 0%, transparent 66%),
-    radial-gradient(56% 50% at 78% 94%, rgb(46 110 88 / 24%) 0%, transparent 62%),
+    radial-gradient(
+      60% 50% at 10% 4%,
+      rgb(58 104 156 / 30%) 0%,
+      transparent 64%
+    ),
+    radial-gradient(
+      48% 46% at 92% 10%,
+      rgb(96 78 152 / 26%) 0%,
+      transparent 66%
+    ),
+    radial-gradient(
+      56% 50% at 78% 94%,
+      rgb(46 110 88 / 24%) 0%,
+      transparent 62%
+    ),
     linear-gradient(180deg, #0f1317 0%, #0a0c0f 100%);
 }
 * {
@@ -193,12 +205,14 @@ body {
 }
 button,
 input,
+select,
 textarea {
   font: inherit;
 }
 button,
 a,
 input,
+select,
 textarea {
   -webkit-tap-highlight-color: transparent;
 }
@@ -221,6 +235,7 @@ a {
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
+select:focus-visible,
 textarea:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
@@ -427,6 +442,7 @@ label {
   font-weight: 500;
 }
 input,
+select,
 textarea {
   width: 100%;
   min-width: 0;
@@ -2409,7 +2425,6 @@ textarea::placeholder {
   }
 }
 
-
 @media (max-width: 1023px) {
   .workspace {
     display: block;
@@ -2560,7 +2575,8 @@ textarea::placeholder {
     padding: var(--space-5);
   }
   .editor-card textarea,
-  .editor-card input:not([type="checkbox"]) {
+  .editor-card input:not([type="checkbox"]),
+  .editor-card select {
     font-size: 16px;
   }
   .agent-identity {

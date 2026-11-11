@@ -32,6 +32,7 @@ import {
 export async function executeRun(id: string) {
   const [run] = await db().select().from(runs).where(eq(runs.id, id));
   if (!run || ["completed", "cancelled", "failed"].includes(run.status)) return;
+  if (run.agentDeviceId) return;
   if (run.status === "running") {
     // A re-delivered job means a process died mid-turn. Do not replay model-driven writes.
     await db()

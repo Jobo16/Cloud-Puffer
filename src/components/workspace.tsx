@@ -283,7 +283,9 @@ export function Workspace({
                   <div className="setup-guide">
                     <span>2 / 3</span>
                     <p>接下来选择「接入」。</p>
-                    <Button onClick={() => setSection("channels")}>打开接入</Button>
+                    <Button onClick={() => setSection("channels")}>
+                      打开接入
+                    </Button>
                   </div>
                 )}
                 <div className="segmented" aria-label="助手设置">
@@ -304,6 +306,10 @@ export function Workspace({
                 {/* 设定面板常驻挂载：切到「接入」再回来，改了一半的字段还在 */}
                 <div hidden={section !== "profile"}>
                   <AssistantEditor
+                    agentDevices={state.agentDevices}
+                    onDevicesChanged={(agentDevices) =>
+                      setState((current) => ({ ...current, agentDevices }))
+                    }
                     preferences={state.preferences}
                     admin={admin}
                     onSaved={(preferences) =>

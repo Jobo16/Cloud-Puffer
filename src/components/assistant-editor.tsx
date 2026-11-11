@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowUpRight, Brain, ListTodo, Smile, Sparkles } from "lucide-react";
 import type { AppState } from "@/server/state";
 import { api } from "@/lib/api";
-import { Mark } from "./ui";
+import { Button, Mark } from "./ui";
 
 type Preferences = AppState["preferences"];
 const capabilities = [
@@ -29,14 +29,24 @@ export function AssistantEditor({
   preferences,
   onSaved,
   admin,
+  agentDevices,
+  onDevicesChanged,
 }: {
   preferences: Preferences;
   onSaved: (saved: Preferences) => void;
   admin: boolean;
+  agentDevices: AppState["agentDevices"];
+  onDevicesChanged: (value: AppState["agentDevices"]) => void;
 }) {
   // A null draft follows synced settings. Keep an edited draft across navigation and SSE updates.
   const [draft, setDraft] = useState<Preferences | null>(null);
   const [error, setError] = useState("");
+  const [newToken, setNewToken] = useState("");
+  useEffect(() => {
+    if (!newToken) return;
+    const timer = setTimeout(() => setNewToken(""), 60_000);
+    return () => clearTimeout(timer);
+  }, [newToken]);
   const values = draft ?? preferences;
   // 保存请求串行：上一次没回来时只记下最新值，回来后再补一次，避免旧值覆盖新值
   const inFlight = useRef(false);
@@ -93,7 +103,10 @@ export function AssistantEditor({
   useEffect(() => {
     return () => {
       const payload = trimAll(latest.current);
-      if (payload.agentName && JSON.stringify(payload) !== JSON.stringify(trimAll(synced.current))) {
+      if (
+        payload.agentName &&
+        JSON.stringify(payload) !== JSON.stringify(trimAll(synced.current))
+      ) {
         void persist(payload);
       }
     };
@@ -171,6 +184,107 @@ export function AssistantEditor({
         <p className="capability-note">
           关闭不会删除已有资料；待办截止时间暂不触发提醒。
         </p>
+      </section>
+      <section
+        className="editor-card glass"
+        aria-labelledby="agent-runtime-heading"
+      >
+        <div className="editor-section-title">
+          <span className="section-number">03</span>
+          <h3 id="agent-runtime-heading">运行位置</h3>
+        </div>
+        <label>
+          回复由谁处理
+          <select
+            value={agentDevices.selected ?? ""}
+            onChange={async (event) => {
+              try {
+                const next = await api<AppState["agentDevices"]>(
+                  "agent-devices",
+                  "PATCH",
+                  { id: event.target.value || null },
+                );
+                onDevicesChanged(next);
+              } catch (e) {
+                setError(e instanceof Error ? e.message : "切换失败");
+              }
+            }}
+          >
+            <option value="">云端小肥鱼</option>
+            {agentDevices.devices.map((device) => (
+              <option key={device.id} value={device.id}>
+                {device.kind === "codex" ? "本地 Codex" : "本地 OpenClaw"} ·{" "}
+                {device.id.slice(0, 6)}
+                {device.online ? " · 已连接" : " · 未连接"}
+              </option>
+            ))}
+          </select>
+        </label>
+        <div className="row">
+          {(["codex", "openclaw"] as const).map((kind) => (
+            <Button
+              key={kind}
+              onClick={async () => {
+                try {
+                  const created = await api<{ id: string; token: string }>(
+                    "agent-devices",
+                    "POST",
+                    { kind },
+                  );
+                  setNewToken(created.token);
+                  onDevicesChanged(
+                    await api<AppState["agentDevices"]>("agent-devices"),
+                  );
+                } catch (e) {
+                  setError(e instanceof Error ? e.message : "创建失败");
+                }
+              }}
+            >
+              连接{kind === "codex" ? " Codex" : " OpenClaw"}
+            </Button>
+          ))}
+        </div>
+        {newToken && (
+          <label>
+            设备令牌（只显示一次）
+            <input
+              readOnly
+              value={newToken}
+              onFocus={(event) => event.target.select()}
+            />
+          </label>
+        )}
+        {agentDevices.devices.length > 0 && (
+          <p className="capability-note">
+            在自己的电脑设置 JOJOBOT_DEVICE_TOKEN 和 JOJOBOT_URL，然后运行 pnpm
+            local-agent。每次收到请求需在电脑上确认。
+          </p>
+        )}
+        {agentDevices.devices.map((device) => (
+          <div className="row spread" key={device.id}>
+            <span>
+              {device.kind === "codex" ? "Codex" : "OpenClaw"} ·{" "}
+              {device.id.slice(0, 6)} · {device.online ? "已连接" : "未连接"}
+            </span>
+            <Button
+              onClick={async () => {
+                try {
+                  onDevicesChanged(
+                    await api<AppState["agentDevices"]>(
+                      `agent-devices/${device.id}`,
+                      "DELETE",
+                    ),
+                  );
+                  setNewToken("");
+                } catch (e) {
+                  setError(e instanceof Error ? e.message : "移除失败");
+                }
+              }}
+            >
+              移除
+            </Button>
+          </div>
+        ))}
       </section>
       {admin && (
         <Link className="admin-entry" href="/app/admin">

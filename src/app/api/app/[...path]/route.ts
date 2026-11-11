@@ -26,6 +26,13 @@ import {
 import { pollBinding, startBinding, unlinkChannel } from "@/server/ilink";
 import { startQqBinding, unlinkQq } from "@/server/qq";
 import { preferencesInput, updatePreferences } from "@/server/preferences";
+import {
+  createAgentDevice,
+  deviceKind,
+  listAgentDevices,
+  revokeAgentDevice,
+  selectAgentDevice,
+} from "@/server/agent-devices";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -40,6 +47,8 @@ async function handle(request: Request, context: Context): Promise<Response> {
     const route = path.join("/");
     if (request.method === "GET") {
       if (route === "state") return json(await appState(owner.id));
+      if (route === "agent-devices")
+        return json(await listAgentDevices(owner.id));
       if (route === "history") {
         const search = new URL(request.url).searchParams;
         const before = z
@@ -85,9 +94,18 @@ async function handle(request: Request, context: Context): Promise<Response> {
       }
     }
     if (request.method === "POST") {
+      if (route === "agent-devices") {
+        const { kind } = z
+          .object({ kind: deviceKind })
+          .parse(await readBody(request));
+        return json(await createAgentDevice(owner.id, kind), 201);
+      }
       if (route === "chat")
         return json(
-          await enqueueTurn(owner.id, turnInput.parse(await readBody(request))),
+          await enqueueTurn(owner.id, {
+            ...turnInput.parse(await readBody(request)),
+            source: "web",
+          }),
           202,
         );
       if (path[0] === "runs" && path[2] === "cancel" && path.length === 3)
@@ -136,6 +154,18 @@ async function handle(request: Request, context: Context): Promise<Response> {
         );
       }
     }
+    if (request.method === "PATCH" && route === "agent-devices") {
+      const { id } = z
+        .object({ id: z.uuid().nullable() })
+        .parse(await readBody(request));
+      return json(await selectAgentDevice(owner.id, id));
+    }
+    if (
+      request.method === "DELETE" &&
+      path[0] === "agent-devices" &&
+      path.length === 2
+    )
+      return json(await revokeAgentDevice(owner.id, key.parse(path[1])));
     if (route === "preferences" && request.method === "PATCH")
       return json(
         await updatePreferences(

@@ -5,24 +5,35 @@ import { channelStatus } from "./ilink";
 import { modelConfigured } from "./config";
 import { qqStatus } from "./qq";
 import { preferences } from "./preferences";
+import { listAgentDevices } from "./agent-devices";
 
 export async function appState(userId: string) {
-  const [conversation, tasks, memories, quota, channel, qq, chatPreferences] =
-    await Promise.all([
-      history(userId),
-      listTasks(userId),
-      listMemories(userId),
-      usage(userId),
-      channelStatus(userId),
-      qqStatus(userId),
-      preferences(userId),
-    ]);
+  const [
+    conversation,
+    tasks,
+    memories,
+    quota,
+    channel,
+    qq,
+    chatPreferences,
+    agentDevices,
+  ] = await Promise.all([
+    history(userId),
+    listTasks(userId),
+    listMemories(userId),
+    usage(userId),
+    channelStatus(userId),
+    qqStatus(userId),
+    preferences(userId),
+    listAgentDevices(userId),
+  ]);
   return {
     ...conversation,
     quota,
     modelReady: modelConfigured(),
     qq,
     preferences: chatPreferences,
+    agentDevices,
     tasks: tasks.map((t) => ({
       id: t.id,
       title: t.title,

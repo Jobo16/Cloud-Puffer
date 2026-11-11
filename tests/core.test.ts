@@ -240,11 +240,22 @@ describe("owned, durable operations", () => {
   });
   it("atomically enqueues, deduplicates, and serializes turns per account", async () => {
     const key = randomUUID();
-    const first = await enqueueTurn(owner, { text: "one", requestKey: key });
+    const first = await enqueueTurn(owner, {
+      source: "web",
+      text: "one",
+      requestKey: key,
+    });
     expect(
-      (await enqueueTurn(owner, { text: "one", requestKey: key })).id,
+      (
+        await enqueueTurn(owner, {
+          source: "web",
+          text: "one",
+          requestKey: key,
+        })
+      ).id,
     ).toBe(first.id);
     const second = await enqueueTurn(owner, {
+      source: "web",
       text: "two",
       requestKey: randomUUID(),
     });
@@ -284,7 +295,11 @@ describe("owned, durable operations", () => {
     await seedRun({ status: "completed", inputTokens: 1000, outputTokens: 1 });
     const results = await Promise.allSettled(
       [1, 2].map((n) =>
-        enqueueTurn(owner, { text: `last ${n}`, requestKey: randomUUID() }),
+        enqueueTurn(owner, {
+          source: "web",
+          text: `last ${n}`,
+          requestKey: randomUUID(),
+        }),
       ),
     );
     expect(results.filter((r) => r.status === "fulfilled")).toHaveLength(0);
@@ -689,7 +704,11 @@ describe("channel and HTTP boundaries", () => {
         }),
       );
       await expect(
-        enqueueTurn(owner, { text: "paused", requestKey: randomUUID() }),
+        enqueueTurn(owner, {
+          source: "web",
+          text: "paused",
+          requestKey: randomUUID(),
+        }),
       ).rejects.toMatchObject({ code: "ACCOUNT_PAUSED" });
     } finally {
       for (const signup of signups)

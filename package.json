@@ -13,6 +13,7 @@
     "build": "next build",
     "start": "next start --hostname 0.0.0.0 --port 3030",
     "worker": "tsx --env-file=.env src/worker.ts",
+    "local-agent": "tsx scripts/local-agent.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx --env-file=.env scripts/migrate.ts",
     "dev:setup": "node scripts/setup.mjs",

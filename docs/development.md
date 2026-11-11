@@ -52,6 +52,8 @@ Node 24 + pnpm 10.30.3。依次运行 README 中的安装、`pnpm run dev:setup`
 | `0003_merge_prompt.sql` | 人设与自定义提示词合并为 `system_prompt`，先拼接内容再删除旧列。 |
 | `0004_known_zodiak.sql` | 更新默认助手名字为小肥鱼。 |
 | `0005_concerned_captain_stacy.sql` | 为账号增加可选的每日积分上限；旧账号沿用平台默认值。 |
+| `0006_real_junta.sql` | 记录模型报告的缓存输入 token。 |
+| `0007_greedy_hairball.sql` | 本地 Agent 设备、用户所选设备与运行设备关联。 |
 
 升级配置工作区时，先在旧服务仍在线时应用 `0002`，再更新 Web/Worker。新界面和 Agent 都依赖这些字段，不能只更新前端。
 
@@ -61,6 +63,14 @@ Node 24 + pnpm 10.30.3。依次运行 README 中的安装、`pnpm run dev:setup`
 - `pnpm lint`：ESLint 10、TypeScript、Next 与 React Hooks 规则。
 - `pnpm test`：迁移独立 `jojobot_test` 数据库并运行 Vitest。可通过 `TEST_DATABASE_URL` 指定测试服务器，但数据库名必须为 `jojobot_test`。测试账号按用例创建并删除；不要将真实资料放入该库。
 - `pnpm build`：生产应用编译。构建成功不代表微信或模型供应商验收完成。
+
+### 本地 Agent 开发预览
+
+网页「助手 › 设定 › 运行位置」可创建设备令牌并选择该设备。设备令牌只显示一次；本地数据库仅保存摘要。在用户电脑安装并登录 Codex 或 OpenClaw，在本项目目录设置 `JOJOBOT_DEVICE_TOKEN`、`JOJOBOT_URL`（云端 HTTPS 地址）和可选的 `JOJOBOT_AGENT_WORKDIR`，运行 `pnpm local-agent`。程序每轮在终端询问是否执行。Codex 当前固定使用只读沙箱；OpenClaw 通过本机已配置的 Gateway 执行，不附加渠道发送。该本地程序目前需从项目源码运行，尚未提供独立安装包。
+
+本地设备在线后才接受选择给它的新对话。云端主对话仍按账号隔离并在网页显示；已完成的本地回复也尝试返回发起消息的微信/QQ 渠道。设备离线、撤销、取消和中断后不自动改派或重放。仅支持文字最终回复；不支持把本地 Agent 的工具接到云端事项/记忆，也不显示其本机模型用量。实现边界见[渠道与 Agent 接入方向](channel-agent-gateway.md)。
+
+2026-11-11 本地检查：`pnpm db:generate` 生成 `0007`，在本项目本地 PostgreSQL 上执行 `pnpm db:migrate` 成功；`pnpm typecheck`、`pnpm lint`、`pnpm test`（52 项）及 `pnpm build` 通过。新增集成检查覆盖两个账号的设备隔离、领取、结果幂等和撤销。尚未运行真实 Codex/OpenClaw 回复、微信/QQ 经本地设备的收发，亦未部署生产。
 
 ## 验证记录
 

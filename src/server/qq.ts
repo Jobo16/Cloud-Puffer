@@ -217,23 +217,18 @@ export async function receiveQqMessage(
     msg.msgElements?.some((element) => element.attachments?.length),
   );
   if (!content && !unsupported) return;
-  await enqueueTurn(
-    connection.userId,
-    {
-      text: (content || "[收到附件，当前尚不能读取]").slice(0, 12000),
-      requestKey: `${connection.id}:${digest(msg.messageId)}`,
-    },
-    {
-      source: "qq",
-      channelId: connection.id,
-      contextToken: msg.messageId,
-      errorCode: unsupported
-        ? "UNSUPPORTED_MESSAGE"
-        : content.length > 12000
-          ? "MESSAGE_TOO_LONG"
-          : undefined,
-    },
-  );
+  await enqueueTurn(connection.userId, {
+    source: "qq",
+    text: (content || "[收到附件，当前尚不能读取]").slice(0, 12000),
+    requestKey: `${connection.id}:${digest(msg.messageId)}`,
+    channelId: connection.id,
+    contextToken: msg.messageId,
+    errorCode: unsupported
+      ? "UNSUPPORTED_MESSAGE"
+      : content.length > 12000
+        ? "MESSAGE_TOO_LONG"
+        : undefined,
+  });
 }
 
 // At most two text messages plus one image. Each segment stays below 4 KB in UTF-8.

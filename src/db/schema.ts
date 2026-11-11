@@ -101,6 +101,17 @@ export const conversations = pgTable("conversations", {
     .references(() => user.id, { onDelete: "cascade" }),
   createdAt: created(),
 });
+export const agentDevices = pgTable("agent_devices", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  kind: text("kind").$type<"codex" | "openclaw">().notNull(),
+  tokenHash: text("token_hash").notNull().unique(),
+  lastSeenAt: timestamp("last_seen_at", { withTimezone: true }),
+  revokedAt: timestamp("revoked_at", { withTimezone: true }),
+  createdAt: created(),
+});
 export const runs = pgTable(
   "runs",
   {
@@ -133,6 +144,9 @@ export const runs = pgTable(
     outputTokens: integer("output_tokens").default(0).notNull(),
     cacheReadTokens: integer("cache_read_tokens").default(0).notNull(),
     channelId: uuid("channel_id"),
+    agentDeviceId: uuid("agent_device_id").references(() => agentDevices.id, {
+      onDelete: "set null",
+    }),
     contextToken: text("context_token"),
     deliveryStatus: text("delivery_status")
       .$type<
@@ -205,6 +219,9 @@ export const userPreferences = pgTable("user_preferences", {
   systemPrompt: text("system_prompt").default("").notNull(),
   tasksEnabled: boolean("tasks_enabled").default(true).notNull(),
   memoryEnabled: boolean("memory_enabled").default(true).notNull(),
+  agentDeviceId: uuid("agent_device_id").references(() => agentDevices.id, {
+    onDelete: "set null",
+  }),
 });
 // A platform-owned QQ application serves many users. Each private sender binds to one owner.
 export const qqConnections = pgTable(
