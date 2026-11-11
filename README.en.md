@@ -93,4 +93,4 @@ Start with the [PRD](docs/PRD.md), [architecture](docs/architecture.md), and [co
 
 ## License
 
-Original project content is licensed under [PolyForm Noncommercial 1.0.0](LICENSE); commercial use requires separate permission. See [NOTICE](NOTICE) for copyright and [third-party notices](THIRD_PARTY_NOTICES.md) for other licenses. Previously published MIT versions retain their original permissions.
+Original project content is licensed under [MIT](LICENSE). See [NOTICE](NOTICE) for copyright and [third-party notices](THIRD_PARTY_NOTICES.md) for other licenses.

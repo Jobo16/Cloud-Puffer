@@ -93,4 +93,4 @@ pnpm build
 
 ## 许可证
 
-项目原创内容采用 [PolyForm Noncommercial 1.0.0](LICENSE)，商业使用需另行授权；版权及第三方许可见 [NOTICE](NOTICE) 和[第三方声明](THIRD_PARTY_NOTICES.md)。此前按 MIT 发布的版本维持原授权。
+项目原创内容采用 [MIT](LICENSE)；版权及第三方许可见 [NOTICE](NOTICE) 和[第三方声明](THIRD_PARTY_NOTICES.md)。
