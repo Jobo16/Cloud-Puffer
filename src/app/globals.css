@@ -18,17 +18,18 @@
 :root {
   color-scheme: light;
   --sticker-size: 160px;
-  --ink: #15181d;
+  --ink: #182127;
   --muted: #525a66;
   --faint: #6e747e;
-  --accent: #185fa5;
+  --accent: #1e6288;
   /* 承载白字的实底强调色；深色下另取一档，避免蓝底发灰 */
-  --accent-fill: #185fa5;
-  --accent-soft: #e6eef7;
-  --bg: #eef1f0;
+  --accent-fill: #1e6288;
+  --accent-soft: #e5eef2;
+  --bg: #f5f7f6;
   --line: rgb(21 24 29 / 12%);
   --hairline: var(--line);
-  --surface-solid: #f7f7f4;
+  --surface-solid: #ffffff;
+  --surface-subtle: #f1f4f5;
   --danger: #a24339;
   --danger-soft: #f6eae4;
   --ok: #6d9d7b;
@@ -36,12 +37,12 @@
   --on-ink: #ffffff;
   --ink-hover: #262a32;
 
-  /* 材质：顶光 / 底色 / 描边 / 内高光 / 投影，与 jobo.ink 同一套配方 */
-  --glass-top: rgb(255 255 255 / 50%);
-  --glass-fill: rgb(255 255 255 / 46%);
-  --glass-border: rgb(255 255 255 / 62%);
-  --glass-hi: rgb(255 255 255 / 80%);
-  --glass-shadow: rgb(21 24 29 / 50%);
+  /* 玻璃只用于导航与悬浮操作区，内容层使用稳定的实色 */
+  --glass-fill: rgb(255 255 255 / 82%);
+  --composer-fill: rgb(241 244 245 / 88%);
+  --glass-border: rgb(255 255 255 / 90%);
+  --glass-hi: rgb(255 255 255 / 70%);
+  --glass-shadow: rgb(21 24 29 / 18%);
   --halo: rgb(255 255 255 / 55%);
 
   /* 白色叠加层阶：深色下整体压到 3.5%–12% */
@@ -63,7 +64,7 @@
 
   /* 面：主区、浮层、底部 tab 栏、气泡、代码块等 */
   --raised: #ffffff;
-  --panel-fill: rgb(252 252 250 / 78%);
+  --panel-fill: #ffffff;
   --panel-float: rgb(249 250 251 / 90%);
   --sheet: rgb(248 250 251 / 92%);
   --backdrop: rgb(21 24 29 / 24%);
@@ -78,12 +79,6 @@
   --rule-strong: #b6c0cd;
   --switch-track: #ccd2da;
   --switch-knob: #ffffff;
-
-  --stage-mist:
-    radial-gradient(60% 50% at 10% 4%, #c2d7ef 0%, transparent 64%),
-    radial-gradient(48% 46% at 92% 10%, #dcd4ee 0%, transparent 66%),
-    radial-gradient(56% 50% at 78% 94%, #cde3d8 0%, transparent 62%),
-    linear-gradient(180deg, #eef1f0 0%, #e6eae8 100%);
 
   --radius-sm: 12px;
   --radius: 18px;
@@ -106,31 +101,31 @@
   --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
 }
 
-/* 深色：底子近黑，玻璃改成「白 5% + 1px 白描边」，层级靠亮度差不靠投影；
-   背景柔光保留色相但压到 20%–30%，否则整页发灰。 */
+/* 深色：同样用单色底与明度差建立层级。 */
 [data-theme="dark"] {
   color-scheme: dark;
-  --ink: #e8ecf1;
-  --muted: #a3abb6;
+  --ink: #e8eef2;
+  --muted: #aab9c4;
   --faint: #7d8592;
-  --accent: #7fb0e0;
-  --accent-fill: #2f7fc4;
-  --accent-soft: rgb(127 176 224 / 16%);
-  --bg: #0e1115;
+  --accent: #78b2cf;
+  --accent-fill: #1e6288;
+  --accent-soft: rgb(120 178 207 / 16%);
+  --bg: #11171c;
   --line: rgb(255 255 255 / 11%);
-  --surface-solid: #161a1f;
+  --surface-solid: #1b242b;
+  --surface-subtle: #25313a;
   --danger: #e08b80;
   --danger-soft: rgb(224 139 128 / 14%);
   --ok: #7bbf92;
   --warn: #d0a86e;
-  --on-ink: #0e1115;
+  --on-ink: #11171c;
   --ink-hover: #f2f6fa;
 
-  --glass-top: rgb(255 255 255 / 7%);
-  --glass-fill: rgb(255 255 255 / 5%);
+  --glass-fill: rgb(27 36 43 / 82%);
+  --composer-fill: rgb(37 49 58 / 88%);
   --glass-border: rgb(255 255 255 / 10%);
-  --glass-hi: rgb(255 255 255 / 9%);
-  --glass-shadow: rgb(0 0 0 / 60%);
+  --glass-hi: rgb(255 255 255 / 6%);
+  --glass-shadow: rgb(0 0 0 / 28%);
   --halo: rgb(255 255 255 / 4%);
 
   --veil-35: rgb(255 255 255 / 3.5%);
@@ -149,7 +144,7 @@
   --ink-a20: rgb(255 255 255 / 14%);
 
   --raised: rgb(255 255 255 / 9%);
-  --panel-fill: rgb(22 26 31 / 86%);
+  --panel-fill: #1b242b;
   --panel-float: rgb(24 28 34 / 92%);
   --sheet: rgb(16 20 25 / 94%);
   --backdrop: rgb(0 0 0 / 62%);
@@ -164,24 +159,6 @@
   --rule-strong: rgb(255 255 255 / 22%);
   --switch-track: rgb(255 255 255 / 18%);
   --switch-knob: #f2f5f9;
-
-  --stage-mist:
-    radial-gradient(
-      60% 50% at 10% 4%,
-      rgb(58 104 156 / 30%) 0%,
-      transparent 64%
-    ),
-    radial-gradient(
-      48% 46% at 92% 10%,
-      rgb(96 78 152 / 26%) 0%,
-      transparent 66%
-    ),
-    radial-gradient(
-      56% 50% at 78% 94%,
-      rgb(46 110 88 / 24%) 0%,
-      transparent 62%
-    ),
-    linear-gradient(180deg, #0f1317 0%, #0a0c0f 100%);
 }
 * {
   box-sizing: border-box;
@@ -194,8 +171,6 @@ body {
 body {
   color: var(--ink);
   background-color: var(--bg);
-  background-image: var(--stage-mist);
-  background-attachment: fixed;
   font-family:
     -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC",
     "Microsoft YaHei", sans-serif;
@@ -274,18 +249,14 @@ svg {
   flex-shrink: 0;
 }
 /* Adapted from glasscn-components' MIT frosted material. See THIRD_PARTY_NOTICES.md. */
-/* 材质与深浅两套取值见 jobo.ink 仓库 DESIGN.md 第 2、7 节；改令牌必须两处同改 */
 .glass {
-  background:
-    linear-gradient(135deg, var(--glass-top) 0%, transparent 42%),
-    var(--glass-fill);
+  background: var(--glass-fill);
   border: 1px solid var(--glass-border);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(105%);
+  -webkit-backdrop-filter: blur(20px) saturate(105%);
   box-shadow:
     inset 0 1px 0 var(--glass-hi),
-    0 22px 50px -30px var(--glass-shadow),
-    0 1px 2px var(--ink-a4);
+    0 14px 32px -24px var(--glass-shadow);
 }
 .row {
   display: flex;
@@ -625,9 +596,8 @@ textarea::placeholder {
   background: var(--veil-35);
 }
 .nav-item.active {
-  background: var(--raised);
+  background: var(--accent-soft);
   color: var(--accent);
-  box-shadow: 0 2px 6px var(--ink-a4);
   font-weight: 550;
 }
 .nav-count {
@@ -762,8 +732,8 @@ textarea::placeholder {
 .composer {
   border-radius: var(--radius);
   padding: var(--space-4);
-  background: var(--veil-80);
-  box-shadow: 0 4px 30px var(--ink-a6);
+  background: var(--composer-fill);
+  border-color: var(--line);
 }
 .composer textarea {
   padding: 0;
@@ -978,6 +948,7 @@ textarea::placeholder {
   gap: var(--space-1);
   border-radius: var(--radius-sm);
   box-shadow: none;
+  background: var(--surface-subtle);
   margin-bottom: var(--space-6);
 }
 .segmented button {
@@ -987,9 +958,8 @@ textarea::placeholder {
   color: var(--muted);
 }
 .segmented button.selected {
-  background: var(--raised);
+  background: var(--surface-solid);
   color: var(--accent);
-  box-shadow: 0 1px 5px var(--ink-a4);
 }
 .record-list {
   margin-bottom: var(--space-5);
@@ -1059,7 +1029,7 @@ textarea::placeholder {
 .settings-card {
   padding: var(--space-6);
   border-radius: var(--radius);
-  background: var(--veil-55);
+  background: var(--surface-subtle);
   margin-bottom: var(--space-5);
 }
 .settings-card p {
@@ -1102,7 +1072,7 @@ textarea::placeholder {
   padding: var(--space-8);
   background: var(--surface-solid);
   border: 1px solid var(--line);
-  box-shadow: 0 40px 90px -40px var(--glass-shadow);
+  box-shadow: 0 16px 48px -28px var(--glass-shadow);
   overscroll-behavior: contain;
 }
 /* 单列表单（登录）：不留标题区，关闭键浮在右上角 */
@@ -1335,7 +1305,7 @@ textarea::placeholder {
   }
 }
 
-/* Landing: a quiet product sheet. Copy sits on the page; one glass panel holds the product itself. */
+/* Landing: stable surfaces leave the product and typography in focus. */
 .landing-page {
   display: flex;
   flex-direction: column;
@@ -1490,9 +1460,8 @@ textarea::placeholder {
   margin: 0;
   padding: var(--space-5);
   border-radius: var(--radius-lg);
-  background:
-    linear-gradient(135deg, var(--glass-top) 0%, transparent 46%),
-    var(--glass-fill);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
 }
 .demo-head {
   display: flex;
@@ -2132,7 +2101,7 @@ textarea::placeholder {
   border-radius: var(--radius);
   padding: var(--space-6);
   margin-bottom: var(--space-5);
-  box-shadow: none;
+  background: var(--surface-subtle);
 }
 .editor-section-title {
   display: flex;

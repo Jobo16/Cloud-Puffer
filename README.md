@@ -18,7 +18,7 @@ Cloud Puffer 的目标是连接各种收发渠道与 Agent 运行方式，让同
 
 首页 · 点击图片打开网页版
 
-![助手接入微信页面，显示连接微信按钮](docs/assets/wechat-setup.webp)
+![Cloud Puffer 助手接入页面](docs/assets/wechat-setup.png)
 
 助手 › 接入 · 本地测试账号截图
 

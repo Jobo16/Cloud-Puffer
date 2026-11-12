@@ -53,11 +53,12 @@ Node 24 + pnpm 10.30.3。依次运行 README 中的安装、`pnpm run dev:setup`
 | `0001_outgoing_silver_fox.sql` | QQ 绑定/连接、聊天偏好及表情字段。 |
 | `0002_safe_wallflower.sql` | 助手名字、人设、提示词、待办与记忆开关，已有账号获得默认值。 |
 | `0003_merge_prompt.sql` | 人设与自定义提示词合并为 `system_prompt`，先拼接内容再删除旧列。 |
-| `0004_known_zodiak.sql` | 更新默认助手名字为小肥鱼。 |
+| `0004_known_zodiak.sql` | 旧版默认助手名调整。 |
 | `0005_concerned_captain_stacy.sql` | 为账号增加可选的每日积分上限；旧账号沿用平台默认值。 |
 | `0006_real_junta.sql` | 记录模型报告的缓存输入 token。 |
 | `0007_greedy_hairball.sql` | 本地 Agent 设备、用户所选设备与运行设备关联。 |
 | `0008_tearful_paibok.sql` | Telegram 一次性绑定码和账号私聊连接表。 |
+| `0009_abandoned_dragon_lord.sql` | 新账号默认助手名改为 Cloud Puffer，并更新仍使用旧默认名的账号；其他自定义名字保留。 |
 
 升级配置工作区时，先在旧服务仍在线时应用 `0002`，再更新 Web/Worker。新界面和 Agent 都依赖这些字段，不能只更新前端。
 

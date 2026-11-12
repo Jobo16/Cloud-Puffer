@@ -17,7 +17,7 @@ export const preferencesInput = z
   .refine((data) => Object.keys(data).length > 0, "请至少修改一项配置。");
 function publicPreferences(row?: typeof userPreferences.$inferSelect) {
   return {
-    agentName: row?.agentName ?? "小肥鱼",
+    agentName: row?.agentName ?? "Cloud Puffer",
     systemPrompt: row?.systemPrompt ?? "",
     tasksEnabled: row?.tasksEnabled ?? true,
     memoryEnabled: row?.memoryEnabled ?? true,

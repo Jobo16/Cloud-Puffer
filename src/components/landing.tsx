@@ -35,7 +35,7 @@ const copy = {
     start: "开始使用",
     source: "查看源代码",
     previewLabel: "产品界面示意",
-    previewName: "小肥鱼",
+    previewName: "Cloud Puffer",
     demoUser: "帮我记下周五前交材料",
     demoReply: "记下了，需要时我会帮你找到。",
     demoTask: "周五前交材料",
@@ -253,7 +253,7 @@ export function Landing({
                 </a>
               </div>
             </div>
-            <figure className="hero-demo glass" aria-label={c.previewLabel}>
+            <figure className="hero-demo" aria-label={c.previewLabel}>
               <div className="demo-head">
                 <Mark />
                 <span>{c.previewName}</span>

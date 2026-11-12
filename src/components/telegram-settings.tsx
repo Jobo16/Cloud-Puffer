@@ -35,7 +35,7 @@ export function TelegramSettings({
     }
   }
   return (
-    <div className="settings-card glass">
+    <div className="settings-card">
       <div className="row">
         <span className="settings-icon">
           <Send size={22} />

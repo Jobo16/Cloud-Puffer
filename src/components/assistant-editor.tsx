@@ -136,10 +136,7 @@ export function AssistantEditor({
 
   return (
     <div className="assistant-editor content-section">
-      <section
-        className="editor-card glass"
-        aria-labelledby="personality-heading"
-      >
+      <section className="editor-card" aria-labelledby="personality-heading">
         <div className="editor-section-title">
           <span className="section-number">01</span>
           <h3 id="personality-heading">
@@ -157,7 +154,7 @@ export function AssistantEditor({
               value={values.agentName}
               maxLength={40}
               onChange={(e) => edit({ agentName: e.target.value })}
-              placeholder={t("小肥鱼", "Puffer")}
+              placeholder="Cloud Puffer"
             />
           </label>
         </div>
@@ -175,10 +172,7 @@ export function AssistantEditor({
           />
         </label>
       </section>
-      <section
-        className="editor-card glass"
-        aria-labelledby="capabilities-heading"
-      >
+      <section className="editor-card" aria-labelledby="capabilities-heading">
         <div className="editor-section-title">
           <span className="section-number">02</span>
           <h3 id="capabilities-heading">{t("选择能力", "Capabilities")}</h3>
@@ -209,10 +203,7 @@ export function AssistantEditor({
           )}
         </p>
       </section>
-      <section
-        className="editor-card glass"
-        aria-labelledby="agent-runtime-heading"
-      >
+      <section className="editor-card" aria-labelledby="agent-runtime-heading">
         <div className="editor-section-title">
           <span className="section-number">03</span>
           <h3 id="agent-runtime-heading">{t("运行位置", "Run location")}</h3>
@@ -238,7 +229,9 @@ export function AssistantEditor({
               }
             }}
           >
-            <option value="">{t("云端小肥鱼", "Cloud assistant")}</option>
+            <option value="">
+              {t("Cloud Puffer 云端助手", "Cloud Puffer cloud assistant")}
+            </option>
             {agentDevices.devices.map((device) => (
               <option key={device.id} value={device.id}>
                 {device.kind === "codex"

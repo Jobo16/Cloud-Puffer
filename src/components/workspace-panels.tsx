@@ -151,10 +151,7 @@ export function TasksPanel({
           {t("新待办", "New task")}
         </Button>
       </div>
-      <div
-        className="segmented glass"
-        aria-label={t("筛选待办", "Filter tasks")}
-      >
+      <div className="segmented" aria-label={t("筛选待办", "Filter tasks")}>
         {[
           ["pending", t("待完成", "To do")],
           ["done", t("已完成", "Done")],
@@ -516,7 +513,7 @@ export function ChannelsPanel({
   }
   return (
     <div className="channel-list">
-      <div className="settings-card glass">
+      <div className="settings-card">
         <div className="row">
           <span className="settings-icon">
             <Smartphone size={22} />

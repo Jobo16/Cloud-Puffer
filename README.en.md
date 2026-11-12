@@ -18,7 +18,7 @@ The diagram shows the channel and agent integration direction; current availabil
 
 Homepage · click the image to open the web app
 
-![Assistant Connections page with the Connect WeChat button](docs/assets/wechat-setup.webp)
+![Cloud Puffer assistant connections page](docs/assets/wechat-setup.png)
 
 Assistant › Connections · captured with a local test account
 

@@ -358,13 +358,13 @@ describe("assistant configuration", () => {
       stickersEnabled: false,
     });
     expect(await preferences(stranger)).toMatchObject({
-      agentName: "小肥鱼",
+      agentName: "Cloud Puffer",
       systemPrompt: "",
       tasksEnabled: true,
       stickersEnabled: true,
     });
     await updatePreferences(stranger, { memoryEnabled: false });
-    expect((await preferences(stranger)).agentName).toBe("小肥鱼");
+    expect((await preferences(stranger)).agentName).toBe("Cloud Puffer");
     for (const input of [
       { agentName: "  " },
       { systemPrompt: "a".repeat(4001) },

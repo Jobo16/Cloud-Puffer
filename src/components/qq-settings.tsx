@@ -37,7 +37,7 @@ export function QqSettings({
   }
   return (
     <>
-      <div className="settings-card glass">
+      <div className="settings-card">
         <div className="row">
           <span className="settings-icon">
             <MessageCircle size={22} />

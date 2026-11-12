@@ -119,7 +119,7 @@ export function ChatPanel({
       >
         {allRuns.length === 0 ? (
           <section className="welcome">
-            <div className="welcome-symbol glass">
+            <div className="welcome-symbol">
               <Mark large />
             </div>
             <h2>
