@@ -4,11 +4,13 @@
 
 **[Open the web app →](https://fish.jobo.ink)** · [Getting started](docs/workspace.md) · [简体中文](README.md) · [What works](#project-status) · [Run locally](#run-locally) · [Architecture](docs/architecture.md) · [Roadmap](docs/PRD.md)
 
-Start on the web and continue in WeChat: every message belongs to the same account-owned conversation. Cloud Puffer keeps identity, tasks, memory, and reply status in one shared service, with a built-in cloud agent. The development preview also includes an outbound connector for Codex or OpenClaw on your own computer. See [project status](#project-status) and the [integration boundaries](docs/channel-agent-gateway.md) (Chinese) for the current QQ and local-agent scope.
+Cloud Puffer aims to connect messaging channels with agent runtimes while keeping one conversation per account. Web and WeChat entry points and QQ adapter code exist today; Telegram, WhatsApp, Feishu, and other channels are planned. The cloud service owns identity, tasks, memory, run order, and reply status, and includes an agent runtime. The development preview also has a text connector for Codex or OpenClaw on a user's computer. See [project status](#project-status) and the [integration plan](docs/channel-agent-gateway.md) (Chinese) for the boundary between code and plans.
 
-**Who is it for?** People who want one ongoing conversation with their agent across familiar chat surfaces, and developers who want to self-host or study channel and runtime integrations.
+**Who is it for?** People who want one agent conversation across chat surfaces, and developers who want to self-host, add channels, or connect local agents.
 
 ![Cloud Puffer: one conversation across channels and agents](docs/assets/github-cover.png)
+
+Green is available, blue is a development preview, and dashed boxes are planned. Details follow below.
 
 ## Screenshots
 
@@ -39,7 +41,7 @@ Available in this preview:
 - Local development code can route new turns to Codex or OpenClaw on the user's computer through a revocable device token and a local confirmation prompt. This increment has not been deployed; real local-agent and cross-channel operation remain unverified. Local agents do not have access to the web task/memory tools. See the [integration boundaries](docs/channel-agent-gateway.md) (Chinese).
 - Natural-language reply guidance and four original built-in stickers for web/QQ, with a per-account opt-out and no consecutive reuse of the same sticker. Reading incoming images and learning a user's writing style are not implemented.
 
-Still planned: scheduled reminders and calendar events, search, notes, private files, document generation/retrieval, broader operational administration, and platform-wide cost limits. A task deadline does **not** currently send a reminder.
+Still planned: Telegram, WhatsApp, Feishu, and more channels; scheduled reminders and calendar events; search, notes, private files, document generation/retrieval, broader operational administration, and platform-wide cost limits. A task deadline does **not** currently send a reminder.
 
 ## Using the workspace
 
