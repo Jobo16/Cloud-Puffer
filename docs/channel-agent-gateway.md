@@ -1,6 +1,6 @@
 # 渠道与 Agent 接入方向
 
-状态：网页、微信、QQ 和 Telegram 共用账号级入站运行与来源投递；Telegram 仅完成代码和测试替身验证，尚无真实 Bot 验收。本地 Codex/OpenClaw 的文字连接已实现为开发预览，尚未经过真实 OpenClaw、手机渠道或生产验收。Octop 渠道进程尚未接入。
+状态：网页、微信、QQ 和 Telegram 共用账号级入站运行与来源投递；Telegram 仅完成代码和测试替身验证，尚无真实 Bot 验收。本地 Codex 已经由网页 API、HTTP 设备桥和连接程序完成真实文字回复；浏览器点击、OpenClaw、手机渠道和生产验收尚未完成。Octop 渠道进程尚未接入。
 
 各模块优先复用的上游项目、许可证和本机可验证结果见[开源复用记录](research/open-source-reuse-2026-11-12.md)。
 

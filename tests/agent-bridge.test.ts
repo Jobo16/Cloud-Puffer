@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
-import { afterAll, afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { eq } from "drizzle-orm";
 import { db, pool } from "../src/db";
-import { runs, user } from "../src/db/schema";
+import { runs, telegramConnections, user } from "../src/db/schema";
 import {
   createAgentDevice,
   revokeAgentDevice,
@@ -10,6 +10,7 @@ import {
 } from "../src/server/agent-devices";
 import { enqueueTurn } from "../src/server/conversations";
 import { GET, POST } from "../src/app/api/agent-bridge/route";
+import { deliverTelegramRun, receiveTelegramMessage } from "../src/server/telegram";
 
 let owner: string;
 let stranger: string;
@@ -90,5 +91,54 @@ describe("local agent bridge", () => {
       .from(runs)
       .where(eq(runs.id, second.id));
     expect(stopped.status).toBe("failed");
+  });
+  it("returns a Telegram turn handled by a local device to its original chat", async () => {
+    const device = await createAgentDevice(owner, "codex");
+    await selectAgentDevice(owner, device.id);
+    await GET(request(device.token));
+    await db().insert(telegramConnections).values({
+      userId: owner,
+      botId: "123456",
+      peerId: "7318",
+      chatId: "7318",
+    });
+    const sender = {
+      sendMessage: vi.fn().mockResolvedValue({ message_id: 15 }),
+    };
+    await receiveTelegramMessage(
+      sender as Parameters<typeof receiveTelegramMessage>[0],
+      {
+        message_id: 42,
+        chat: { id: 7318, type: "private" },
+        from: { id: 7318, is_bot: false },
+        text: "这次由本地 Codex 回复",
+      } as Parameters<typeof receiveTelegramMessage>[1],
+    );
+    const claimed = await (await GET(request(device.token))).json();
+    expect(claimed.run.input).toBe("这次由本地 Codex 回复");
+    const result = await POST(
+      request(device.token, "POST", {
+        runId: claimed.run.id,
+        status: "completed",
+        output: "本地回复",
+      }),
+    );
+    expect(result.status).toBe(200);
+    await deliverTelegramRun(
+      claimed.run.id,
+      sender as Parameters<typeof deliverTelegramRun>[1],
+    );
+    expect(sender.sendMessage).toHaveBeenCalledWith(7318, "本地回复");
+    const [saved] = await db()
+      .select()
+      .from(runs)
+      .where(eq(runs.id, claimed.run.id));
+    expect(saved).toMatchObject({
+      agentDeviceId: device.id,
+      source: "telegram",
+      status: "completed",
+      output: "本地回复",
+      deliveryStatus: "accepted",
+    });
   });
 });
