@@ -25,15 +25,22 @@
 
 镜像从国内的 `docker.1ms.run` 拉取 Node.js 和 PostgreSQL 基础镜像，依赖通过 `registry.npmmirror.com` 下载；这两个镜像源只用于本项目，不修改服务器上其他项目的 Docker 配置。
 
-首次发布时服务器到 GitHub 的连接和国内镜像站的镜像层下载中断：本地已推送的同一提交通过 Git bundle 放入服务器 Git 检出，基础镜像从国内源取得 amd64 版本后导入服务器，再在服务器执行 Docker 构建。服务器检出目录须保持干净；后续优先从 `origin/main` 快进拉取，若网络仍不可用，可用已推送提交的 Git bundle 快进，不同步未提交文件。生产密钥仅传入受限的 `.env.production`。
+首次发布时服务器到 GitHub 的连接和国内镜像站的镜像层下载中断：本地已推送的同一提交通过 Git bundle 放入服务器 Git 检出，基础镜像从国内源取得 amd64 版本后导入服务器，再在服务器执行 Docker 构建。现在 GitHub 是协作主仓库，Gitee 的 `Jobot/Cloud-Puffer` 只同步 `main` 供服务器拉取；两边不分别提交代码。服务器检出目录须保持干净；优先从 Gitee 快进拉取，若 Gitee 也不可用，可用已推送提交的 Git bundle 快进，不同步未提交文件。生产密钥仅传入受限的 `.env.production`。
 
-本地先完成 `pnpm typecheck`、`pnpm lint`、`pnpm test`、`pnpm build`，确认工作区无未提交修改，再提交并推送 `main`。服务器检出目录必须干净，快进到该提交后执行项目脚本：
+本地一次性添加 Gitee 远程 `git remote add gitee git@gitee.com:Jobot/Cloud-Puffer.git`；服务器一次性添加只读远程 `git remote add gitee https://gitee.com/Jobot/Cloud-Puffer.git`。本地先完成 `pnpm typecheck`、`pnpm lint`、`pnpm test`、`pnpm build`，确认工作区无未提交修改，再将同一 `main` 提交依次推送到 GitHub (`origin`) 和 Gitee (`gitee`)。核对两边 `main` 的提交哈希一致；任一推送失败时不发布。服务器检出目录必须干净，快进到该提交后执行项目脚本：
 
 ```sh
-ssh server-renovation 'cd /opt/apps/jojobot/repo && git fetch origin main && git merge --ff-only FETCH_HEAD && ./scripts/deploy-server.sh'
+git push origin main
+git push gitee main
+git ls-remote origin refs/heads/main
+git ls-remote gitee refs/heads/main
 ```
 
-服务器无法访问 GitHub 时，从**已推送的**本地 `main` 制作 Git bundle，然后仍在服务器快进并运行同一脚本：
+```sh
+ssh server-renovation 'cd /opt/apps/jojobot/repo && git fetch gitee main && git merge --ff-only FETCH_HEAD && ./scripts/deploy-server.sh'
+```
+
+服务器无法访问 Gitee 时，从**已推送到两边的**本地 `main` 制作 Git bundle，然后仍在服务器快进并运行同一脚本：
 
 ```sh
 git bundle create .local/jojobot-deploy.bundle main
