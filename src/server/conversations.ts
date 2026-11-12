@@ -5,6 +5,7 @@ import {
   agentDevices,
   channels,
   qqConnections,
+  telegramConnections,
   conversations,
   runs,
   user,
@@ -35,7 +36,7 @@ export const runErrors: Record<string, string> = {
 };
 export const usage = pointStatus;
 export type InboundTurn = z.input<typeof turnInput> & {
-  source: "web" | "wechat" | "qq";
+  source: "web" | "wechat" | "qq" | "telegram";
   channelId?: string;
   contextToken?: string;
   errorCode?: string;
@@ -76,6 +77,23 @@ export async function enqueueTurn(userId: string, incoming: InboundTurn) {
         );
       if (!config().QQ_ENABLED || !channel)
         throw new AppError("CHANNEL_CHANGED", 409, "QQ 连接已失效。");
+    }
+    if (incoming.source === "telegram") {
+      const [channel] = await tx
+        .select()
+        .from(telegramConnections)
+        .where(
+          and(
+            eq(telegramConnections.id, incoming.channelId!),
+            eq(telegramConnections.userId, userId),
+            eq(
+              telegramConnections.botId,
+              config().TELEGRAM_BOT_TOKEN?.split(":")[0] ?? "",
+            ),
+          ),
+        );
+      if (!config().TELEGRAM_ENABLED || !channel)
+        throw new AppError("CHANNEL_CHANGED", 409, "Telegram 连接已失效。");
     }
     const [existing] = await tx
       .select()

@@ -1,6 +1,6 @@
 # 开发与验证
 
-当前为开发预览，已包含账号、助手配置工作区、主对话、待办/记忆及微信/QQ 适配。产品操作见[工作区说明](workspace.md)，完整首版目标以 [PRD](PRD.md) 为准。
+当前为开发预览，已包含账号、助手配置工作区、主对话、待办/记忆及微信/QQ/Telegram 适配。产品操作见[工作区说明](workspace.md)，完整首版目标以 [PRD](PRD.md) 为准。
 
 ## 运行
 
@@ -10,7 +10,7 @@ Node 24 + pnpm 10.30.3。依次运行 README 中的安装、`pnpm run dev:setup`
 | --- | --- |
 | `http://localhost:3030/` | 项目首页与登录/注册浮窗 |
 | `http://localhost:3030/app` | 登录后工作区 |
-| `http://localhost:3030/api/health` | Web 数据库就绪检查，不代表模型、微信或 QQ 正常 |
+| `http://localhost:3030/api/health` | Web 数据库就绪检查，不代表模型或任何消息渠道正常 |
 | `http://localhost:18025` | 本地邮件收件箱 |
 | `127.0.0.1:55439` | 本项目 PostgreSQL，数据库 `jojobot` |
 | `127.0.0.1:11025` | Mailpit SMTP |
@@ -37,6 +37,8 @@ Node 24 + pnpm 10.30.3。依次运行 README 中的安装、`pnpm run dev:setup`
 | `QQ_ENABLED` | 默认 `false`；启用后 Worker 通过官方 SDK 连接 QQ 网关，仅处理绑定后的私聊 |
 | `QQ_APP_ID/APP_SECRET` | 平台统一配置的机器人应用凭据，启用 QQ 时必填，不交给用户 |
 | `QQ_BOT_URL` | 可选 HTTPS 机器人分享链接，用于设置页的添加入口 |
+| `TELEGRAM_ENABLED` | 默认 `false`；启用后 Worker 用 grammY 长轮询接收机器人私聊 |
+| `TELEGRAM_BOT_TOKEN/BOT_USERNAME` | BotFather 创建的机器人凭据与用户名，启用 Telegram 时必填；用户名用于网页打开机器人链接 |
 
 模型每轮最多 12 步、4,000 输出 token、120 秒。输入每 1,000 token 计 1 分、输出每 1,000 token 计 3 分，每轮分别向上取整；只按模型报告并保存的用量结算。失败或取消后已记录的 token 仍计入；入队前拒绝的请求不计入，清空聊天不恢复积分。入队与执行前检查上限，但单轮事后结算可能越过上限。此处是每人积分，不是全平台人民币/美元成本控制。
 
@@ -54,6 +56,7 @@ Node 24 + pnpm 10.30.3。依次运行 README 中的安装、`pnpm run dev:setup`
 | `0005_concerned_captain_stacy.sql` | 为账号增加可选的每日积分上限；旧账号沿用平台默认值。 |
 | `0006_real_junta.sql` | 记录模型报告的缓存输入 token。 |
 | `0007_greedy_hairball.sql` | 本地 Agent 设备、用户所选设备与运行设备关联。 |
+| `0008_tearful_paibok.sql` | Telegram 一次性绑定码和账号私聊连接表。 |
 
 升级配置工作区时，先在旧服务仍在线时应用 `0002`，再更新 Web/Worker。新界面和 Agent 都依赖这些字段，不能只更新前端。
 
@@ -68,11 +71,13 @@ Node 24 + pnpm 10.30.3。依次运行 README 中的安装、`pnpm run dev:setup`
 
 网页「助手 › 设定 › 运行位置」可创建设备令牌并选择该设备。设备令牌只显示一次；本地数据库仅保存摘要。在用户电脑安装并登录 Codex 或 OpenClaw，在本项目目录设置 `JOJOBOT_DEVICE_TOKEN`、`JOJOBOT_URL`（云端 HTTPS 地址）和可选的 `JOJOBOT_AGENT_WORKDIR`，运行 `pnpm local-agent`。程序每轮在终端询问是否执行。Codex 当前固定使用只读沙箱；OpenClaw 通过本机已配置的 Gateway 执行，不附加渠道发送。该本地程序目前需从项目源码运行，尚未提供独立安装包。
 
-本地设备在线后才接受选择给它的新对话。云端主对话仍按账号隔离并在网页显示；已完成的本地回复也尝试返回发起消息的微信/QQ 渠道。设备离线、撤销、取消和中断后不自动改派或重放。仅支持文字最终回复；不支持把本地 Agent 的工具接到云端事项/记忆，也不显示其本机模型用量。实现边界见[渠道与 Agent 接入方向](channel-agent-gateway.md)。
+本地设备在线后才接受选择给它的新对话。云端主对话仍按账号隔离并在网页显示；已完成的本地回复也尝试返回发起消息的微信/QQ/Telegram 渠道。设备离线、撤销、取消和中断后不自动改派或重放。仅支持文字最终回复；不支持把本地 Agent 的工具接到云端事项/记忆，也不显示其本机模型用量。实现边界见[渠道与 Agent 接入方向](channel-agent-gateway.md)。
 
 2026-11-11 本地检查：`pnpm db:generate` 生成 `0007`，在本项目本地 PostgreSQL 上执行 `pnpm db:migrate` 成功；`pnpm typecheck`、`pnpm lint`、`pnpm test`（52 项）及 `pnpm build` 通过。新增集成检查覆盖两个账号的设备隔离、领取、结果幂等和撤销。尚未运行真实 Codex/OpenClaw 回复、微信/QQ 经本地设备的收发，亦未部署生产。
 
-2026-11-12 复核：当前代码的 `pnpm typecheck`、`pnpm lint`、`pnpm test`（54 项）和 `pnpm build` 通过。本机 Codex CLI 0.144.3 在临时目录以只读沙箱完成一次独立文字回复；再用 `jojobot_test` 的临时账号和设备，经服务端处理器领取任务、执行真实 Codex、提交结果并核对数据库记录。临时账号和文件已清理。未启动 HTTP/Web、未验证网页连接程序或手机渠道回传；本机无 OpenClaw CLI。开发 PostgreSQL 和 Mailpit 容器就绪。开源复用选择与尚缺的外部条件见[开源复用记录](research/open-source-reuse-2026-11-12.md)。
+2026-11-12 早先复核：当时代码的 `pnpm typecheck`、`pnpm lint`、`pnpm test`（54 项）和 `pnpm build` 通过。本机 Codex CLI 0.144.3 在临时目录以只读沙箱完成一次独立文字回复；再用 `jojobot_test` 的临时账号和设备，经服务端处理器领取任务、执行真实 Codex、提交结果并核对数据库记录。临时账号和文件已清理。未启动 HTTP/Web、未验证网页连接程序或手机渠道回传；本机无 OpenClaw CLI。开发 PostgreSQL 和 Mailpit 容器就绪。开源复用选择与尚缺的外部条件见[开源复用记录](research/open-source-reuse-2026-11-12.md)。
+
+2026-11-12 Telegram 增量：本地库已应用 `0008`；专用测试库的 58 项检查通过，含 Telegram 绑定、账号隔离、私聊入队、去重和投递状态。Bot API 使用测试替身，没有真实 Bot 凭据或客户端收发验证；线上尚未部署此增量。
 
 ## 验证记录
 

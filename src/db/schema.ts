@@ -123,7 +123,7 @@ export const runs = pgTable(
       .notNull()
       .references(() => conversations.id, { onDelete: "cascade" }),
     requestKey: text("request_key").notNull(),
-    source: text("source").$type<"web" | "wechat" | "qq">().notNull(),
+    source: text("source").$type<"web" | "wechat" | "qq" | "telegram">().notNull(),
     input: text("input").notNull(),
     output: text("output").default("").notNull(),
     stickerId: text("sticker_id"),
@@ -243,6 +243,30 @@ export const qqBindings = pgTable("qq_bindings", {
     .primaryKey()
     .references(() => user.id, { onDelete: "cascade" }),
   appId: text("app_id").notNull(),
+  tokenHash: text("token_hash").notNull().unique(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+});
+
+export const telegramConnections = pgTable(
+  "telegram_connections",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .unique()
+      .references(() => user.id, { onDelete: "cascade" }),
+    botId: text("bot_id").notNull(),
+    peerId: text("peer_id").notNull(),
+    chatId: text("chat_id").notNull(),
+    createdAt: created(),
+  },
+  (t) => [uniqueIndex("telegram_sender_unique").on(t.botId, t.peerId)],
+);
+export const telegramBindings = pgTable("telegram_bindings", {
+  userId: text("user_id")
+    .primaryKey()
+    .references(() => user.id, { onDelete: "cascade" }),
+  botId: text("bot_id").notNull(),
   tokenHash: text("token_hash").notNull().unique(),
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
 });

@@ -28,7 +28,7 @@ SOFTWARE.
 
 ## Package dependencies
 
-The QQ adapter uses `@tencent-connect/qqbot-nodejs` 1.0.5 (MIT, Copyright © 2026 Tencent); its license is retained in the installed package. DSH projects were research references only; no DSH plugin source or runtime is bundled. Original artwork in `public/stickers` is part of the project and is covered by the repository's MIT license.
+The QQ adapter uses `@tencent-connect/qqbot-nodejs` 1.0.5 (MIT, Copyright © 2026 Tencent). The Telegram adapter uses `grammy` 1.46.0 (MIT). Their licenses are retained in the installed packages. DSH projects were research references only; no DSH plugin source or runtime is bundled. Original artwork in `public/stickers` is part of the project and is covered by the repository's MIT license.
 
 The cropped setup guide in `public/guides` uses screenshots supplied by the project owner to explain WeChat's contact settings. WeChat interface names and marks belong to their respective owners. The separate avatar image was also supplied by the project owner.
 

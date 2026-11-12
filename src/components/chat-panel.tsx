@@ -127,6 +127,8 @@ export function ChatPanel({
                       ? "来自微信 · "
                       : run.source === "qq"
                         ? "来自 QQ · "
+                        : run.source === "telegram"
+                          ? "来自 Telegram · "
                         : ""}
                     {new Date(run.createdAt).toLocaleTimeString("zh-CN", {
                       hour: "2-digit",

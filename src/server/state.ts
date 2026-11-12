@@ -4,6 +4,7 @@ import { listMemories } from "./memories";
 import { channelStatus } from "./ilink";
 import { modelConfigured } from "./config";
 import { qqStatus } from "./qq";
+import { telegramStatus } from "./telegram";
 import { preferences } from "./preferences";
 import { listAgentDevices } from "./agent-devices";
 
@@ -15,6 +16,7 @@ export async function appState(userId: string) {
     quota,
     channel,
     qq,
+    telegram,
     chatPreferences,
     agentDevices,
   ] = await Promise.all([
@@ -24,6 +26,7 @@ export async function appState(userId: string) {
     usage(userId),
     channelStatus(userId),
     qqStatus(userId),
+    telegramStatus(userId),
     preferences(userId),
     listAgentDevices(userId),
   ]);
@@ -32,6 +35,7 @@ export async function appState(userId: string) {
     quota,
     modelReady: modelConfigured(),
     qq,
+    telegram,
     preferences: chatPreferences,
     agentDevices,
     tasks: tasks.map((t) => ({

@@ -4,8 +4,10 @@ import { runs } from "./db/schema";
 import { config } from "./server/config";
 import { AGENT_QUEUE, createWorkerQueue } from "./server/queue";
 import { executeRun } from "./server/agent";
-import { deliverRun, superviseChannels } from "./server/ilink";
-import { createQqBot, deliverQqRun } from "./server/qq";
+import { superviseChannels } from "./server/ilink";
+import { createQqBot } from "./server/qq";
+import { createTelegramBot } from "./server/telegram";
+import { deliverChannelRun } from "./server/channel-delivery";
 import { expireLocalRuns } from "./server/agent-devices";
 
 // This first increment intentionally supports one shared worker, with four concurrent users.
@@ -23,7 +25,9 @@ const controller = new AbortController();
 const boss = createWorkerQueue();
 let channelTask: Promise<void> | undefined;
 let qqTask: Promise<void> | undefined;
+let telegramTask: Promise<void> | undefined;
 const qqBot = createQqBot();
+const telegramBot = createTelegramBot();
 let stopping = false;
 const localRunSweep = setInterval(() => {
   void expireLocalRuns().catch(() => console.error("local_run_sweep_failed"));
@@ -33,8 +37,10 @@ const shutdown = async () => {
   stopping = true;
   clearInterval(localRunSweep);
   controller.abort();
+  if (telegramBot?.isRunning()) await telegramBot.stop();
   await channelTask;
   await qqTask;
+  await telegramTask;
   await boss.stop({ graceful: true, timeout: 150000 });
   await lease.query("SELECT pg_advisory_unlock(742199320)");
   lease.release();
@@ -61,8 +67,10 @@ await boss.work<{ runId: string }>(
   { localConcurrency: 4, pollingIntervalSeconds: 0.5 },
   async ([job]) => {
     await executeRun(job.data.runId);
-    await deliverRun(job.data.runId);
-    await deliverQqRun(job.data.runId, qqBot);
+    await deliverChannelRun(job.data.runId, {
+      qq: qqBot,
+      telegram: telegramBot?.api,
+    });
   },
 );
 if (config().ILINK_ENABLED)
@@ -76,6 +84,10 @@ if (qqBot)
     console.error(
       "qq_gateway_stopped; check QQ configuration and restart the worker",
     );
+  });
+if (telegramBot)
+  telegramTask = telegramBot.start({ allowed_updates: ["message"] }).catch(() => {
+    console.error("telegram_polling_stopped; check Telegram configuration and restart the worker");
   });
 console.log(
   "Cloud Puffer worker ready; four concurrent users, ordered turns per user.",

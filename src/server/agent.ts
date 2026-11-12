@@ -117,7 +117,7 @@ export async function executeRun(id: string) {
       apiKey: env.MODEL_API_KEY!,
     });
     const settings = await preferences(run.userId);
-    const useStickers = run.source !== "wechat" && settings.stickersEnabled;
+    const useStickers = ["web", "qq"].includes(run.source) && settings.stickersEnabled;
     const result = streamText({
       model: provider.chatModel(env.MODEL_NAME!),
       abortSignal: controller.signal,

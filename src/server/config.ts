@@ -27,10 +27,19 @@ const schema = z.object({
   QQ_APP_ID: z.string().optional(),
   QQ_APP_SECRET: z.string().optional(),
   QQ_BOT_URL: z.union([z.url({ protocol: /^https$/ }), z.literal("")]).optional(),
+  TELEGRAM_ENABLED: z.string().default("false").transform((v) => v === "true"),
+  TELEGRAM_BOT_TOKEN: z.string().optional(),
+  TELEGRAM_BOT_USERNAME: z.string().optional(),
 }).superRefine((env, ctx) => {
   if (env.QQ_ENABLED) {
     for (const key of ["QQ_APP_ID", "QQ_APP_SECRET"] as const)
       if (!env[key]?.trim()) ctx.addIssue({ code: "custom", path: [key], message: "Required when QQ is enabled" });
+  }
+  if (env.TELEGRAM_ENABLED) {
+    if (!/^\d+:[A-Za-z0-9_-]+$/.test(env.TELEGRAM_BOT_TOKEN ?? ""))
+      ctx.addIssue({ code: "custom", path: ["TELEGRAM_BOT_TOKEN"], message: "Required when Telegram is enabled" });
+    if (!/^[A-Za-z0-9_]{5,32}$/.test(env.TELEGRAM_BOT_USERNAME ?? ""))
+      ctx.addIssue({ code: "custom", path: ["TELEGRAM_BOT_USERNAME"], message: "Required when Telegram is enabled" });
   }
 });
 let cached: z.infer<typeof schema> | undefined;

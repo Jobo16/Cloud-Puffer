@@ -4,13 +4,13 @@
 
 **[Open the web app →](https://fish.jobo.ink)** · [Getting started](docs/workspace.md) · [简体中文](README.md) · [What works](#project-status) · [Run locally](#run-locally) · [Architecture](docs/architecture.md) · [Roadmap](docs/PRD.md)
 
-Cloud Puffer aims to connect messaging channels with agent runtimes while keeping one conversation per account. Web and WeChat entry points and QQ adapter code exist today; Telegram, WhatsApp, Feishu, and other channels are planned. The cloud service owns identity, tasks, memory, run order, and reply status, and includes an agent runtime. The development preview also has a text connector for Codex or OpenClaw on a user's computer. See [project status](#project-status) and the [integration plan](docs/channel-agent-gateway.md) (Chinese) for the boundary between code and plans.
+Cloud Puffer aims to connect messaging channels with agent runtimes while keeping one conversation per account. Web and WeChat entry points and QQ and Telegram adapter code exist today; WhatsApp, Feishu, and other channels are planned. The cloud service owns identity, tasks, memory, run order, and reply status, and includes an agent runtime. The development preview also has a text connector for Codex or OpenClaw on a user's computer. See [project status](#project-status) and the [integration plan](docs/channel-agent-gateway.md) (Chinese) for the boundary between code and plans.
 
 **Who is it for?** People who want one agent conversation across chat surfaces, and developers who want to self-host, add channels, or connect local agents.
 
 ![Cloud Puffer: one conversation across channels and agents](docs/assets/github-cover.png)
 
-Green is available, blue is a development preview, and dashed boxes are planned. Details follow below.
+The diagram shows the channel and agent integration direction; current availability is listed below.
 
 ## Screenshots
 
@@ -38,14 +38,15 @@ Available in this preview:
 - A verified administrator can open a small management page from Assistant › Setup to search accounts, view today's points, and adjust individual daily limits.
 - An iLink text adapter: QR binding, encrypted credentials, shared polling, durable deduplication, and conservative submission status. The first WeChat reply includes instructions for changing the contact remark and avatar, a cropped guide image, and the avatar image. **Local QR binding, text exchange, and web continuation passed; production QR binding and basic text exchange were confirmed. Welcome-image delivery on a real phone and long-running reliability remain unverified.**
 - A shared official QQ bot adapter for private text chat: one-time account binding, shared conversation/queue, and bounded text/image replies. QQ credentials, permissions, and real-device verification remain pending.
+- A Telegram bot adapter for private text chat: one-time account binding, shared conversation/queue, and text replies. It is disabled by default and has not been verified with a real bot or client.
 - Local development code can route new turns to Codex or OpenClaw on the user's computer through a revocable device token and a local confirmation prompt. This increment has not been deployed; real local-agent and cross-channel operation remain unverified. Local agents do not have access to the web task/memory tools. See the [integration boundaries](docs/channel-agent-gateway.md) (Chinese).
 - Natural-language reply guidance and four original built-in stickers for web/QQ, with a per-account opt-out and no consecutive reuse of the same sticker. Reading incoming images and learning a user's writing style are not implemented.
 
-Still planned: Telegram, WhatsApp, Feishu, and more channels; scheduled reminders and calendar events; search, notes, private files, document generation/retrieval, broader operational administration, and platform-wide cost limits. A task deadline does **not** currently send a reminder.
+Still planned: WhatsApp, Feishu, more channels, and Telegram media; scheduled reminders and calendar events; search, notes, private files, document generation/retrieval, broader operational administration, and platform-wide cost limits. A task deadline does **not** currently send a reminder.
 
 ## Using the workspace
 
-After sign-in you land on the conversation. Desktop keeps four sections in the sidebar — chat, tasks, memories, assistant; on mobile they live in a drawer opened from the top-left button. Name, system prompt, and capability switches live under **Assistant › Setup** and save automatically as you type; WeChat and QQ binding live under **Assistant › Connections**. Your account, today's points, and sign-out are in the account menu at the bottom of that same sidebar. The default is 1,000 points per Beijing day: each started 1,000 input tokens costs 1 point, and each started 1,000 output tokens costs 3 points, rounded separately per turn.
+After sign-in you land on the conversation. Desktop keeps four sections in the sidebar — chat, tasks, memories, assistant; on mobile they live in a drawer opened from the top-left button. Name, system prompt, and capability switches live under **Assistant › Setup** and save automatically as you type; WeChat, QQ, and Telegram binding live under **Assistant › Connections**. Your account, today's points, and sign-out are in the account menu at the bottom of that same sidebar. The default is 1,000 points per Beijing day: each started 1,000 input tokens costs 1 point, and each started 1,000 output tokens costs 3 points, rounded separately per turn.
 
 Disabling tools does not delete tasks or memory, and manual management remains available. Disabling memory removes its recall and write tools but preserves chat history. Navigation preserves drafts; save configuration before refreshing. See the [workspace guide](docs/workspace.md) (Chinese) for behavior and limits.
 
@@ -75,6 +76,8 @@ WeChat is disabled by default. Set `ILINK_ENABLED=true` to begin integration tes
 
 QQ is also disabled by default. After deployment preparation, set `QQ_ENABLED`, `QQ_APP_ID`, and `QQ_APP_SECRET` for a platform-owned QQ bot; `QQ_BOT_URL` optionally links to its sharing page. Users bind from Settings by privately sending the one-time command to that bot. See [QQ and DSH plugin research](docs/research/qq-and-dsh-plugins-2026-11-02.md) and [deployment requirements](docs/deployment.md). No DSH plugin runtime is installed.
 
+Telegram is disabled by default. After creating a bot, set `TELEGRAM_ENABLED=true`, `TELEGRAM_BOT_TOKEN`, and `TELEGRAM_BOT_USERNAME`, then restart Web and Worker. Users send the one-time command from **Assistant › Connections** to the bot in a private chat. Only text is supported; live bot and client delivery remain unverified.
+
 ## Development
 
 ```sh
@@ -84,7 +87,7 @@ pnpm test
 pnpm build
 ```
 
-Tests create and migrate a separate `jojobot_test` database on the local development PostgreSQL server. They use model/network fixtures and local Mailpit, never production credentials. On 2026-11-12, 54 integration checks, type checking, lint, and the production build passed. A local Codex CLI also completed a real reply claimed by a temporary test device and saved through the server handler. HTTP, the web connector, and channel delivery remain unverified. The production site previously passed health, email registration, administrator sign-in, and two real model replies with cache usage reported. The earlier baseline covered Docker and desktop/mobile viewports; one real WeChat account passed local text exchange. Welcome image sending has only been checked with a network fixture and still needs real-phone delivery verification. See the [verification record](docs/development.md#验证记录), current limitations, and the [open-source reuse record](docs/research/open-source-reuse-2026-11-12.md) (Chinese).
+Tests create and migrate a separate `jojobot_test` database on the local development PostgreSQL server. They use model/network fixtures and local Mailpit, never production credentials. On 2026-11-12, 58 integration checks, type checking, lint, and the production build passed. A local Codex CLI also completed a real reply claimed by a temporary test device and saved through the server handler. HTTP, the web connector, and channel delivery remain unverified. The production site previously passed health, email registration, administrator sign-in, and two real model replies with cache usage reported. The earlier baseline covered Docker and desktop/mobile viewports; one real WeChat account passed local text exchange. Welcome image sending has only been checked with a network fixture and still needs real-phone delivery verification. See the [verification record](docs/development.md#验证记录), current limitations, and the [open-source reuse record](docs/research/open-source-reuse-2026-11-12.md) (Chinese).
 
 The stack is Next.js 16, React 19, TypeScript, Tailwind CSS 4, Base UI, AI SDK, Better Auth, Drizzle, PostgreSQL 17, and pg-boss. A single shared worker serves accounts concurrently while ordering each user's turns. No per-user VM/container, Redis, or additional agent framework is required.
 

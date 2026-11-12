@@ -17,6 +17,7 @@ import { api } from "@/lib/api";
 import { Button, Modal } from "./ui";
 import type { Confirm, Mutate } from "./workspace";
 import { QqSettings } from "./qq-settings";
+import { TelegramSettings } from "./telegram-settings";
 
 type Task = AppState["tasks"][number];
 type Memory = AppState["memories"][number];
@@ -514,6 +515,7 @@ export function ChannelsPanel({
         </p>
       </div>
       <QqSettings state={state} mutate={mutate} confirm={confirm} />
+      <TelegramSettings state={state} mutate={mutate} confirm={confirm} />
       {error && (
         <p className="notice error" role="alert">
           {error}

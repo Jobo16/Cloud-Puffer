@@ -25,6 +25,7 @@ import {
 } from "@/server/memories";
 import { pollBinding, startBinding, unlinkChannel } from "@/server/ilink";
 import { startQqBinding, unlinkQq } from "@/server/qq";
+import { startTelegramBinding, unlinkTelegram } from "@/server/telegram";
 import { preferencesInput, updatePreferences } from "@/server/preferences";
 import {
   createAgentDevice,
@@ -140,6 +141,8 @@ async function handle(request: Request, context: Context): Promise<Response> {
       }
       if (route === "wechat/binding") return json(await startBinding(owner.id));
       if (route === "qq/binding") return json(await startQqBinding(owner.id));
+      if (route === "telegram/binding")
+        return json(await startTelegramBinding(owner.id));
       if (path[0] === "wechat" && path[1] === "binding" && path.length === 3) {
         const { verifyCode } = z
           .object({
@@ -177,6 +180,8 @@ async function handle(request: Request, context: Context): Promise<Response> {
       return json(await unlinkChannel(owner.id));
     if (route === "qq/connection" && request.method === "DELETE")
       return json(await unlinkQq(owner.id));
+    if (route === "telegram/connection" && request.method === "DELETE")
+      return json(await unlinkTelegram(owner.id));
     if (path.length === 2 && ["PATCH", "DELETE"].includes(request.method)) {
       const id = key.parse(path[1]);
       const actor = { userId: owner.id, operationKey: crypto.randomUUID() };

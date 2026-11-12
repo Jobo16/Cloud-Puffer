@@ -19,6 +19,9 @@ export const testEnvironment = {
   QQ_APP_ID: "qq-test-app",
   QQ_APP_SECRET: "qq-test-secret",
   QQ_BOT_URL: "",
+  TELEGRAM_ENABLED: "true",
+  TELEGRAM_BOT_TOKEN: "123456:test-only-token",
+  TELEGRAM_BOT_USERNAME: "cloudpuffertestbot",
 };
 if (new URL(testEnvironment.DATABASE_URL).pathname !== "/jojobot_test")
   throw new Error("Tests require the dedicated jojobot_test database.");

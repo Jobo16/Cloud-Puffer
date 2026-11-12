@@ -22,7 +22,7 @@ export async function chooseSticker(
       .select()
       .from(userPreferences)
       .where(eq(userPreferences.userId, actor.userId));
-    if (pref?.stickersEnabled === false || run.source === "wechat")
+    if (pref?.stickersEnabled === false || !["web", "qq"].includes(run.source))
       throw new AppError(
         "STICKER_DISABLED",
         409,

@@ -3,9 +3,9 @@ import type { preferences } from "./preferences";
 /** 默认表达、业务边界和本轮数据在一处组装；各渠道共用，不增加模型调用。 */
 export function buildAgentPrompt(
   settings: Awaited<ReturnType<typeof preferences>>,
-  source: "web" | "wechat" | "qq",
+  source: "web" | "wechat" | "qq" | "telegram",
 ) {
-  const useStickers = settings.stickersEnabled && source !== "wechat";
+  const useStickers = settings.stickersEnabled && ["web", "qq"].includes(source);
   return `你是云上小肥鱼提供的个人助手，名字、角色与表达偏好遵循下方用户配置。
 
 表达方式：

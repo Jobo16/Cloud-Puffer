@@ -57,6 +57,13 @@
       "when": 1794408928707,
       "tag": "0007_greedy_hairball",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794451048595,
+      "tag": "0008_tearful_paibok",
+      "breakpoints": true
     }
   ]
 }

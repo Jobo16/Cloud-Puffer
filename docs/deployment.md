@@ -15,6 +15,7 @@
 - 模型：选择并验证支持流式输出/工具调用的供应商，填入服务端配置。
 - 对支持隐式前缀缓存的模型，应用会保持系统提示词及历史消息稳定并限制历史长度；模型是否命中以 `runs.cache_read_tokens` 和 Worker 的 `model_usage` 日志为准。缓存命中的 token 仍属于输入积分，不改变用户的换算比例。
 - `ILINK_ENABLED`：线上已开启扫码接入，手机扫码与基础文字收发已验收。同一微信不能由本地与线上同时轮询，因此本地开发环境已关闭 iLink 轮询。
+- `TELEGRAM_ENABLED`：默认关闭。准备好 BotFather 创建的机器人后配置 `TELEGRAM_BOT_TOKEN` 和 `TELEGRAM_BOT_USERNAME`；Web 提供绑定入口，Worker 用长轮询收发私聊文字。同一个 Bot 只运行一个本项目 Worker，不与其他 polling 或 webhook 消费端共用。真实 Telegram 收发尚未验收。
 - `QQ_ENABLED`：默认关闭。准备 QQ 开放平台机器人应用后配置 `QQ_APP_ID`、`QQ_APP_SECRET`，可选 `QQ_BOT_URL` 为官方分享页的 HTTPS 链接；重启 Web 和 Worker 后，用户在设置生成绑定指令并发给机器人。凭据由平台维护，不向用户分发。
 
 示例只说明格式，不包含可使用的生产密钥。配置文件限制为维护者可读；后续建立异地加密备份时，备份密钥与备份文件分别保存。
