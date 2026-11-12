@@ -1,12 +1,14 @@
-![云上小肥鱼 — 一点秩序，一点从容](docs/assets/github-cover.png)
+# Cloud Puffer
 
-# 云上小肥鱼 · Cloud Puffer
-
-**一条属于你的对话，在网页和聊天渠道接续。**
+### 多种入口，同一段对话。
 
 **[打开网页版 →](https://fish.jobo.ink)** · [使用教程](docs/workspace.md) · [English](README.en.md) · [当前状态](#当前状态) · [本地运行](#本地运行) · [实现架构](docs/architecture.md) · [产品规划](docs/PRD.md)
 
-云上小肥鱼是面向个人的多渠道 Agent 助手。网页、微信和 QQ 消息归入同一个账号的主对话；账号、待办、记忆、运行顺序和回复状态由共享云端服务管理。对话可交给云端内置 Agent；本地开发版也已提供连接程序，让用户电脑上的 Codex 或 OpenClaw 主动领取并回复自己的消息。各渠道和运行方式的实际支持范围见[当前状态](#当前状态)与[接入边界](docs/channel-agent-gateway.md)。
+在网页开始聊天，去微信接着说；所有消息归入同一个账号的主对话。Cloud Puffer 在云端管理身份、待办、记忆与回复状态，可使用内置 Agent。开发预览版还提供本地连接程序，让用户电脑上的 Codex 或 OpenClaw 主动处理自己的消息。QQ 适配与本地 Agent 的实际支持范围见[当前状态](#当前状态)和[接入边界](docs/channel-agent-gateway.md)。
+
+**适合谁？** 想把日常对话留在一处、从熟悉的聊天入口继续使用 Agent 的个人用户；也适合想自行部署并研究渠道与 Agent 接入的开发者。
+
+![Cloud Puffer：跨渠道对话与 Agent 连接](docs/assets/github-cover.png)
 
 ## 页面预览
 
@@ -80,7 +82,7 @@ pnpm test
 pnpm build
 ```
 
-测试在本地开发 PostgreSQL 中创建并迁移独立的 `jojobot_test` 数据库，使用模型/网络测试替身及本地 Mailpit，不读取生产凭据。2026-11-02 已通过 51 项集成检查、类型检查、Lint 和生产构建；生产站点已验证健康检查、邮箱注册与管理员登录、两轮真实模型回复及缓存用量。既有基线完成 Docker 与桌面/手机视口验收，单个微信账号完成本地文字收发验证。欢迎图片发送由测试替身验证，手机端送达仍待验收。检查记录与当前限制见[开发与验证](docs/development.md#验证记录)。
+测试在本地开发 PostgreSQL 中创建并迁移独立的 `jojobot_test` 数据库，使用模型/网络测试替身及本地 Mailpit，不读取生产凭据。2026-11-11 已通过 52 项集成检查、类型检查、Lint 和生产构建；生产站点此前已验证健康检查、邮箱注册与管理员登录、两轮真实模型回复及缓存用量。既有基线完成 Docker 与桌面/手机视口验收，单个微信账号完成本地文字收发验证。欢迎图片发送由测试替身验证，手机端送达仍待验收。检查记录与当前限制见[开发与验证](docs/development.md#验证记录)。
 
 技术栈：Next.js 16、React 19、TypeScript、Tailwind CSS 4、Base UI、AI SDK、Better Auth、Drizzle、PostgreSQL 17、pg-boss。一个共享 Worker 并发服务多个用户，同一用户的对话按顺序执行；无需每用户容器、Redis 或额外 Agent 框架。
 

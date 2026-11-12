@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
+  <title id="title">Cloud Puffer</title>
+  <desc id="desc">One conversation across channels, connected to a cloud agent or a user-owned local agent.</desc>
+  <rect width="1200" height="360" fill="#f4f8f6"/>
+  <path d="M0 304h1200" stroke="#d8e5df"/>
+  <text x="68" y="91" fill="#4b7464" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700" letter-spacing="3">OPEN SOURCE · DEVELOPMENT PREVIEW</text>
+  <text x="64" y="178" fill="#183b32" font-family="Arial, Helvetica, sans-serif" font-size="66" font-weight="700">Cloud Puffer</text>
+  <text x="68" y="225" fill="#3d5d53" font-family="Arial, Helvetica, sans-serif" font-size="25">One conversation, across your channels.</text>
+  <rect x="68" y="266" width="184" height="40" rx="20" fill="#dcece5"/>
+  <text x="89" y="292" fill="#285847" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700">Web · WeChat · QQ</text>
+  <rect x="268" y="266" width="238" height="40" rx="20" fill="#e1eaf1"/>
+  <text x="285" y="292" fill="#315976" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700">Cloud · Codex · OpenClaw</text>
+  <path d="M744 94c50 0 52 86 104 86M744 180h104M744 266c50 0 52-86 104-86M986 180h102" fill="none" stroke="#9dbcb0" stroke-width="3" stroke-linecap="round"/>
+  <rect x="660" y="76" width="112" height="36" rx="18" fill="#dcece5"/>
+  <rect x="660" y="162" width="112" height="36" rx="18" fill="#dcece5"/>
+  <rect x="660" y="248" width="112" height="36" rx="18" fill="#dcece5"/>
+  <text x="695" y="100" fill="#285847" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700">Web</text>
+  <text x="681" y="186" fill="#285847" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700">WeChat</text>
+  <text x="703" y="272" fill="#285847" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="700">QQ</text>
+  <circle cx="916" cy="180" r="72" fill="#285847"/>
+  <circle cx="900" cy="167" r="6" fill="#f4f8f6"/>
+  <circle cx="933" cy="167" r="6" fill="#f4f8f6"/>
+  <path d="M898 196c10 11 25 11 35 0" fill="none" stroke="#f4f8f6" stroke-width="5" stroke-linecap="round"/>
+  <path d="M914 108v-15m-37 24-8-13m82 13 8-13m-115 76h-16m176 0h16m-106 72v15m-37-24-8 13m82-13 8 13" stroke="#285847" stroke-width="7" stroke-linecap="round"/>
+  <rect x="1084" y="130" width="76" height="100" rx="24" fill="#e1eaf1"/>
+  <path d="M1106 162h32m-32 18h32m-32 18h23" stroke="#315976" stroke-width="5" stroke-linecap="round"/>
+</svg>

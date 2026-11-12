@@ -1,4 +1,4 @@
-# 云上小肥鱼文档
+# Cloud Puffer 文档
 
 更新：2026-11-11。当前为可运行的开发预览，已包含账号、工作区、真实主对话、待办/记忆、每日积分、简易管理员后台及微信/QQ 适配。本地已完成百炼模型与单个微信账号的文字收发验证；QQ、完整生产验收和长期稳定性仍待完成。提醒、搜索、文件和文档等首版目标尚未完成。本地 Codex/OpenClaw 文字连接已有开发代码，真实运行待验收；Octop 新渠道仍在设计阶段。
 
@@ -15,7 +15,7 @@
 - [产品需求](PRD.md)：已确认决策及完整首版验收目标。
 - [技术与 UI 选型](technical-selection.md)：原始选型与玻璃组件比较，落地差异以架构为准。
 - [开源代码调研](research/open-source-review-2026-11-02.md)：Octop、ClawScale、OpeniLink Hub 的代码证据。
-- [Magpie 命名与仓库呈现研究](research/magpie-brand-review-2026-11-12.md)：新品牌的命名标准与仓库整理方向，尚未决定更名。
+- [Magpie 命名与仓库呈现研究](research/magpie-brand-review-2026-11-12.md)：Cloud Puffer 品牌决定前的命名研究与仓库整理依据。
 - [QQ 与 DSH 插件调研](research/qq-and-dsh-plugins-2026-11-02.md)：QQ 准入、表情包与自然回复，实施边界及后续外部验收。
 
 仓库操作约定见 [AGENTS.md](../AGENTS.md)，依赖材质许可见 [第三方声明](../THIRD_PARTY_NOTICES.md)。

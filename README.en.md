@@ -1,12 +1,14 @@
-![Cloud Puffer — A little order, a little ease](docs/assets/github-cover.png)
+# Cloud Puffer
 
-# Cloud Puffer（云上小肥鱼）
-
-**One conversation that follows you across web and chat.**
+### One conversation, across your channels.
 
 **[Open the web app →](https://fish.jobo.ink)** · [Getting started](docs/workspace.md) · [简体中文](README.md) · [What works](#project-status) · [Run locally](#run-locally) · [Architecture](docs/architecture.md) · [Roadmap](docs/PRD.md)
 
-Cloud Puffer is a personal, multichannel agent assistant. Web, WeChat, and QQ messages join one account-owned conversation. A shared cloud service owns identity, tasks, memory, run order, and reply status. Conversations can use the built-in cloud agent; local development code also lets Codex or OpenClaw on a user's own computer connect outward to handle that user's turns. See [project status](#project-status) and the [integration boundaries](docs/channel-agent-gateway.md) (Chinese) for what is actually available.
+Start on the web and continue in WeChat: every message belongs to the same account-owned conversation. Cloud Puffer keeps identity, tasks, memory, and reply status in one shared service, with a built-in cloud agent. The development preview also includes an outbound connector for Codex or OpenClaw on your own computer. See [project status](#project-status) and the [integration boundaries](docs/channel-agent-gateway.md) (Chinese) for the current QQ and local-agent scope.
+
+**Who is it for?** People who want one ongoing conversation with their agent across familiar chat surfaces, and developers who want to self-host or study channel and runtime integrations.
+
+![Cloud Puffer: one conversation across channels and agents](docs/assets/github-cover.png)
 
 ## Screenshots
 
@@ -80,7 +82,7 @@ pnpm test
 pnpm build
 ```
 
-Tests create and migrate a separate `jojobot_test` database on the local development PostgreSQL server. They use model/network fixtures and local Mailpit, never production credentials. On 2026-11-02, 51 integration checks, type checking, lint, and the production build passed. The production site passed health, email registration, administrator sign-in, and two real model replies with cache usage reported. The earlier baseline covered Docker and desktop/mobile viewports; one real WeChat account passed local text exchange. Welcome image sending has only been checked with a network fixture and still needs real-phone delivery verification. See the [verification record](docs/development.md#验证记录) and current limitations.
+Tests create and migrate a separate `jojobot_test` database on the local development PostgreSQL server. They use model/network fixtures and local Mailpit, never production credentials. On 2026-11-11, 52 integration checks, type checking, lint, and the production build passed. The production site previously passed health, email registration, administrator sign-in, and two real model replies with cache usage reported. The earlier baseline covered Docker and desktop/mobile viewports; one real WeChat account passed local text exchange. Welcome image sending has only been checked with a network fixture and still needs real-phone delivery verification. See the [verification record](docs/development.md#验证记录) and current limitations.
 
 The stack is Next.js 16, React 19, TypeScript, Tailwind CSS 4, Base UI, AI SDK, Better Auth, Drizzle, PostgreSQL 17, and pg-boss. A single shared worker serves accounts concurrently while ordering each user's turns. No per-user VM/container, Redis, or additional agent framework is required.
 
