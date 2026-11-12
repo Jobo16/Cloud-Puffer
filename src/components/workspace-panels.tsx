@@ -18,6 +18,7 @@ import { Button, Modal } from "./ui";
 import type { Confirm, Mutate } from "./workspace";
 import { QqSettings } from "./qq-settings";
 import { TelegramSettings } from "./telegram-settings";
+import { useLanguage, useText } from "./language";
 
 type Task = AppState["tasks"][number];
 type Memory = AppState["memories"][number];
@@ -42,6 +43,7 @@ function TaskForm({
   }) => Promise<boolean>;
   onClose: () => void;
 }) {
+  const t = useText();
   const [title, setTitle] = useState(task?.title ?? "");
   const [notes, setNotes] = useState(task?.notes ?? "");
   const [due, setDue] = useState(localTime(task?.dueAt ?? null));
@@ -64,36 +66,39 @@ function TaskForm({
   }
   return (
     <Modal
-      title={task ? "编辑待办" : "记下一个待办"}
-      description="截止时间仅用于记录，定时提醒仍在开发中。"
+      title={task ? t("编辑待办", "Edit task") : t("记下一个待办", "New task")}
+      description={t(
+        "截止时间仅用于记录，定时提醒仍在开发中。",
+        "Due dates are for reference. Scheduled reminders are still in development.",
+      )}
       onClose={() => {
         if (!busy) onClose();
       }}
     >
       <form className="form-stack" onSubmit={submit}>
         <label>
-          要做什么
+          {t("要做什么", "What needs doing")}
           <input
             autoFocus
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
             maxLength={200}
-            placeholder="一件小事也可以"
+            placeholder={t("一件小事也可以", "Even a small task counts")}
           />
         </label>
         <label>
-          补充说明
+          {t("补充说明", "Notes")}
           <textarea
             rows={3}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             maxLength={4000}
-            placeholder="可选"
+            placeholder={t("可选", "Optional")}
           />
         </label>
         <label>
-          截止时间（本地时区）
+          {t("截止时间（本地时区）", "Due date (local time)")}
           <input
             type="datetime-local"
             value={due}
@@ -102,7 +107,10 @@ function TaskForm({
         </label>
         {failed && (
           <p className="notice error" role="alert">
-            保存未完成，输入已保留。请重试；若记录已更新，请关闭后重新打开。
+            {t(
+              "保存未完成，输入已保留。请重试；若记录已更新，请关闭后重新打开。",
+              "Could not save. Your input is still here. Try again, or reopen this form if the record has changed.",
+            )}
           </p>
         )}
         <Button
@@ -110,7 +118,7 @@ function TaskForm({
           disabled={busy || !title.trim()}
           type="submit"
         >
-          {busy ? "保存中…" : "保存待办"}
+          {busy ? t("保存中…", "Saving…") : t("保存待办", "Save task")}
         </Button>
       </form>
     </Modal>
@@ -121,6 +129,8 @@ export function TasksPanel({
   mutate,
   confirm,
 }: { tasks: Task[] } & PanelProps) {
+  const t = useText();
+  const language = useLanguage();
   const [editor, setEditor] = useState<{ task?: Task; key: string } | null>(
     null,
   );
@@ -132,20 +142,23 @@ export function TasksPanel({
   return (
     <section className="content-section">
       <div className="section-heading">
-        <h2>慢慢来，一件一件。</h2>
+        <h2>{t("慢慢来，一件一件。", "One thing at a time.")}</h2>
         <Button
           className="primary"
           onClick={() => setEditor({ key: crypto.randomUUID() })}
         >
           <Plus size={17} />
-          新待办
+          {t("新待办", "New task")}
         </Button>
       </div>
-      <div className="segmented glass" aria-label="筛选待办">
+      <div
+        className="segmented glass"
+        aria-label={t("筛选待办", "Filter tasks")}
+      >
         {[
-          ["pending", "待完成"],
-          ["done", "已完成"],
-          ["all", "全部"],
+          ["pending", t("待完成", "To do")],
+          ["done", t("已完成", "Done")],
+          ["all", t("全部", "All")],
         ].map(([key, label]) => (
           <button
             key={key}
@@ -162,9 +175,16 @@ export function TasksPanel({
           <div className="empty-state">
             <CircleCheck size={32} />
             <h3>
-              {filter === "done" ? "完成的小事，会留在这里" : "给自己留点余地"}
+              {filter === "done"
+                ? t("完成的小事，会留在这里", "Completed tasks stay here")
+                : t("给自己留点余地", "Make room for what matters")}
             </h3>
-            <p>想到要做的事，就随手记下来。</p>
+            <p>
+              {t(
+                "想到要做的事，就随手记下来。",
+                "Add a task whenever something comes to mind.",
+              )}
+            </p>
           </div>
         ) : (
           visible.map((task) => (
@@ -174,7 +194,7 @@ export function TasksPanel({
             >
               <button
                 className="task-check"
-                aria-label={`${task.completed ? "取消完成" : "完成"}：${task.title}`}
+                aria-label={`${task.completed ? t("取消完成", "Mark incomplete") : t("完成", "Complete")}: ${task.title}`}
                 disabled={working === task.id}
                 onClick={async () => {
                   setWorking(task.id);
@@ -196,32 +216,38 @@ export function TasksPanel({
                 {task.notes && <p>{task.notes}</p>}
                 {task.dueAt && (
                   <small>
-                    {new Date(task.dueAt).toLocaleString("zh-CN", {
-                      month: "long",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}{" "}
-                    截止
+                    {new Date(task.dueAt).toLocaleString(
+                      language === "en" ? "en-US" : "zh-CN",
+                      {
+                        month: "long",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      },
+                    )}{" "}
+                    {t("截止", "due")}
                   </small>
                 )}
               </div>
               <div className="record-actions">
                 <Button
                   className="icon-button"
-                  aria-label={`编辑：${task.title}`}
+                  aria-label={`${t("编辑", "Edit")}: ${task.title}`}
                   onClick={() => setEditor({ task, key: crypto.randomUUID() })}
                 >
                   <Pencil size={16} />
                 </Button>
                 <Button
                   className="icon-button"
-                  aria-label={`删除：${task.title}`}
+                  aria-label={`${t("删除", "Delete")}: ${task.title}`}
                   onClick={() =>
-                    confirm("删除这条待办？", task.title, () =>
-                      mutate(`tasks/${task.id}`, "DELETE", {
-                        version: task.version,
-                      }),
+                    confirm(
+                      t("删除这条待办？", "Delete this task?"),
+                      task.title,
+                      () =>
+                        mutate(`tasks/${task.id}`, "DELETE", {
+                          version: task.version,
+                        }),
                     )
                   }
                 >
@@ -233,7 +259,12 @@ export function TasksPanel({
         )}
       </div>
       {tasks.length >= 200 && (
-        <p className="muted small">当前展示最近的 200 条事项。</p>
+        <p className="muted small">
+          {t(
+            "当前展示最近的 200 条事项。",
+            "Showing the 200 most recent tasks.",
+          )}
+        </p>
       )}
       {editor && (
         <TaskForm
@@ -264,13 +295,21 @@ function MemoryForm({
   onSave: (content: string) => Promise<boolean>;
   onClose: () => void;
 }) {
+  const t = useText();
   const [content, setContent] = useState(memory?.content ?? "");
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
   return (
     <Modal
-      title={memory ? "编辑记忆" : `让${agentName}记住`}
-      description={`保存后，${agentName}会在之后的对话中参考这条信息。`}
+      title={
+        memory
+          ? t("编辑记忆", "Edit memory")
+          : t(`让${agentName}记住`, `Ask ${agentName} to remember`)
+      }
+      description={t(
+        `保存后，${agentName}会在之后的对话中参考这条信息。`,
+        `${agentName} may use this information in later conversations.`,
+      )}
       onClose={() => {
         if (!busy) onClose();
       }}
@@ -287,7 +326,7 @@ function MemoryForm({
         }}
       >
         <label>
-          希望记住的事
+          {t("希望记住的事", "What to remember")}
           <textarea
             autoFocus
             value={content}
@@ -295,12 +334,18 @@ function MemoryForm({
             rows={4}
             required
             maxLength={1000}
-            placeholder="例如：我喜欢简短、直接的回答。"
+            placeholder={t(
+              "例如：我喜欢简短、直接的回答。",
+              "For example: I prefer short, direct answers.",
+            )}
           />
         </label>
         {failed && (
           <p className="notice error" role="alert">
-            保存未完成，输入已保留。请重试；若记录已更新，请关闭后重新打开。
+            {t(
+              "保存未完成，输入已保留。请重试；若记录已更新，请关闭后重新打开。",
+              "Could not save. Your input is still here. Try again, or reopen this form if the record has changed.",
+            )}
           </p>
         )}
         <Button
@@ -308,7 +353,7 @@ function MemoryForm({
           type="submit"
           disabled={busy || !content.trim()}
         >
-          {busy ? "保存中…" : "保存记忆"}
+          {busy ? t("保存中…", "Saving…") : t("保存记忆", "Save memory")}
         </Button>
       </form>
     </Modal>
@@ -320,27 +365,33 @@ export function MemoryPanel({
   mutate,
   confirm,
 }: { memories: Memory[]; agentName: string } & PanelProps) {
+  const t = useText();
   const [editor, setEditor] = useState<{ memory?: Memory; key: string } | null>(
     null,
   );
   return (
     <section className="content-section">
       <div className="section-heading">
-        <h2>被记住的，是你在意的。</h2>
+        <h2>{t("被记住的，是你在意的。", "Keep what matters to you.")}</h2>
         <Button
           className="primary"
           onClick={() => setEditor({ key: crypto.randomUUID() })}
         >
           <Plus size={17} />
-          添加记忆
+          {t("添加记忆", "Add memory")}
         </Button>
       </div>
       <div className="record-list">
         {memories.length === 0 ? (
           <div className="empty-state">
             <Brain size={32} />
-            <h3>从认识你开始</h3>
-            <p>你的习惯、偏好，由你决定留下哪些。</p>
+            <h3>{t("从认识你开始", "Start with what matters")}</h3>
+            <p>
+              {t(
+                "你的习惯、偏好，由你决定留下哪些。",
+                "You decide which preferences to keep.",
+              )}
+            </p>
           </div>
         ) : (
           memories.map((memory) => (
@@ -352,7 +403,7 @@ export function MemoryPanel({
               <div className="record-actions">
                 <Button
                   className="icon-button"
-                  aria-label="编辑记忆"
+                  aria-label={t("编辑记忆", "Edit memory")}
                   onClick={() =>
                     setEditor({ memory, key: crypto.randomUUID() })
                   }
@@ -361,11 +412,14 @@ export function MemoryPanel({
                 </Button>
                 <Button
                   className="icon-button"
-                  aria-label="忘记这条记忆"
+                  aria-label={t("忘记这条记忆", "Forget this memory")}
                   onClick={() =>
                     confirm(
-                      "忘记这条记忆？",
-                      "之后的对话不再引用这条记忆。过去的聊天记录仍然保留。",
+                      t("忘记这条记忆？", "Forget this memory?"),
+                      t(
+                        "之后的对话不再引用这条记忆。过去的聊天记录仍然保留。",
+                        "Future conversations will no longer use it. Earlier chat history remains.",
+                      ),
                       () =>
                         mutate(`memories/${memory.id}`, "DELETE", {
                           version: memory.version,
@@ -380,7 +434,9 @@ export function MemoryPanel({
           ))
         )}
       </div>
-      <p className="muted small">{memories.length} / 100 条记忆</p>
+      <p className="muted small">
+        {memories.length} / 100 {t("条记忆", "memories")}
+      </p>
       {editor && (
         <MemoryForm
           key={editor.key}
@@ -407,6 +463,7 @@ export function ChannelsPanel({
   confirm,
   showWechatGuide,
 }: { state: AppState; showWechatGuide: boolean } & PanelProps) {
+  const t = useText();
   const [binding, setBinding] = useState<{
     id: string;
     image: string;
@@ -464,41 +521,54 @@ export function ChannelsPanel({
           <span className="settings-icon">
             <Smartphone size={22} />
           </span>
-          <h3>在微信里，接着聊</h3>
+          <h3>{t("在微信里，接着聊", "Continue in WeChat")}</h3>
         </div>
         {state.channel.connection ? (
           <>
             <p className="notice">
               {state.channel.connection.status === "connected"
-                ? "微信已连接"
-                : "微信连接需要更新"}
+                ? t("微信已连接", "WeChat connected")
+                : t("微信连接需要更新", "WeChat needs reconnecting")}
               {state.channel.connection.error &&
                 ` · ${state.channel.connection.error}`}
             </p>
             <div className="row">
               <Button disabled={busy} onClick={connect}>
-                重新连接
+                {t("重新连接", "Reconnect")}
               </Button>
               <Button
                 onClick={() =>
                   confirm(
-                    "断开微信连接？",
-                    "网页对话和资料会保留，之后可以重新扫码绑定。",
+                    t("断开微信连接？", "Disconnect WeChat?"),
+                    t(
+                      "网页对话和资料会保留，之后可以重新扫码绑定。",
+                      "Your web conversation and saved data remain. You can scan again later.",
+                    ),
                     () => mutate("wechat/connection", "DELETE"),
                   )
                 }
               >
-                断开连接
+                {t("断开连接", "Disconnect")}
               </Button>
             </div>
           </>
         ) : (
           <>
             {showWechatGuide && (
-              <p className="setup-guide-inline">3 / 3 点击「连接微信」，用手机扫码确认。</p>
+              <p className="setup-guide-inline">
+                {t(
+                  "3 / 3 点击「连接微信」，用手机扫码确认。",
+                  "3 / 3 Choose Connect WeChat and confirm the QR code on your phone.",
+                )}
+              </p>
             )}
             {!state.channel.enabled && (
-              <p className="muted small">微信接入尚未开放，当前可通过网页使用。</p>
+              <p className="muted small">
+                {t(
+                  "微信接入尚未开放，当前可通过网页使用。",
+                  "WeChat access is not enabled. You can still use the web app.",
+                )}
+              </p>
             )}
             <Button
               className="primary"
@@ -506,12 +576,17 @@ export function ChannelsPanel({
               onClick={connect}
             >
               <Link2 size={16} />
-              {busy ? "准备二维码…" : "连接微信"}
+              {busy
+                ? t("准备二维码…", "Preparing QR code…")
+                : t("连接微信", "Connect WeChat")}
             </Button>
           </>
         )}
         <p className="fine-print">
-          微信接收受平台限制。“已提交”不代表送达，完整记录始终保留在网页。
+          {t(
+            "微信接收受平台限制。“已提交”不代表送达，完整记录始终保留在网页。",
+            "WeChat delivery is subject to platform limits. A submitted reply may not arrive; the full record stays on the web.",
+          )}
         </p>
       </div>
       <QqSettings state={state} mutate={mutate} confirm={confirm} />
@@ -523,17 +598,28 @@ export function ChannelsPanel({
       )}
       {binding && (
         <Modal
-          title="连接你的微信"
-          description="请使用希望绑定的微信扫码。"
+          title={t("连接你的微信", "Connect your WeChat")}
+          description={t(
+            "请使用希望绑定的微信扫码。",
+            "Scan with the WeChat account you want to link.",
+          )}
           onClose={() => setBinding(null)}
         >
           {binding.status === "confirmed" ? (
             <p className="notice">
               <Check size={18} />
-              微信已连接，可以开始聊天。
+              {t(
+                "微信已连接，可以开始聊天。",
+                "WeChat is connected. You can start chatting.",
+              )}
             </p>
           ) : binding.status === "expired" ? (
-            <p className="notice">二维码已过期，请关闭后重新连接。</p>
+            <p className="notice">
+              {t(
+                "二维码已过期，请关闭后重新连接。",
+                "QR code expired. Close this window and reconnect.",
+              )}
+            </p>
           ) : (
             <>
               {/* QR is an in-memory data URL, never a third-party image request. */}
@@ -541,14 +627,14 @@ export function ChannelsPanel({
               <img
                 className="qr-image"
                 src={binding.image}
-                alt="微信绑定二维码"
+                alt={t("微信绑定二维码", "WeChat binding QR code")}
                 width={240}
                 height={240}
               />
               <p className="muted">
                 {binding.status === "scaned"
-                  ? "已扫码，请在微信上确认。"
-                  : "等待扫码确认…"}
+                  ? t("已扫码，请在微信上确认。", "Scanned. Confirm in WeChat.")
+                  : t("等待扫码确认…", "Waiting for scan…")}
               </p>
               <form
                 className="form-stack"
@@ -570,17 +656,20 @@ export function ChannelsPanel({
                 }}
               >
                 <label>
-                  微信要求验证码时填写
+                  {t(
+                    "微信要求验证码时填写",
+                    "Enter a code if WeChat asks for one",
+                  )}
                   <input
                     value={code}
                     inputMode="numeric"
                     pattern="[0-9]{4,10}"
                     onChange={(e) => setCode(e.target.value)}
-                    placeholder="可选"
+                    placeholder={t("可选", "Optional")}
                   />
                 </label>
                 <Button type="submit" disabled={!code || busy}>
-                  提交验证码
+                  {t("提交验证码", "Submit code")}
                 </Button>
               </form>
             </>

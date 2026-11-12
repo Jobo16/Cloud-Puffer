@@ -19,6 +19,7 @@ import { AssistantEditor } from "./assistant-editor";
 import { ChannelsPanel, MemoryPanel, TasksPanel } from "./workspace-panels";
 import { ThemeRow, ThemeToggle } from "./theme-toggle";
 import { AccountMenu } from "./account-menu";
+import { LanguageToggle, useLanguage, useText } from "./language";
 
 type Page = "chat" | "tasks" | "memories" | "assistant";
 export type Mutate = (
@@ -33,10 +34,15 @@ export type Confirm = (
 ) => void;
 // 按发生的频率排：每天用的在前，一个月动一次的在后
 const navigation = [
-  { id: "chat", label: "对话", icon: MessageCircle },
-  { id: "tasks", label: "事项", icon: ListTodo },
-  { id: "memories", label: "记忆", icon: Brain },
-  { id: "assistant", label: "助手", icon: SlidersHorizontal },
+  { id: "chat", label: "对话", english: "Chat", icon: MessageCircle },
+  { id: "tasks", label: "事项", english: "Tasks", icon: ListTodo },
+  { id: "memories", label: "记忆", english: "Memory", icon: Brain },
+  {
+    id: "assistant",
+    label: "助手",
+    english: "Assistant",
+    icon: SlidersHorizontal,
+  },
 ] as const;
 
 export function Workspace({
@@ -48,6 +54,8 @@ export function Workspace({
   user: { name: string; email: string };
   admin: boolean;
 }) {
+  const t = useText();
+  const language = useLanguage();
   const [state, setState] = useState(initial);
   const [page, setPage] = useState<Page>("chat");
   const [section, setSection] = useState<"profile" | "channels">("profile");
@@ -88,7 +96,14 @@ export function Workspace({
       await refresh();
       return true;
     } catch (e) {
-      setError(e instanceof Error ? e.message : "暂时无法完成，请重试。");
+      setError(
+        e instanceof Error
+          ? e.message
+          : t(
+              "暂时无法完成，请重试。",
+              "Could not complete this request. Please try again.",
+            ),
+      );
       return false;
     }
   };
@@ -104,8 +119,11 @@ export function Workspace({
   function clearChat() {
     setDrawer(false);
     confirm(
-      "清空所有聊天记录？",
-      "这会删除网页与微信的主对话内容，无法恢复。事项、记忆和今日用量保留。",
+      t("清空所有聊天记录？", "Clear all chat history?"),
+      t(
+        "这会删除网页与微信的主对话内容，无法恢复。事项、记忆和今日用量保留。",
+        "This deletes the shared web and WeChat conversation and cannot be undone. Tasks, memory, and today's usage remain.",
+      ),
       async () => {
         const ok = await mutate("history/clear", "POST", { confirm: true });
         if (ok) setChatKey((key) => key + 1);
@@ -141,24 +159,24 @@ export function Workspace({
       data-drawer={drawer ? "open" : "closed"}
     >
       <aside className="sidebar glass" ref={sidebar} tabIndex={-1}>
-        <Link className="wordmark" href="/">
+        <Link className="wordmark" href={language === "en" ? "/en" : "/"}>
           <Mark />
-          <span>云上小肥鱼</span>
+          <span>Cloud Puffer</span>
         </Link>
         <button
           type="button"
           className="drawer-close"
-          aria-label="关闭菜单"
+          aria-label={t("关闭菜单", "Close menu")}
           onClick={() => setDrawer(false)}
         >
           <X size={18} />
         </button>
-        <nav aria-label="主导航">
-          {navigation.map(({ id, label, icon: Icon }) => (
+        <nav aria-label={t("主导航", "Main navigation")}>
+          {navigation.map(({ id, label, english, icon: Icon }) => (
             <button
               key={id}
-              aria-label={label}
-              title={label}
+              aria-label={t(label, english)}
+              title={t(label, english)}
               className={clsx("nav-item", `nav-${id}`, page === id && "active")}
               aria-current={page === id ? "page" : undefined}
               onClick={() => {
@@ -168,7 +186,7 @@ export function Workspace({
               }}
             >
               <Icon size={20} />
-              <span>{label}</span>
+              <span>{t(label, english)}</span>
               {id === "tasks" && pendingCount > 0 && (
                 <span className="nav-count">{pendingCount}</span>
               )}
@@ -178,9 +196,10 @@ export function Workspace({
         <div className="sidebar-actions">
           <button type="button" className="drawer-action" onClick={clearChat}>
             <Trash2 size={18} />
-            <span>清空对话</span>
+            <span>{t("清空对话", "Clear chat")}</span>
           </button>
           <ThemeRow />
+          <LanguageToggle />
         </div>
         <div className="sidebar-bottom">
           <AccountMenu
@@ -196,7 +215,7 @@ export function Workspace({
           type="button"
           className="drawer-backdrop"
           tabIndex={-1}
-          aria-label="关闭菜单"
+          aria-label={t("关闭菜单", "Close menu")}
           onClick={() => setDrawer(false)}
         />
       )}
@@ -207,34 +226,41 @@ export function Workspace({
               type="button"
               ref={drawerToggle}
               className="drawer-toggle"
-              aria-label="打开菜单"
+              aria-label={t("打开菜单", "Open menu")}
               aria-expanded={drawer}
               onClick={() => setDrawer(true)}
             >
               <Menu size={20} />
             </button>
-            <h1>{current.label}</h1>
+            <h1>{t(current.label, current.english)}</h1>
           </div>
           <div className="topbar-actions">
             {!connected && (
-              <span className="connection" title="正在重连">
+              <span
+                className="connection"
+                title={t("正在重连", "Reconnecting")}
+              >
                 <span className="status-dot offline" />
-                <span className="sr-only">正在重连</span>
+                <span className="sr-only">{t("正在重连", "Reconnecting")}</span>
               </span>
             )}
             {page === "chat" && (
               <Button className="clear-chat" onClick={clearChat}>
                 <Trash2 size={15} />
-                <span>清空对话</span>
+                <span>{t("清空对话", "Clear chat")}</span>
               </Button>
             )}
             <ThemeToggle />
+            <LanguageToggle />
           </div>
         </header>
         {error && (
           <div className="workspace-notice notice error" role="alert">
             <span>{error}</span>
-            <button aria-label="关闭提示" onClick={() => setError("")}>
+            <button
+              aria-label={t("关闭提示", "Dismiss message")}
+              onClick={() => setError("")}
+            >
               <X size={17} />
             </button>
           </div>
@@ -242,14 +268,14 @@ export function Workspace({
         {showWechatGuide && page === "chat" && (
           <div className="setup-guide">
             <span>1 / 3</span>
-            <p>先打开「助手」。</p>
+            <p>{t("先打开「助手」。", "Open Assistant first.")}</p>
             <Button
               onClick={() => {
                 setPage("assistant");
                 setError("");
               }}
             >
-              打开助手
+              {t("打开助手", "Open Assistant")}
             </Button>
           </div>
         )}
@@ -282,16 +308,21 @@ export function Workspace({
                 {showWechatGuide && section === "profile" && (
                   <div className="setup-guide">
                     <span>2 / 3</span>
-                    <p>接下来选择「接入」。</p>
+                    <p>
+                      {t("接下来选择「接入」。", "Next, choose Connections.")}
+                    </p>
                     <Button onClick={() => setSection("channels")}>
-                      打开接入
+                      {t("打开接入", "Open Connections")}
                     </Button>
                   </div>
                 )}
-                <div className="segmented" aria-label="助手设置">
+                <div
+                  className="segmented"
+                  aria-label={t("助手设置", "Assistant settings")}
+                >
                   {[
-                    ["profile", "设定"],
-                    ["channels", "接入"],
+                    ["profile", t("设定", "Settings")],
+                    ["channels", t("接入", "Connections")],
                   ].map(([key, label]) => (
                     <button
                       key={key}
@@ -345,7 +376,7 @@ export function Workspace({
           )}
           <div className="dialog-actions">
             <Button disabled={confirming} onClick={() => setConfirmation(null)}>
-              取消
+              {t("取消", "Cancel")}
             </Button>
             <Button
               className="danger"
@@ -356,7 +387,7 @@ export function Workspace({
                 setConfirming(false);
               }}
             >
-              {confirming ? "处理中…" : "确认"}
+              {confirming ? t("处理中…", "Working…") : t("确认", "Confirm")}
             </Button>
           </div>
         </Modal>

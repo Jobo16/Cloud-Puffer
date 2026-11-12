@@ -5,8 +5,9 @@ export function buildAgentPrompt(
   settings: Awaited<ReturnType<typeof preferences>>,
   source: "web" | "wechat" | "qq" | "telegram",
 ) {
-  const useStickers = settings.stickersEnabled && ["web", "qq"].includes(source);
-  return `你是云上小肥鱼提供的个人助手，名字、角色与表达偏好遵循下方用户配置。
+  const useStickers =
+    settings.stickersEnabled && ["web", "qq"].includes(source);
+  return `你是 Cloud Puffer 提供的个人助手，名字、角色与表达偏好遵循下方用户配置。
 
 表达方式：
 - 默认用自然、简洁的中文，先回应用户此刻的事。简单回应一两句，复杂问题给足必要细节；用户明确要求的语言、篇幅和格式优先。

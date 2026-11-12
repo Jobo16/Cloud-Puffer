@@ -5,12 +5,23 @@ import { ArrowUpRight, Brain, ListTodo, Smile, Sparkles } from "lucide-react";
 import type { AppState } from "@/server/state";
 import { api } from "@/lib/api";
 import { Button, Mark } from "./ui";
+import { useText } from "./language";
 
 type Preferences = AppState["preferences"];
 const capabilities = [
-  { key: "tasksEnabled", title: "待办事项", icon: ListTodo },
-  { key: "memoryEnabled", title: "长期记忆", icon: Brain },
-  { key: "stickersEnabled", title: "表情回复", icon: Smile },
+  { key: "tasksEnabled", title: "待办事项", english: "Tasks", icon: ListTodo },
+  {
+    key: "memoryEnabled",
+    title: "长期记忆",
+    english: "Long-term memory",
+    icon: Brain,
+  },
+  {
+    key: "stickersEnabled",
+    title: "表情回复",
+    english: "Sticker replies",
+    icon: Smile,
+  },
 ] as const;
 
 // 改完就存：停顿 500ms 落盘，连续输入只发一次请求
@@ -38,6 +49,7 @@ export function AssistantEditor({
   agentDevices: AppState["agentDevices"];
   onDevicesChanged: (value: AppState["agentDevices"]) => void;
 }) {
+  const t = useText();
   // A null draft follows synced settings. Keep an edited draft across navigation and SSE updates.
   const [draft, setDraft] = useState<Preferences | null>(null);
   const [error, setError] = useState("");
@@ -74,7 +86,11 @@ export function AssistantEditor({
         setDraft(null);
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "保存失败，请重试。");
+      setError(
+        e instanceof Error
+          ? e.message
+          : t("保存失败，请重试。", "Could not save. Please try again."),
+      );
       queued.current = null;
     } finally {
       inFlight.current = false;
@@ -126,7 +142,9 @@ export function AssistantEditor({
       >
         <div className="editor-section-title">
           <span className="section-number">01</span>
-          <h3 id="personality-heading">性格与表达</h3>
+          <h3 id="personality-heading">
+            {t("性格与表达", "Personality and voice")}
+          </h3>
           <Sparkles size={18} />
         </div>
         <div className="agent-identity">
@@ -134,22 +152,25 @@ export function AssistantEditor({
             <Mark large />
           </span>
           <label>
-            助手名字
+            {t("助手名字", "Assistant name")}
             <input
               value={values.agentName}
               maxLength={40}
               onChange={(e) => edit({ agentName: e.target.value })}
-              placeholder="小肥鱼"
+              placeholder={t("小肥鱼", "Puffer")}
             />
           </label>
         </div>
         <label>
-          系统提示词
+          {t("系统提示词", "System prompt")}
           <textarea
             rows={5}
             maxLength={4000}
             value={values.systemPrompt}
-            placeholder="例如：你是一位温和、直接的生活搭子，回答简洁，偶尔带一点幽默。整理复杂问题时先给结论再列步骤；安排事项前先确认时间。"
+            placeholder={t(
+              "例如：你是一位温和、直接的生活搭子，回答简洁，偶尔带一点幽默。整理复杂问题时先给结论再列步骤；安排事项前先确认时间。",
+              "For example: Be warm and direct. Keep answers concise, add a little humor when useful, and confirm dates before scheduling tasks.",
+            )}
             onChange={(e) => edit({ systemPrompt: e.target.value })}
           />
         </label>
@@ -160,21 +181,21 @@ export function AssistantEditor({
       >
         <div className="editor-section-title">
           <span className="section-number">02</span>
-          <h3 id="capabilities-heading">选择能力</h3>
+          <h3 id="capabilities-heading">{t("选择能力", "Capabilities")}</h3>
         </div>
         <div className="capabilities">
-          {capabilities.map(({ key, title, icon: Icon }) => (
+          {capabilities.map(({ key, title, english, icon: Icon }) => (
             <label className="capability" key={key}>
               <span className="capability-icon">
                 <Icon size={20} />
               </span>
               <span className="capability-copy">
-                <strong>{title}</strong>
+                <strong>{t(title, english)}</strong>
               </span>
               <input
                 type="checkbox"
                 role="switch"
-                aria-label={title}
+                aria-label={t(title, english)}
                 checked={values[key]}
                 onChange={(e) => edit({ [key]: e.target.checked })}
               />
@@ -182,7 +203,10 @@ export function AssistantEditor({
           ))}
         </div>
         <p className="capability-note">
-          关闭不会删除已有资料；待办截止时间暂不触发提醒。
+          {t(
+            "关闭不会删除已有资料；待办截止时间暂不触发提醒。",
+            "Turning a capability off does not delete saved data. Task due dates do not trigger reminders yet.",
+          )}
         </p>
       </section>
       <section
@@ -191,10 +215,10 @@ export function AssistantEditor({
       >
         <div className="editor-section-title">
           <span className="section-number">03</span>
-          <h3 id="agent-runtime-heading">运行位置</h3>
+          <h3 id="agent-runtime-heading">{t("运行位置", "Run location")}</h3>
         </div>
         <label>
-          回复由谁处理
+          {t("回复由谁处理", "Who handles replies")}
           <select
             value={agentDevices.selected ?? ""}
             onChange={async (event) => {
@@ -206,16 +230,24 @@ export function AssistantEditor({
                 );
                 onDevicesChanged(next);
               } catch (e) {
-                setError(e instanceof Error ? e.message : "切换失败");
+                setError(
+                  e instanceof Error
+                    ? e.message
+                    : t("切换失败", "Could not switch"),
+                );
               }
             }}
           >
-            <option value="">云端小肥鱼</option>
+            <option value="">{t("云端小肥鱼", "Cloud assistant")}</option>
             {agentDevices.devices.map((device) => (
               <option key={device.id} value={device.id}>
-                {device.kind === "codex" ? "本地 Codex" : "本地 OpenClaw"} ·{" "}
-                {device.id.slice(0, 6)}
-                {device.online ? " · 已连接" : " · 未连接"}
+                {device.kind === "codex"
+                  ? t("本地 Codex", "Local Codex")
+                  : t("本地 OpenClaw", "Local OpenClaw")}{" "}
+                · {device.id.slice(0, 6)}
+                {device.online
+                  ? t(" · 已连接", " · Connected")
+                  : t(" · 未连接", " · Offline")}
               </option>
             ))}
           </select>
@@ -236,17 +268,22 @@ export function AssistantEditor({
                     await api<AppState["agentDevices"]>("agent-devices"),
                   );
                 } catch (e) {
-                  setError(e instanceof Error ? e.message : "创建失败");
+                  setError(
+                    e instanceof Error
+                      ? e.message
+                      : t("创建失败", "Could not create"),
+                  );
                 }
               }}
             >
-              连接{kind === "codex" ? " Codex" : " OpenClaw"}
+              {t("连接", "Connect")}
+              {kind === "codex" ? " Codex" : " OpenClaw"}
             </Button>
           ))}
         </div>
         {newToken && (
           <label>
-            设备令牌（只显示一次）
+            {t("设备令牌（只显示一次）", "Device token (shown once)")}
             <input
               readOnly
               value={newToken}
@@ -256,15 +293,20 @@ export function AssistantEditor({
         )}
         {agentDevices.devices.length > 0 && (
           <p className="capability-note">
-            在自己的电脑设置 JOJOBOT_DEVICE_TOKEN 和 JOJOBOT_URL，然后运行 pnpm
-            local-agent。每次收到请求需在电脑上确认。
+            {t(
+              "在自己的电脑设置 JOJOBOT_DEVICE_TOKEN 和 JOJOBOT_URL，然后运行 pnpm local-agent。每次收到请求需在电脑上确认。",
+              "Set JOJOBOT_DEVICE_TOKEN and JOJOBOT_URL on your computer, then run pnpm local-agent. Confirm each request locally.",
+            )}
           </p>
         )}
         {agentDevices.devices.map((device) => (
           <div className="row spread" key={device.id}>
             <span>
               {device.kind === "codex" ? "Codex" : "OpenClaw"} ·{" "}
-              {device.id.slice(0, 6)} · {device.online ? "已连接" : "未连接"}
+              {device.id.slice(0, 6)} ·{" "}
+              {device.online
+                ? t("已连接", "Connected")
+                : t("未连接", "Offline")}
             </span>
             <Button
               onClick={async () => {
@@ -277,18 +319,22 @@ export function AssistantEditor({
                   );
                   setNewToken("");
                 } catch (e) {
-                  setError(e instanceof Error ? e.message : "移除失败");
+                  setError(
+                    e instanceof Error
+                      ? e.message
+                      : t("移除失败", "Could not remove"),
+                  );
                 }
               }}
             >
-              移除
+              {t("移除", "Remove")}
             </Button>
           </div>
         ))}
       </section>
       {admin && (
         <Link className="admin-entry" href="/app/admin">
-          后台管理 <ArrowUpRight size={16} />
+          {t("后台管理", "Admin")} <ArrowUpRight size={16} />
         </Link>
       )}
       {error && (

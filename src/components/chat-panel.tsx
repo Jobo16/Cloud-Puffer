@@ -7,14 +7,22 @@ import remarkGfm from "remark-gfm";
 import type { AppState } from "@/server/state";
 import { api } from "@/lib/api";
 import { Button, Mark } from "./ui";
+import { useLanguage, useText } from "./language";
+import { localizeActivity, localizeError } from "@/lib/client-copy";
 const deliveryLabels = {
-  pending: "等待提交",
-  submitting: "正在提交",
-  partial: "部分内容已提交",
-  unknown: "投递结果不确定 · 不会自动重发",
-  failed: "提交失败 · 完整回复见网页",
-  not_sent: "未发送",
-};
+  pending: ["等待提交", "Pending"],
+  submitting: ["正在提交", "Sending"],
+  partial: ["部分内容已提交", "Partially sent"],
+  unknown: [
+    "投递结果不确定 · 不会自动重发",
+    "Delivery uncertain · No automatic retry",
+  ],
+  failed: [
+    "提交失败 · 完整回复见网页",
+    "Send failed · Full reply is on the web",
+  ],
+  not_sent: ["未发送", "Not sent"],
+} as const;
 
 // 真实主对话。桌面和手机共用同一套面板，只是可用宽度不同。
 export function ChatPanel({
@@ -26,6 +34,8 @@ export function ChatPanel({
   refresh: () => Promise<void>;
   active: boolean;
 }) {
+  const t = useText();
+  const language = useLanguage();
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
@@ -48,7 +58,14 @@ export function ChatPanel({
       await refresh();
       return true;
     } catch (e) {
-      setError(e instanceof Error ? e.message : "暂时无法完成，请重试。");
+      setError(
+        e instanceof Error
+          ? e.message
+          : t(
+              "暂时无法完成，请重试。",
+              "Could not complete this request. Please try again.",
+            ),
+      );
       return false;
     }
   }
@@ -105,7 +122,10 @@ export function ChatPanel({
             <div className="welcome-symbol glass">
               <Mark large />
             </div>
-            <h2>把想到的，交给 {state.preferences.agentName}。</h2>
+            <h2>
+              {t("把想到的，交给", "Tell")} {state.preferences.agentName}
+              {t("。", " what is on your mind.")}
+            </h2>
           </section>
         ) : (
           <div className="messages">
@@ -115,7 +135,9 @@ export function ChatPanel({
                 disabled={loadingHistory}
                 onClick={loadHistory}
               >
-                {loadingHistory ? "加载中…" : "查看更早的对话"}
+                {loadingHistory
+                  ? t("加载中…", "Loading…")
+                  : t("查看更早的对话", "View earlier messages")}
               </Button>
             )}
             {allRuns.map((run) => (
@@ -124,17 +146,20 @@ export function ChatPanel({
                   <div className="message-text">{run.input}</div>
                   <small>
                     {run.source === "wechat"
-                      ? "来自微信 · "
+                      ? t("来自微信 · ", "From WeChat · ")
                       : run.source === "qq"
-                        ? "来自 QQ · "
+                        ? t("来自 QQ · ", "From QQ · ")
                         : run.source === "telegram"
-                          ? "来自 Telegram · "
-                        : ""}
-                    {new Date(run.createdAt).toLocaleTimeString("zh-CN", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      timeZone: "Asia/Shanghai",
-                    })}
+                          ? t("来自 Telegram · ", "From Telegram · ")
+                          : ""}
+                    {new Date(run.createdAt).toLocaleTimeString(
+                      language === "en" ? "en-US" : "zh-CN",
+                      {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        timeZone: "Asia/Shanghai",
+                      },
+                    )}
                   </small>
                 </div>
                 <div className="assistant-message">
@@ -177,7 +202,9 @@ export function ChatPanel({
                         {run.activities.map((activity) => (
                           <div key={activity.id}>
                             <Check size={14} />
-                            <span>{activity.label}</span>
+                            <span>
+                              {localizeActivity(activity.label, language)}
+                            </span>
                           </div>
                         ))}
                       </div>
@@ -186,29 +213,46 @@ export function ChatPanel({
                       <div className="thinking" role="status">
                         <span />
                         {run.status === "queued"
-                          ? `等待 ${state.preferences.agentName} 处理…`
-                          : `${state.preferences.agentName} 正在思考…`}
+                          ? t(
+                              `等待 ${state.preferences.agentName} 处理…`,
+                              `Waiting for ${state.preferences.agentName}…`,
+                            )
+                          : t(
+                              `${state.preferences.agentName} 正在思考…`,
+                              `${state.preferences.agentName} is thinking…`,
+                            )}
                         <button
                           onClick={() =>
                             void mutate(`runs/${run.id}/cancel`, "POST")
                           }
                         >
                           <Square size={12} />
-                          停止
+                          {t("停止", "Stop")}
                         </button>
                       </div>
                     )}
-                    {run.error && <p className="inline-error">{run.error}</p>}
+                    {run.error && (
+                      <p className="inline-error">
+                        {localizeError({ error: run.error }, language)}
+                      </p>
+                    )}
                     {run.status === "cancelled" && (
                       <p className="muted small">
-                        已停止 · 已完成的操作仍然保留
+                        {t(
+                          "已停止 · 已完成的操作仍然保留",
+                          "Stopped · Completed actions remain saved",
+                        )}
                       </p>
                     )}
                     {run.source !== "web" && (
                       <small className="delivery">
-                        {run.source === "qq" ? "QQ" : "微信"}
+                        {run.source === "qq"
+                          ? "QQ"
+                          : run.source === "telegram"
+                            ? "Telegram"
+                            : t("微信", "WeChat")}
                         {run.deliveryStatus !== "accepted" &&
-                          ` · ${deliveryLabels[run.deliveryStatus]}`}
+                          ` · ${t(deliveryLabels[run.deliveryStatus][0], deliveryLabels[run.deliveryStatus][1])}`}
                       </small>
                     )}
                   </div>
@@ -234,17 +278,26 @@ export function ChatPanel({
             role="status"
           >
             {state.quota.limit === 0
-              ? "当前对话已暂停。"
+              ? t("当前对话已暂停。", "Chat is paused.")
               : state.quota.available === 0
-              ? "今日积分已用完，北京时间零点恢复。"
-              : `今日还可用 ${state.quota.available} 积分。`}
+                ? t(
+                    "今日积分已用完，北京时间零点恢复。",
+                    "Today's points are used up. They reset at midnight Beijing time.",
+                  )
+                : t(
+                    `今日还可用 ${state.quota.available} 积分。`,
+                    `${state.quota.available} points left today.`,
+                  )}
           </p>
         )}
         <form className="composer glass" onSubmit={send}>
           <textarea
             ref={composer}
-            aria-label="给助手发消息"
-            placeholder={`有什么想交给 ${state.preferences.agentName}？`}
+            aria-label={t("给助手发消息", "Message the assistant")}
+            placeholder={t(
+              `有什么想交给 ${state.preferences.agentName}？`,
+              `Message ${state.preferences.agentName}…`,
+            )}
             value={draft}
             maxLength={12000}
             rows={2}
@@ -265,7 +318,7 @@ export function ChatPanel({
             <Button
               type="submit"
               className="send-button"
-              aria-label="发送消息"
+              aria-label={t("发送消息", "Send message")}
               disabled={!draft.trim() || sending}
             >
               <ArrowUp size={20} />

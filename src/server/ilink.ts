@@ -20,7 +20,7 @@ const ORIGIN = "https://ilinkai.weixin.qq.com";
 const CDN_ORIGIN = "https://novac2c.cdn.weixin.qq.com/c2c";
 const baseInfo = { channel_version: "0.1.0", bot_agent: "JOJOBOT/0.1.0" };
 const welcome =
-  "欢迎来到云上小肥鱼！你可以给这个微信联系人换备注和头像：点聊天右上角的设置，进入「更多」，在「备注名」填「小肥鱼」或你喜欢的名字；在「头像」选用我随后发的图片。下面先发操作示意图，再发头像图；长按头像图保存到手机即可。";
+  "欢迎来到 Cloud Puffer！你可以给这个微信联系人换备注和头像：点聊天右上角的设置，进入「更多」，在「备注名」填「小肥鱼」或你喜欢的名字；在「头像」选用我随后发的图片。下面先发操作示意图，再发头像图；长按头像图保存到手机即可。";
 const welcomeImages = [
   {
     key: "guide",

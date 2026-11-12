@@ -9,6 +9,7 @@ Node 24 + pnpm 10.30.3。依次运行 README 中的安装、`pnpm run dev:setup`
 | 入口 | 用途 |
 | --- | --- |
 | `http://localhost:3030/` | 项目首页与登录/注册浮窗 |
+| `http://localhost:3030/en` | 英文首页与登录/注册浮窗；工作区语言选择保存在浏览器中 |
 | `http://localhost:3030/app` | 登录后工作区 |
 | `http://localhost:3030/api/health` | Web 数据库就绪检查，不代表模型或任何消息渠道正常 |
 | `http://localhost:18025` | 本地邮件收件箱 |

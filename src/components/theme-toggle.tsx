@@ -2,6 +2,8 @@
 import { useSyncExternalStore } from "react";
 import { Moon, Sun } from "lucide-react";
 import { clsx } from "clsx";
+import type { SiteLanguage } from "@/lib/site-language";
+import { useLanguage, useText } from "./language";
 
 const STORAGE_KEY = "jojobot-theme";
 const SYNC_EVENT = "jojobot:theme";
@@ -45,15 +47,26 @@ function useTheme() {
   return { dark, toggle };
 }
 
-export function ThemeToggle({ className }: { className?: string }) {
+export function ThemeToggle({
+  className,
+  language: override,
+}: {
+  className?: string;
+  language?: SiteLanguage;
+}) {
   const { toggle } = useTheme();
+  const language = useLanguage();
+  const label =
+    (override ?? language) === "en"
+      ? "Switch light / dark theme"
+      : "切换深色 / 浅色模式";
   return (
     <button
       type="button"
       className={clsx("button icon-button theme-toggle", className)}
       onClick={toggle}
-      aria-label="切换深色 / 浅色模式"
-      title="切换深色 / 浅色模式"
+      aria-label={label}
+      title={label}
     >
       <Moon className="theme-icon theme-icon-moon" size={17} />
       <Sun className="theme-icon theme-icon-sun" size={17} />
@@ -64,6 +77,7 @@ export function ThemeToggle({ className }: { className?: string }) {
 // 菜单行里没有图标位置，写成一句动作更直接
 export function ThemeRow({ className }: { className?: string }) {
   const { dark, toggle } = useTheme();
+  const t = useText();
   return (
     <button
       type="button"
@@ -72,7 +86,11 @@ export function ThemeRow({ className }: { className?: string }) {
       aria-pressed={dark}
     >
       {dark ? <Sun size={18} /> : <Moon size={18} />}
-      <span>{dark ? "切到浅色" : "切到深色"}</span>
+      <span>
+        {dark
+          ? t("切到浅色", "Switch to light")
+          : t("切到深色", "Switch to dark")}
+      </span>
     </button>
   );
 }

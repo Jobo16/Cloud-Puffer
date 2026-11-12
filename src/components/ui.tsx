@@ -5,6 +5,7 @@ import { X } from "lucide-react";
 import { clsx } from "clsx";
 import Image from "next/image";
 import type { ComponentProps, ReactNode } from "react";
+import { useText } from "./language";
 
 export function Button({
   className,
@@ -33,6 +34,7 @@ export function Modal({
   /** 只留右上角关闭键，标题由内容自己排（登录这类单列表单） */
   bare?: boolean;
 }) {
+  const t = useText();
   return (
     <Dialog.Root
       open
@@ -48,7 +50,7 @@ export function Modal({
               <Dialog.Title className="sr-only">{title}</Dialog.Title>
               <Dialog.Close
                 className="button icon-button dialog-close"
-                aria-label="关闭"
+                aria-label={t("关闭", "Close")}
               >
                 <X size={16} />
               </Dialog.Close>
@@ -58,13 +60,14 @@ export function Modal({
             <>
               <div className="row spread">
                 <Dialog.Title>{title}</Dialog.Title>
-                <Dialog.Close className="button icon-button" aria-label="关闭">
+                <Dialog.Close
+                  className="button icon-button"
+                  aria-label={t("关闭", "Close")}
+                >
                   <X size={18} />
                 </Dialog.Close>
               </div>
-              <Dialog.Description
-                className={description ? "muted" : "sr-only"}
-              >
+              <Dialog.Description className={description ? "muted" : "sr-only"}>
                 {description || title}
               </Dialog.Description>
               {children}

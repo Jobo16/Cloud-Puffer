@@ -1386,6 +1386,27 @@ textarea::placeholder {
   background: var(--veil-70);
   color: var(--ink);
 }
+.language-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--space-8);
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-pill);
+  color: var(--muted);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}
+.language-link:hover,
+.language-link:focus-visible {
+  background: var(--veil-70);
+  color: var(--ink);
+}
+.sidebar-actions .language-link {
+  justify-content: flex-start;
+  min-height: 44px;
+  width: 100%;
+}
 .nav-divider {
   width: 1px;
   height: 16px;
@@ -1402,6 +1423,11 @@ textarea::placeholder {
   font-size: 13px;
   font-weight: 550;
   letter-spacing: 0.04em;
+  flex: none;
+  white-space: nowrap;
+}
+.nav-auth-short {
+  display: none;
 }
 .landing-nav .brand-mark {
   width: 30px;
@@ -1443,32 +1469,6 @@ textarea::placeholder {
   min-height: 42px;
   padding: 0 22px;
   font-size: 13.5px;
-}
-.hero-steps {
-  display: grid;
-  gap: var(--space-3);
-  margin-top: var(--space-8);
-  padding: 0;
-  list-style: none;
-  counter-reset: step;
-  font-size: var(--text-sm);
-}
-.hero-steps li {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
-.hero-steps li::before {
-  display: grid;
-  place-items: center;
-  width: var(--space-6);
-  height: var(--space-6);
-  flex: none;
-  border-radius: var(--radius-sm);
-  background: var(--accent-soft);
-  color: var(--accent);
-  counter-increment: step;
-  content: counter(step);
 }
 .text-link {
   display: inline-flex;
@@ -1657,76 +1657,17 @@ textarea::placeholder {
   line-height: 1.85;
 }
 
-/* 页脚：站点信息区。发丝线之后直接排链接列，不套第二层面板。 */
+/* 页脚 */
 .site-footer {
   margin-top: clamp(48px, 8vh, 80px);
   border-top: 1px solid var(--hairline);
   padding: var(--space-10) 0 var(--space-8);
-}
-.footer-top {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
-  gap: var(--space-12);
-}
-.footer-brand .wordmark {
-  gap: 10px;
-  font-size: 13px;
-  font-weight: 550;
-  letter-spacing: 0.04em;
-}
-.footer-brand .brand-mark {
-  width: 26px;
-  height: 26px;
-}
-.footer-brand p {
-  max-width: 22rem;
-  margin-top: var(--space-4);
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.85;
-  text-wrap: pretty;
-}
-.footer-cols {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-6);
-}
-.footer-col h3 {
-  margin: 0;
-  color: var(--ink);
-  font-size: 12px;
-  font-weight: 550;
-  letter-spacing: 0.02em;
-}
-.footer-col ul {
-  display: grid;
-  gap: 10px;
-  margin: var(--space-4) 0 0;
-  padding: 0;
-  list-style: none;
-}
-.footer-col a,
-.footer-col button {
-  color: var(--muted);
-  font-size: 13px;
-  text-align: left;
-  transition: color 0.15s;
-}
-.footer-col button {
-  padding: 0;
-}
-.footer-col a:hover,
-.footer-col button:hover {
-  color: var(--ink);
 }
 .footer-bottom {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
-  margin-top: var(--space-10);
-  padding-top: var(--space-5);
-  border-top: 1px solid var(--hairline);
   color: var(--muted);
   font-size: 12px;
 }
@@ -1805,14 +1746,6 @@ textarea::placeholder {
   .hero-demo {
     max-width: 520px;
   }
-  /* 窄一些时品牌单独成行，三列链接才不至于挤到贴边 */
-  .footer-top {
-    grid-template-columns: 1fr;
-    gap: var(--space-8);
-  }
-  .footer-brand p {
-    max-width: 34rem;
-  }
 }
 
 @media (max-width: 760px) {
@@ -1847,6 +1780,16 @@ textarea::placeholder {
   .landing-nav .button {
     min-height: 32px;
     font-size: 11.5px;
+  }
+  .landing-nav .wordmark {
+    font-size: 12px;
+    gap: var(--space-2);
+  }
+  .nav-auth-full {
+    display: none;
+  }
+  .nav-auth-short {
+    display: inline;
   }
   .landing-block {
     padding: var(--space-8) 0;
@@ -1884,14 +1827,9 @@ textarea::placeholder {
     margin-top: var(--space-10);
     padding: var(--space-8) 0 var(--space-6);
   }
-  .footer-cols {
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-8) var(--space-4);
-  }
   .footer-bottom {
     flex-direction: column;
     align-items: flex-start;
-    margin-top: var(--space-8);
   }
   .footer-legal {
     gap: 6px var(--space-3);
@@ -2552,7 +2490,8 @@ textarea::placeholder {
     background: var(--veil-45);
   }
   .topbar .clear-chat,
-  .topbar .theme-toggle {
+  .topbar .theme-toggle,
+  .topbar .language-link {
     display: none;
   }
   .chat-page {

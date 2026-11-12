@@ -2,7 +2,7 @@
 
 ### One conversation, across your channels.
 
-**[Open the web app →](https://fish.jobo.ink)** · [Getting started](docs/workspace.md) · [简体中文](README.md) · [What works](#project-status) · [Run locally](#run-locally) · [Architecture](docs/architecture.md) · [Roadmap](docs/PRD.md)
+**[Open the web app →](https://fish.jobo.ink/en)** · [Getting started](docs/workspace.md) · [简体中文](README.md) · [What works](#project-status) · [Run locally](#run-locally) · [Architecture](docs/architecture.md) · [Roadmap](docs/PRD.md)
 
 Cloud Puffer aims to connect messaging channels with agent runtimes while keeping one conversation per account. Web and WeChat entry points and QQ and Telegram adapter code exist today; WhatsApp, Feishu, and other channels are planned. The cloud service owns identity, tasks, memory, run order, and reply status, and includes an agent runtime. The development preview also has a text connector for Codex or OpenClaw on a user's computer. See [project status](#project-status) and the [integration plan](docs/channel-agent-gateway.md) (Chinese) for the boundary between code and plans.
 
@@ -14,7 +14,7 @@ The diagram shows the channel and agent integration direction; current availabil
 
 ## Screenshots
 
-[![Cloud Puffer homepage](docs/assets/home.webp)](https://fish.jobo.ink)
+[![Cloud Puffer English homepage](docs/assets/home-en.png)](https://fish.jobo.ink/en)
 
 Homepage · click the image to open the web app
 
@@ -28,7 +28,7 @@ Assistant › Connections · captured with a local test account
 
 Available in this preview:
 
-- A public project homepage with modal sign-in, registration, and password recovery.
+- Chinese and English homepages at `/` and `/en`, with language switching across the workspace, localized titles and descriptions, canonical and alternate links, a sitemap, and crawler rules. Sign-in, registration, and password recovery use a modal.
 - Open email/password registration, email verification, password changes, and session revocation.
 - An Apple-inspired glass workspace with four sections — chat, tasks, memories, assistant — and a single, reading-width conversation view.
 - Saved assistant name, a single system prompt, and task/memory/sticker switches, applied to the next reply across channels using real account data.

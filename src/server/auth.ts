@@ -22,7 +22,7 @@ async function sendMail(to: string, subject: string, text: string) {
 function createAuth() {
   const env = config();
   return betterAuth({
-    appName: "云上小肥鱼",
+    appName: "Cloud Puffer",
     baseURL: env.BETTER_AUTH_URL,
     secret: env.BETTER_AUTH_SECRET,
     database: drizzleAdapter(db(), { provider: "pg", schema }),
@@ -34,8 +34,8 @@ function createAuth() {
       sendResetPassword: async ({ user, url }) =>
         sendMail(
           user.email,
-          "重设云上小肥鱼密码",
-          `使用下面的链接重设密码。如果不是你发起的，可以忽略这封邮件。\n\n${url}`,
+          "Cloud Puffer · 重设密码 / Reset your password",
+          `使用下面的链接重设密码。如果不是你发起的，可以忽略这封邮件。\n\nUse the link below to reset your password. If you did not request this, you can ignore this email.\n\n${url}`,
         ),
     },
     emailVerification: {
@@ -45,8 +45,8 @@ function createAuth() {
       sendVerificationEmail: async ({ user, url }) =>
         sendMail(
           user.email,
-          "验证你的云上小肥鱼邮箱",
-          `点击链接验证邮箱，即可开始使用云上小肥鱼。链接在一小时后失效。\n\n${url}`,
+          "Cloud Puffer · 验证邮箱 / Verify your email",
+          `点击链接验证邮箱，即可开始使用 Cloud Puffer。链接在一小时后失效。\n\nVerify your email to start using Cloud Puffer. This link expires in one hour.\n\n${url}`,
         ),
     },
     rateLimit: {

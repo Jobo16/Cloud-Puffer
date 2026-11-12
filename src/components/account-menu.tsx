@@ -1,11 +1,18 @@
 "use client";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
-import { ArrowUpRight, AtSign, KeyRound, LogOut, MoreHorizontal } from "lucide-react";
+import {
+  ArrowUpRight,
+  AtSign,
+  KeyRound,
+  LogOut,
+  MoreHorizontal,
+} from "lucide-react";
 import { clsx } from "clsx";
 import type { AppState } from "@/server/state";
 import { authClient } from "@/lib/auth-client";
 import { Button, Modal } from "./ui";
+import { useLanguage, useText } from "./language";
 
 const repository = "https://github.com/Jobo16/Cloud-Puffer";
 
@@ -25,6 +32,8 @@ export function AccountMenu({
   className?: string;
   onError: (message: string) => void;
 }) {
+  const t = useText();
+  const language = useLanguage();
   const [open, setOpen] = useState(false);
   const [position, setPosition] = useState<CSSProperties | null>(null);
   const [passwordOpen, setPasswordOpen] = useState(false);
@@ -51,7 +60,10 @@ export function AccountMenu({
       direction === "up"
         ? {
             width,
-            left: Math.max(12, Math.min(rect.left, window.innerWidth - width - 12)),
+            left: Math.max(
+              12,
+              Math.min(rect.left, window.innerWidth - width - 12),
+            ),
             bottom: window.innerHeight - rect.top + 8,
           }
         : {
@@ -95,7 +107,7 @@ export function AccountMenu({
     <div
       className="account-menu"
       role="menu"
-      aria-label="账号"
+      aria-label={t("账号", "Account")}
       tabIndex={-1}
       ref={panel}
       data-direction={direction}
@@ -110,7 +122,7 @@ export function AccountMenu({
       </div>
       <div className="account-quota">
         <div className="row spread">
-          <span>今日积分</span>
+          <span>{t("今日积分", "Today's points")}</span>
           <span>
             <strong>{quota.used}</strong> / {quota.limit}
           </span>
@@ -118,7 +130,7 @@ export function AccountMenu({
         <span
           className="account-quota-bar"
           role="progressbar"
-          aria-label="今日积分用量"
+          aria-label={t("今日积分用量", "Today's points used")}
           aria-valuenow={quota.used}
           aria-valuemin={0}
           aria-valuemax={quota.limit}
@@ -137,7 +149,7 @@ export function AccountMenu({
           }}
         >
           <KeyRound size={16} />
-          修改密码
+          {t("修改密码", "Change password")}
         </button>
         <a
           role="menuitem"
@@ -148,7 +160,7 @@ export function AccountMenu({
           onClick={() => setOpen(false)}
         >
           <ArrowUpRight size={16} />
-          关于与代码
+          {t("关于与代码", "About and source")}
           <span className="account-item-note">GitHub</span>
         </a>
         <a
@@ -160,7 +172,7 @@ export function AccountMenu({
           onClick={() => setOpen(false)}
         >
           <AtSign size={16} />
-          联系作者
+          {t("联系作者", "Contact the maintainer")}
           <span className="account-item-note">jobo.ink</span>
         </a>
       </div>
@@ -170,14 +182,17 @@ export function AccountMenu({
         onClick={async () => {
           setOpen(false);
           const result = await authClient.signOut();
-          if (result.error) onError("退出失败，请重试。");
-          else window.location.assign("/");
+          if (result.error)
+            onError(
+              t("退出失败，请重试。", "Could not sign out. Please try again."),
+            );
+          else window.location.assign(language === "en" ? "/en" : "/");
         }}
       >
         <LogOut size={16} />
-        退出登录
+        {t("退出登录", "Sign out")}
       </button>
-      <p className="account-foot">开发预览版</p>
+      <p className="account-foot">{t("开发预览版", "Development preview")}</p>
     </div>
   );
 
@@ -189,7 +204,11 @@ export function AccountMenu({
         className="account-trigger"
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label={compact ? `${user.name} 的账号` : undefined}
+        aria-label={
+          compact
+            ? t(`${user.name} 的账号`, `${user.name}'s account`)
+            : undefined
+        }
         title={compact ? user.name : undefined}
         onClick={toggle}
       >
@@ -202,8 +221,11 @@ export function AccountMenu({
       {menu && createPortal(menu, document.body)}
       {passwordOpen && (
         <Modal
-          title="修改密码"
-          description="更新后，其他设备需要重新登录。"
+          title={t("修改密码", "Change password")}
+          description={t(
+            "更新后，其他设备需要重新登录。",
+            "Other devices will need to sign in again.",
+          )}
           onClose={() => {
             if (!busy) setPasswordOpen(false);
           }}
@@ -220,21 +242,32 @@ export function AccountMenu({
                   newPassword,
                   revokeOtherSessions: true,
                 });
-                if (result.error) setError("修改失败，请检查当前密码后重试。");
+                if (result.error)
+                  setError(
+                    t(
+                      "修改失败，请检查当前密码后重试。",
+                      "Could not change your password. Check the current password and try again.",
+                    ),
+                  );
                 else {
                   setPasswordOpen(false);
                   setOldPassword("");
                   setNewPassword("");
                 }
               } catch {
-                setError("连接失败，请稍后重试。");
+                setError(
+                  t(
+                    "连接失败，请稍后重试。",
+                    "Connection failed. Please try again later.",
+                  ),
+                );
               } finally {
                 setBusy(false);
               }
             }}
           >
             <label>
-              当前密码
+              {t("当前密码", "Current password")}
               <input
                 type="password"
                 autoComplete="current-password"
@@ -244,7 +277,7 @@ export function AccountMenu({
               />
             </label>
             <label>
-              新密码
+              {t("新密码", "New password")}
               <input
                 type="password"
                 autoComplete="new-password"
@@ -261,7 +294,9 @@ export function AccountMenu({
               </p>
             )}
             <Button className="primary" disabled={busy} type="submit">
-              {busy ? "更新中…" : "更新密码"}
+              {busy
+                ? t("更新中…", "Updating…")
+                : t("更新密码", "Update password")}
             </Button>
           </form>
         </Modal>
