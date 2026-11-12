@@ -2,11 +2,11 @@
 
 # Cloud Puffer（云上小肥鱼）
 
-**A personal AI assistant for everyday life, across web and chat.**
+**One conversation that follows you across web and chat.**
 
 **[Open the web app →](https://fish.jobo.ink)** · [Getting started](docs/workspace.md) · [简体中文](README.md) · [What works](#project-status) · [Run locally](#run-locally) · [Architecture](docs/architecture.md) · [Roadmap](docs/PRD.md)
 
-Cloud Puffer keeps one conversation, tasks, and personal memory together for each account. It runs as one shared service, without a separate machine for every user.
+Cloud Puffer is a personal, multichannel agent assistant. Web, WeChat, and QQ messages join one account-owned conversation. A shared cloud service owns identity, tasks, memory, run order, and reply status. Conversations can use the built-in cloud agent; local development code also lets Codex or OpenClaw on a user's own computer connect outward to handle that user's turns. See [project status](#project-status) and the [integration boundaries](docs/channel-agent-gateway.md) (Chinese) for what is actually available.
 
 ## Screenshots
 
