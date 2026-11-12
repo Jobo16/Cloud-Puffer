@@ -24,15 +24,20 @@ export async function transaction<T>(
   fn: (database: Db, client: import("pg").PoolClient) => Promise<T>,
 ): Promise<T> {
   const client = await pool().connect();
+  let discardClient = false;
   try {
     await client.query("BEGIN");
     const result = await fn(drizzle(client, { schema }), client);
     await client.query("COMMIT");
     return result;
   } catch (error) {
-    await client.query("ROLLBACK");
+    try {
+      await client.query("ROLLBACK");
+    } catch {
+      discardClient = true;
+    }
     throw error;
   } finally {
-    client.release();
+    client.release(discardClient);
   }
 }
