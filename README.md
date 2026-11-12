@@ -84,7 +84,7 @@ pnpm test
 pnpm build
 ```
 
-测试在本地开发 PostgreSQL 中创建并迁移独立的 `jojobot_test` 数据库，使用模型/网络测试替身及本地 Mailpit，不读取生产凭据。2026-11-11 已通过 52 项集成检查、类型检查、Lint 和生产构建；生产站点此前已验证健康检查、邮箱注册与管理员登录、两轮真实模型回复及缓存用量。既有基线完成 Docker 与桌面/手机视口验收，单个微信账号完成本地文字收发验证。欢迎图片发送由测试替身验证，手机端送达仍待验收。检查记录与当前限制见[开发与验证](docs/development.md#验证记录)。
+测试在本地开发 PostgreSQL 中创建并迁移独立的 `jojobot_test` 数据库，使用模型/网络测试替身及本地 Mailpit，不读取生产凭据。2026-11-12 已通过 54 项集成检查、类型检查、Lint 和生产构建；本机 Codex CLI 在测试库完成设备领取、真实回复与结果保存，HTTP、网页连接程序和渠道回传尚未实测。生产站点此前已验证健康检查、邮箱注册与管理员登录、两轮真实模型回复及缓存用量。既有基线完成 Docker 与桌面/手机视口验收，单个微信账号完成本地文字收发验证。欢迎图片发送由测试替身验证，手机端送达仍待验收。检查记录与当前限制见[开发与验证](docs/development.md#验证记录)，开源复用选择见[复用记录](docs/research/open-source-reuse-2026-11-12.md)。
 
 技术栈：Next.js 16、React 19、TypeScript、Tailwind CSS 4、Base UI、AI SDK、Better Auth、Drizzle、PostgreSQL 17、pg-boss。一个共享 Worker 并发服务多个用户，同一用户的对话按顺序执行；无需每用户容器、Redis 或额外 Agent 框架。
 

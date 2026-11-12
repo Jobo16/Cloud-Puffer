@@ -72,6 +72,8 @@ Node 24 + pnpm 10.30.3。依次运行 README 中的安装、`pnpm run dev:setup`
 
 2026-11-11 本地检查：`pnpm db:generate` 生成 `0007`，在本项目本地 PostgreSQL 上执行 `pnpm db:migrate` 成功；`pnpm typecheck`、`pnpm lint`、`pnpm test`（52 项）及 `pnpm build` 通过。新增集成检查覆盖两个账号的设备隔离、领取、结果幂等和撤销。尚未运行真实 Codex/OpenClaw 回复、微信/QQ 经本地设备的收发，亦未部署生产。
 
+2026-11-12 复核：当前代码的 `pnpm typecheck`、`pnpm lint`、`pnpm test`（54 项）和 `pnpm build` 通过。本机 Codex CLI 0.144.3 在临时目录以只读沙箱完成一次独立文字回复；再用 `jojobot_test` 的临时账号和设备，经服务端处理器领取任务、执行真实 Codex、提交结果并核对数据库记录。临时账号和文件已清理。未启动 HTTP/Web、未验证网页连接程序或手机渠道回传；本机无 OpenClaw CLI。开发 PostgreSQL 和 Mailpit 容器就绪。开源复用选择与尚缺的外部条件见[开源复用记录](research/open-source-reuse-2026-11-12.md)。
+
 ## 验证记录
 
 验证日期：2026-11-02；代码基线：`60f433c`。以下记录来自该版本的实际检查，文档更新不代表重新完成真实供应商或渠道验收。
