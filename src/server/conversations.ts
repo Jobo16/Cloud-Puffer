@@ -191,7 +191,7 @@ export async function enqueueTurn(userId: string, incoming: InboundTurn) {
     return runView(run);
   });
 }
-export function runView(run: typeof runs.$inferSelect) {
+function runView(run: typeof runs.$inferSelect) {
   return {
     id: run.id,
     input: run.input,

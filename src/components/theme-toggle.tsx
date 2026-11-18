@@ -5,8 +5,8 @@ import { clsx } from "clsx";
 import type { SiteLanguage } from "@/lib/site-language";
 import { useLanguage, useText } from "./language";
 
-const STORAGE_KEY = "jojobot-theme";
-const SYNC_EVENT = "jojobot:theme";
+const STORAGE_KEY = "cloud-puffer-theme";
+const SYNC_EVENT = "cloud-puffer:theme";
 
 // 真值只存在 <html data-theme> 里；多个入口同时挂载时靠事件互相通知
 function isDark() {

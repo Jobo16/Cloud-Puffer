@@ -43,7 +43,7 @@ beforeEach(async () => {
       [owner, stranger].map((id) => ({
         id,
         name: "Memory test",
-        email: `${id}@jojobot.local`,
+        email: `${id}@puffer.test`,
         emailVerified: true,
       })),
     );

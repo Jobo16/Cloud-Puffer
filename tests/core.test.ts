@@ -74,7 +74,7 @@ beforeEach(async () => {
       [owner, stranger].map((id) => ({
         id,
         name: "Test",
-        email: `${id}@jojobot.local`,
+        email: `${id}@puffer.test`,
         emailVerified: true,
       })),
     );
@@ -619,12 +619,12 @@ describe("channel and HTTP boundaries", () => {
     const password = "test-only-password-123";
     const signups = await Promise.all([
       auth().api.signUpEmail({
-        body: { name: "Admin", email: "admin@jojobot.local", password },
+        body: { name: "Admin", email: "admin@puffer.test", password },
       }),
       auth().api.signUpEmail({
         body: {
           name: "Regular",
-          email: `${randomUUID()}@jojobot.local`,
+          email: `${randomUUID()}@puffer.test`,
           password,
         },
       }),
@@ -652,9 +652,9 @@ describe("channel and HTTP boundaries", () => {
           "Content-Type": "application/json",
         };
       };
-      const adminHeaders = await headersFor("admin@jojobot.local");
+      const adminHeaders = await headersFor("admin@puffer.test");
       const regularHeaders = await headersFor(signups[1].user.email);
-      const url = `http://localhost:3031/api/admin?search=${encodeURIComponent(`${owner}@jojobot.local`)}`;
+      const url = `http://localhost:3031/api/admin?search=${encodeURIComponent(`${owner}@puffer.test`)}`;
       expect((await ADMIN_GET(new Request(url))).status).toBe(401);
       expect(
         (await ADMIN_GET(new Request(url, { headers: regularHeaders }))).status,
@@ -716,7 +716,7 @@ describe("channel and HTTP boundaries", () => {
     }
   });
   it("verifies real auth sessions, API ownership, CSRF, and sign-out revocation", async () => {
-    const email = `${randomUUID()}@jojobot.local`;
+    const email = `${randomUUID()}@puffer.test`;
     const password = "test-only-password-123";
     const signup = await auth().api.signUpEmail({
       body: { name: "Auth test", email, password, callbackURL: "/app" },

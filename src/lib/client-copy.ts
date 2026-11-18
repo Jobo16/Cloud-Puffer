@@ -38,7 +38,7 @@ const activityLabels: Record<string, string> = {
 export function browserLanguage(): SiteLanguage {
   return document.cookie
     .split("; ")
-    .some((part) => part === "jojobot-language=en")
+    .some((part) => part === "cloud-puffer-language=en")
     ? "en"
     : "zh";
 }
