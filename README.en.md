@@ -3,10 +3,17 @@
 One account, one conversation across the web and messaging channels. Cloud Puffer keeps identity, tasks, memories, and run state in the cloud. Users can choose the built-in AI assistant or connect Codex / OpenClaw on their own computer.
 
 [![CI and staging](https://github.com/Jobo16/Cloud-Puffer/actions/workflows/ci.yml/badge.svg)](https://github.com/Jobo16/Cloud-Puffer/actions/workflows/ci.yml)
+[![MIT License](https://img.shields.io/badge/license-MIT-2f6b57)](LICENSE)
 
-[Open the web app](https://puffer.jobo.ink/en) · [简体中文](README.md) · [Workspace guide](docs/workspace.md) · [Roadmap](docs/PRD.md)
+[Try it online](https://puffer.jobo.ink/en) · [Run locally](#run-locally) · [User guide](docs/workspace.md) · [Contribute](CONTRIBUTING.md) · [简体中文](README.md)
 
 ![Cloud Puffer channel and agent diagram](docs/assets/github-cover.png)
+
+## Preview
+
+[![Cloud Puffer public homepage in English, dark theme](docs/assets/homepage-en.png)](https://puffer.jobo.ink/en)
+
+This is the public homepage; sign in to open the workspace. Click the image to try the hosted preview.
 
 ## Current status
 

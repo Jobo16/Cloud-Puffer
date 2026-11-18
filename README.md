@@ -3,10 +3,17 @@
 一个账号，一条跨网页和聊天渠道的主对话。Cloud Puffer 将身份、事项、记忆和任务状态保存在云端；用户可选择内置 AI 助手，或连接自己电脑上的 Codex / OpenClaw。
 
 [![CI and staging](https://github.com/Jobo16/Cloud-Puffer/actions/workflows/ci.yml/badge.svg)](https://github.com/Jobo16/Cloud-Puffer/actions/workflows/ci.yml)
+[![MIT License](https://img.shields.io/badge/license-MIT-2f6b57)](LICENSE)
 
-[打开网页版](https://puffer.jobo.ink) · [English](README.en.md) · [工作区使用说明](docs/workspace.md) · [产品规划](docs/PRD.md)
+[在线体验](https://puffer.jobo.ink) · [本地运行](#本地运行) · [使用文档](docs/workspace.md) · [参与贡献](CONTRIBUTING.md) · [English](README.en.md)
 
 ![Cloud Puffer 跨渠道架构图](docs/assets/github-cover.png)
+
+## 产品预览
+
+[![Cloud Puffer 中文公开首页，深色主题](docs/assets/homepage-zh.png)](https://puffer.jobo.ink)
+
+这是公开首页；登录后可进入工作区。点击图片可在线体验。
 
 ## 当前能力
 
