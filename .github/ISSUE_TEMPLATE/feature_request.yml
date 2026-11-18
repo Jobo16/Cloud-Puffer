@@ -1,0 +1,17 @@
+name: Feature request
+description: Propose a focused product or developer improvement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: Describe the user need or developer friction.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Explain the smallest useful outcome and any relevant constraints.
+    validations:
+      required: true

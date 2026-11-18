@@ -287,8 +287,8 @@ export function AssistantEditor({
         {agentDevices.devices.length > 0 && (
           <p className="capability-note">
             {t(
-              "在自己的电脑设置 JOJOBOT_DEVICE_TOKEN 和 JOJOBOT_URL，然后运行 pnpm local-agent。每次收到请求需在电脑上确认。",
-              "Set JOJOBOT_DEVICE_TOKEN and JOJOBOT_URL on your computer, then run pnpm local-agent. Confirm each request locally.",
+              "在自己的电脑设置 PUFFER_DEVICE_TOKEN 和 PUFFER_URL，然后运行 pnpm local-agent。每次收到请求需在电脑上确认。",
+              "Set PUFFER_DEVICE_TOKEN and PUFFER_URL on your computer, then run pnpm local-agent. Confirm each request locally.",
             )}
           </p>
         )}

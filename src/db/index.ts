@@ -5,18 +5,18 @@ import { config } from "../server/config";
 
 type Db = NodePgDatabase<typeof schema>;
 const state = globalThis as typeof globalThis & {
-  jojobotPool?: Pool;
-  jojobotDb?: Db;
+  pufferPool?: Pool;
+  pufferDb?: Db;
 };
 export function pool() {
-  return (state.jojobotPool ??= new Pool({
+  return (state.pufferPool ??= new Pool({
     connectionString: config().DATABASE_URL,
     max: 12,
     connectionTimeoutMillis: 5000,
   }));
 }
 export function db() {
-  return (state.jojobotDb ??= drizzle(pool(), { schema }));
+  return (state.pufferDb ??= drizzle(pool(), { schema }));
 }
 
 /** Business writes and pg-boss jobs share a commit; neither can be published alone. */

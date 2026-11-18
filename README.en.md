@@ -1,54 +1,24 @@
 # Cloud Puffer
 
-### One conversation, across your channels.
+One account, one conversation across the web and messaging channels. Cloud Puffer keeps identity, tasks, memories, and run state in the cloud. Users can choose the built-in AI assistant or connect Codex / OpenClaw on their own computer.
 
-**[Open the web app →](https://puffer.jobo.ink/en)** · [Getting started](docs/workspace.md) · [简体中文](README.md) · [What works](#project-status) · [Run locally](#run-locally) · [Architecture](docs/architecture.md) · [Roadmap](docs/PRD.md)
+[![CI and staging](https://github.com/Jobo16/Cloud-Puffer/actions/workflows/ci.yml/badge.svg)](https://github.com/Jobo16/Cloud-Puffer/actions/workflows/ci.yml)
 
-Cloud Puffer aims to connect messaging channels with agent runtimes while keeping one conversation per account. Web and WeChat entry points and QQ and Telegram adapter code exist today; WhatsApp, Feishu, and other channels are planned. The cloud service owns identity, tasks, memory, run order, and reply status, and includes an agent runtime. The development preview also has a text connector for Codex or OpenClaw on a user's computer. See [project status](#project-status) and the [integration plan](docs/channel-agent-gateway.md) (Chinese) for the boundary between code and plans.
+[Open the web app](https://puffer.jobo.ink/en) · [简体中文](README.md) · [Workspace guide](docs/workspace.md) · [Roadmap](docs/PRD.md)
 
-**Who is it for?** People who want one agent conversation across chat surfaces, and developers who want to self-host, add channels, or connect local agents.
+![Cloud Puffer channel and agent diagram](docs/assets/github-cover.png)
 
-![Cloud Puffer: one conversation across channels and agents](docs/assets/github-cover.png)
+## Current status
 
-The diagram shows the channel and agent integration direction; current availability is listed below.
+| Capability | Status |
+| --- | --- |
+| Web app, accounts, and main conversation | Live; email sign-up, verification, sign-in, streaming replies, and history |
+| Tasks, long-term memory, and assistant settings | Live; account-scoped rules shared by the web and cloud agent |
+| WeChat iLink | Enabled in production; QR binding and basic text exchange were verified before the server move and need a new phone check |
+| QQ and Telegram private chat | Adapters and automated checks exist; disabled on the hosted site and not verified with real clients |
+| Local Codex / OpenClaw | Device connection and text-reply code exist; the local Codex path has produced a real reply, while production end-to-end use remains unverified |
 
-## Screenshots
-
-[![Cloud Puffer English homepage](docs/assets/home-en.png)](https://puffer.jobo.ink/en)
-
-Homepage · click the image to open the web app
-
-![Cloud Puffer assistant connections page](docs/assets/wechat-setup.png)
-
-Assistant › Connections · captured with a local test account
-
-## Project status
-
-> **Development preview.** The hosted site is live at [puffer.jobo.ink](https://puffer.jobo.ink). Web, worker, database, and two real Bailian model replies passed production smoke checks; the second reported 3,072 cached input tokens. Production WeChat QR binding and basic text exchange have been confirmed; QQ exchange and long-running WeChat reliability remain unverified. Private file storage has not been selected. QQ Mail SMTP delivered the administrator verification email, and the address was verified.
-
-Available in this preview:
-
-- Chinese and English homepages at `/` and `/en`, with language switching across the workspace, localized titles and descriptions, canonical and alternate links, a sitemap, and crawler rules. Sign-in, registration, and password recovery use a modal.
-- Open email/password registration, email verification, password changes, and session revocation.
-- An Apple-inspired glass workspace with four sections — chat, tasks, memories, assistant — and a single, reading-width conversation view.
-- Saved assistant name, a single system prompt, and task/memory/sticker switches, applied to the next reply across channels using real account data.
-- Persistent tasks and explicit personal memory, with on-demand recall, deduplication, editing, and forgetting through shared web/agent business rules. See the [reply and memory design](docs/memory-and-replies.md) (Chinese).
-- One conversation per account, queued model execution, incremental responses, cancellation, tool result records, history pagination, and daily points based on reported tokens.
-- Bounded model history, stable conversation prefixes for provider caching, and recorded cache-hit input tokens.
-- A verified administrator can open a small management page from Assistant › Setup to search accounts, view today's points, and adjust individual daily limits.
-- An iLink text adapter: QR binding, encrypted credentials, shared polling, durable deduplication, and conservative submission status. The first WeChat reply includes instructions for changing the contact remark and avatar, a cropped guide image, and the avatar image. **Local QR binding, text exchange, and web continuation passed; production QR binding and basic text exchange were confirmed. Welcome-image delivery on a real phone and long-running reliability remain unverified.**
-- A shared official QQ bot adapter for private text chat: one-time account binding, shared conversation/queue, and bounded text/image replies. QQ credentials, permissions, and real-device verification remain pending.
-- A Telegram bot adapter for private text chat: one-time account binding, shared conversation/queue, and text replies. It is disabled by default and has not been verified with a real bot or client.
-- Local development code can route new turns to Codex or OpenClaw on the user's computer through a revocable device token and a local confirmation prompt. This increment has not been deployed; a real local Codex reply passed through the web API, HTTP device bridge, and local connector. Browser interaction, OpenClaw, and live channel return remain unverified. Local agents do not have access to the web task/memory tools. See the [integration boundaries](docs/channel-agent-gateway.md) (Chinese).
-- Natural-language reply guidance and four original built-in stickers for web/QQ, with a per-account opt-out and no consecutive reuse of the same sticker. Reading incoming images and learning a user's writing style are not implemented.
-
-Still planned: WhatsApp, Feishu, more channels, and Telegram media; scheduled reminders and calendar events; search, notes, private files, document generation/retrieval, broader operational administration, and platform-wide cost limits. A task deadline does **not** currently send a reminder.
-
-## Using the workspace
-
-After sign-in you land on the conversation. Desktop keeps four sections in the sidebar — chat, tasks, memories, assistant; on mobile they live in a drawer opened from the top-left button. Name, system prompt, and capability switches live under **Assistant › Setup** and save automatically as you type; WeChat, QQ, and Telegram binding live under **Assistant › Connections**. Your account, today's points, and sign-out are in the account menu at the bottom of that same sidebar. The default is 1,000 points per Beijing day: each started 1,000 input tokens costs 1 point, and each started 1,000 output tokens costs 3 points, rounded separately per turn.
-
-Disabling tools does not delete tasks or memory, and manual management remains available. Disabling memory removes its recall and write tools but preserves chat history. Navigation preserves drafts; save configuration before refreshing. See the [workspace guide](docs/workspace.md) (Chinese) for behavior and limits.
+Reminders, file uploads, retrieval, document generation, and a platform-wide spending cap are not implemented. A task deadline does not send a notification. See the [documentation index](docs/README.md) for architecture and limits.
 
 ## Run locally
 
@@ -56,29 +26,15 @@ Requires Node.js 24, pnpm 10.30.3, and Docker Compose.
 
 ```sh
 pnpm install --frozen-lockfile
-pnpm run dev:setup
+pnpm dev:setup
 pnpm infra
 pnpm db:migrate
 pnpm dev
 ```
 
-In another terminal:
+Run `pnpm worker` in another terminal, then open <http://localhost:3030>. Local verification emails appear in Mailpit at <http://localhost:18025>. `dev:setup` creates `.env` only when it is absent. The default setup has no model or chat-channel connection. To enable a model, set `MODEL_BASE_URL`, `MODEL_API_KEY`, and `MODEL_NAME`, then restart Web and Worker. See the [development guide](docs/development.md) for configuration.
 
-```sh
-pnpm worker
-```
-
-Open [localhost:3030](http://localhost:3030). Verification/reset messages go to the local [Mailpit inbox](http://localhost:18025); they are not sent to the internet. Registration does not require an invitation code. `dev:setup` preserves an existing `.env` and generates private secrets only when the file is absent.
-
-The default configuration has **no model connection**. Tasks and memory work without one; chatting reports that the model is unavailable. Configure `MODEL_BASE_URL`, `MODEL_API_KEY`, and `MODEL_NAME` in `.env` for an OpenAI-compatible chat-completions provider that supports streaming and tool calls, then restart Web and Worker. Local text replies have been verified with Bailian `qwen3.8-flash`; the full tool-call path still needs verification.
-
-WeChat is disabled by default. Set `ILINK_ENABLED=true` to begin integration testing with a separate test WeChat account. Do not connect the same account to two deployments. An accepted API submission is not proof of delivery or reading; uncertain sends are not automatically retried.
-
-QQ is also disabled by default. After deployment preparation, set `QQ_ENABLED`, `QQ_APP_ID`, and `QQ_APP_SECRET` for a platform-owned QQ bot; `QQ_BOT_URL` optionally links to its sharing page. Users bind from Settings by privately sending the one-time command to that bot. See [QQ and DSH plugin research](docs/research/qq-and-dsh-plugins-2026-11-02.md) and [deployment requirements](docs/deployment.md). No DSH plugin runtime is installed.
-
-Telegram is disabled by default. After creating a bot, set `TELEGRAM_ENABLED=true`, `TELEGRAM_BOT_TOKEN`, and `TELEGRAM_BOT_USERNAME`, then restart Web and Worker. Users send the one-time command from **Assistant › Connections** to the bot in a private chat. Only text is supported; live bot and client delivery remain unverified.
-
-## Development
+## Development and releases
 
 ```sh
 pnpm typecheck
@@ -87,18 +43,6 @@ pnpm test
 pnpm build
 ```
 
-Tests create and migrate a separate `jojobot_test` database on the local development PostgreSQL server. They use model/network fixtures and local Mailpit, never production credentials. On 2026-11-12, 59 integration checks, type checking, lint, and the production build passed. A real Codex reply traveled through the web API, HTTP device bridge, local connector, and back to the saved conversation in the test database. Browser interaction and live channel delivery remain unverified. The production site previously passed health, email registration, administrator sign-in, and two real model replies with cache usage reported. The earlier baseline covered Docker and desktop/mobile viewports; one real WeChat account passed local text exchange. Welcome image sending has only been checked with a network fixture and still needs real-phone delivery verification. See the [verification record](docs/development.md#验证记录), current limitations, and the [open-source reuse record](docs/research/open-source-reuse-2026-11-12.md) (Chinese).
+Tests use a separate `jojobot_test` database and model/channel fixtures. Pull requests run these checks; a passing push to `main` deploys to password-protected staging. Production is released manually through GitHub Actions from the image already tested in staging. See the [deployment guide](docs/deployment.md).
 
-The stack is Next.js 16, React 19, TypeScript, Tailwind CSS 4, Base UI, AI SDK, Better Auth, Drizzle, PostgreSQL 17, and pg-boss. A single shared worker serves accounts concurrently while ordering each user's turns. No per-user VM/container, Redis, or additional agent framework is required.
-
-Stop the development server before changing dependencies, then restart it. Run production builds separately from the development server. Known repeated-compilation triggers and remedies are recorded in [development troubleshooting](docs/development.md#反复编译或页面刷新).
-
-## Self-hosting and contributing
-
-[Docker deployment](docs/deployment.md) describes a shared Web/Worker/PostgreSQL installation and the fixed release, backup, image, and build-cache cleanup flow. Hosted users do not configure providers; self-hosting operators must configure them. File/object storage is not implemented yet.
-
-Start with the [PRD](docs/PRD.md), [architecture](docs/architecture.md), and [contribution conventions](AGENTS.md). Small, complete changes and reproducible bug reports are welcome. The full [documentation index](docs/README.md) includes the original technology and open-source research.
-
-## License
-
-Original project content is licensed under [MIT](LICENSE). See [NOTICE](NOTICE) for copyright and [third-party notices](THIRD_PARTY_NOTICES.md) for other licenses.
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before contributing and [SECURITY.md](SECURITY.md) for vulnerability reports. Original project work is [MIT licensed](LICENSE); see [NOTICE](NOTICE) and [third-party notices](THIRD_PARTY_NOTICES.md) for attribution.

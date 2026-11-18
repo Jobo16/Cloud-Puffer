@@ -8,7 +8,7 @@ import { LanguageProvider } from "@/components/language";
 export const dynamic = "force-dynamic";
 export default async function AppPage() {
   const language =
-    (await cookies()).get("jojobot-language")?.value === "en" ? "en" : "zh";
+    (await cookies()).get("cloud-puffer-language")?.value === "en" ? "en" : "zh";
   const session = await auth().api.getSession({ headers: await headers() });
   if (!session?.user.emailVerified)
     redirect(language === "en" ? "/en?auth=login" : "/?auth=login");

@@ -1,165 +1,53 @@
-# 开发与验证
+# 开发说明
 
-当前为开发预览，已包含账号、助手配置工作区、主对话、待办/记忆及微信/QQ/Telegram 适配。产品操作见[工作区说明](workspace.md)，完整首版目标以 [PRD](PRD.md) 为准。
+Cloud Puffer 使用 Next.js 16、TypeScript、PostgreSQL 17、Drizzle、pg-boss 与一个共享 Worker。产品当前状态见[项目首页](../README.md)，模块边界见[架构](architecture.md)。
 
-## 运行
+## 启动
 
-Node 24 + pnpm 10.30.3。依次运行 README 中的安装、`pnpm run dev:setup`、`pnpm infra`、`pnpm db:migrate`；分别启动 `pnpm dev` 与 `pnpm worker`。
+需要 Node.js 24、pnpm 10.30.3、Docker Compose。
 
-| 入口 | 用途 |
+```sh
+pnpm install --frozen-lockfile
+pnpm dev:setup
+pnpm infra
+pnpm db:migrate
+pnpm dev
+```
+
+另开终端运行 `pnpm worker`。网页位于 <http://localhost:3030>，验证邮件在 <http://localhost:18025> 的 Mailpit，健康接口是 `/api/health`。本地 PostgreSQL 只监听 `127.0.0.1:55439`。`pnpm dev:setup` 仅在 `.env` 不存在时创建配置。停止本地基础设施可运行 `docker compose -f compose.dev.yml stop`；这会保留数据卷。
+
+## 配置
+
+`.env.example` 列出全部应用变量，私密值只放在未提交的 `.env`。`src/server/config.ts` 校验服务器配置。至少设置独立的 `BETTER_AUTH_SECRET` 和 `CHANNEL_ENCRYPTION_KEY`；数据库、Web 和 Worker 使用同一个 `DATABASE_URL`。本地默认以 Mailpit 发送邮件，模型和微信、QQ、Telegram 渠道均关闭。
+
+要连接兼容 OpenAI chat-completions 的模型，设置 `MODEL_BASE_URL`、`MODEL_API_KEY`、`MODEL_NAME`。渠道开关分别为 `ILINK_ENABLED`、`QQ_ENABLED`、`TELEGRAM_ENABLED`；在启用渠道前配置对应凭据，并使用独立测试账号。环境变量改变后重启 Web 和 Worker。不要将密钥写入浏览器变量、日志或测试记录。
+
+本地 Agent 连接程序位于 `scripts/local-agent.ts`。在用户电脑安装并登录 Codex 或 OpenClaw，创建设备令牌后设置 `PUFFER_DEVICE_TOKEN`、`PUFFER_URL`（线上须为 HTTPS）及可选 `PUFFER_AGENT_WORKDIR`，运行 `pnpm local-agent`。程序每轮要求本机确认，只返回最终文字；本地工具和账号凭据留在用户电脑。它不具备云端事项、记忆工具。
+
+## 修改与检查
+
+```sh
+pnpm typecheck
+pnpm lint
+pnpm test
+pnpm build
+```
+
+`pnpm test` 创建并迁移独立的 `jojobot_test` 数据库，使用模型与渠道替身。可通过 `TEST_DATABASE_URL` 指定测试服务器，但库名必须是 `jojobot_test`；不得使用生产数据。PR 和 `main` 的 CI 执行相同检查。
+
+Schema 在 `src/db/schema.ts`。修改后运行 `pnpm db:generate`，审阅生成的 SQL 和 `drizzle/meta`，再运行 `pnpm db:migrate`。已应用的迁移不可修改或删除，生产结构变化需兼容正在运行的服务。新增配置或工具时，同步更新 `.env.example`、双语 README、相关文档与必要的业务测试。
+
+| 路径 | 职责 |
 | --- | --- |
-| `http://localhost:3030/` | 项目首页与登录/注册浮窗 |
-| `http://localhost:3030/en` | 英文首页与登录/注册浮窗；工作区语言选择保存在浏览器中 |
-| `http://localhost:3030/app` | 登录后工作区 |
-| `http://localhost:3030/api/health` | Web 数据库就绪检查，不代表模型或任何消息渠道正常 |
-| `http://localhost:18025` | 本地邮件收件箱 |
-| `127.0.0.1:55439` | 本项目 PostgreSQL，数据库 `jojobot` |
-| `127.0.0.1:11025` | Mailpit SMTP |
+| `src/app`、`src/components` | 页面、HTTP 路由和交互 |
+| `src/server` | 身份、业务规则、Agent 与渠道适配 |
+| `src/worker.ts` | 队列执行、渠道轮询及投递 |
+| `src/db`、`drizzle` | Schema、数据库连接和迁移 |
+| `scripts` | 本地连接程序、测试库准备和迁移 |
+| `deploy` | 服务器编排与发布脚本 |
 
-只启停本项目进程和 `jojobot-dev` 容器。`docker compose -f compose.dev.yml stop` 保留数据卷；不要为了重启删除数据。环境变量变更后同时重启 Web、Worker；网页保存的助手配置不需要重启。修改依赖前停止 Web，避免 pnpm 的依赖目录重排触发 Turbopack 循环刷新。
+## 验证边界
 
-邮件会保存在本机 Mailpit。不要把 Mailpit 暴露公网。开发账号独立于测试数据库，未注入默认用户或演示业务记录。
+自动化检查覆盖账号隔离、事项/记忆写入、队列和渠道适配器，模型及渠道网络使用替身。首尔生产站点的 Web、Worker、数据库和 HTTPS 已通过迁移后的健康检查；staging 的真实模型接口调用返回成功。微信扫码和基础文字收发曾在迁移前验证，迁移后的手机收发、QQ/Telegram 实机、OpenClaw 端到端、欢迎图片送达和长期负载仍待实测。健康接口只验证 Web 与数据库。
 
-## 配置边界
-
-所有服务端配置由 `src/server/config.ts` 校验。`.env` 不提交，不通过 `NEXT_PUBLIC_*` 暴露；日志不打印模型密钥、微信 token、完整消息或工具参数。开发服务器可能打印验证链接，开发日志同样不能公开上传。
-
-| 变量 | 含义 |
-| --- | --- |
-| `DATABASE_URL` | PostgreSQL 连接；Web、Worker、迁移使用同一业务库 |
-| `BETTER_AUTH_URL` | 浏览器访问的唯一来源；本地使用 `http://localhost:3030` |
-| `BETTER_AUTH_SECRET` | 至少 32 字符的随机会话密钥 |
-| `CHANNEL_ENCRYPTION_KEY` | 32 字节密钥的 64 位十六进制表示，保护微信凭据；丢失后需重新绑定 |
-| `SMTP_HOST/PORT/SECURE/USER/PASSWORD`、`MAIL_FROM` | 验证和密码恢复邮件；当前托管部署选用 QQ 邮箱 SMTP，管理员注册邮件已完成实际收件与验证 |
-| `MODEL_BASE_URL/API_KEY/NAME` | 支持流式文本与工具调用的 chat-completions 服务；未配置时拒绝网页模型请求 |
-| `DAILY_POINT_LIMIT` | 每账号每日默认积分上限，当前为 1000，按北京时间零点更新 |
-| `ADMIN_EMAIL` | 已验证的管理员邮箱；留空时不开放后台入口 |
-| `ILINK_ENABLED` | 默认 `false`，开启扫码和共享轮询前使用独立测试微信 |
-| `QQ_ENABLED` | 默认 `false`；启用后 Worker 通过官方 SDK 连接 QQ 网关，仅处理绑定后的私聊 |
-| `QQ_APP_ID/APP_SECRET` | 平台统一配置的机器人应用凭据，启用 QQ 时必填，不交给用户 |
-| `QQ_BOT_URL` | 可选 HTTPS 机器人分享链接，用于设置页的添加入口 |
-| `TELEGRAM_ENABLED` | 默认 `false`；启用后 Worker 用 grammY 长轮询接收机器人私聊 |
-| `TELEGRAM_BOT_TOKEN/BOT_USERNAME` | BotFather 创建的机器人凭据与用户名，启用 Telegram 时必填；用户名用于网页打开机器人链接 |
-
-模型每轮最多 12 步、4,000 输出 token、120 秒。输入每 1,000 token 计 1 分、输出每 1,000 token 计 3 分，每轮分别向上取整；只按模型报告并保存的用量结算。失败或取消后已记录的 token 仍计入；入队前拒绝的请求不计入，清空聊天不恢复积分。入队与执行前检查上限，但单轮事后结算可能越过上限。此处是每人积分，不是全平台人民币/美元成本控制。
-
-## 数据与模块
-
-源码归属见[架构](architecture.md)。修改 Schema 后运行 `pnpm db:generate`，审阅生成 SQL 与元数据，再运行 `pnpm db:migrate`。已经应用的 SQL 不修改。现有迁移仅新增表或添加有默认值的列，DDL 使用 3 秒锁超时；迁移失败应调查并重试，不停止旧服务绕过。
-
-| 迁移 | 内容 |
-| --- | --- |
-| `0000_zippy_captain_america.sql` | 账号、主对话、运行、待办、记忆及 iLink 基础表。 |
-| `0001_outgoing_silver_fox.sql` | QQ 绑定/连接、聊天偏好及表情字段。 |
-| `0002_safe_wallflower.sql` | 助手名字、人设、提示词、待办与记忆开关，已有账号获得默认值。 |
-| `0003_merge_prompt.sql` | 人设与自定义提示词合并为 `system_prompt`，先拼接内容再删除旧列。 |
-| `0004_known_zodiak.sql` | 旧版默认助手名调整。 |
-| `0005_concerned_captain_stacy.sql` | 为账号增加可选的每日积分上限；旧账号沿用平台默认值。 |
-| `0006_real_junta.sql` | 记录模型报告的缓存输入 token。 |
-| `0007_greedy_hairball.sql` | 本地 Agent 设备、用户所选设备与运行设备关联。 |
-| `0008_tearful_paibok.sql` | Telegram 一次性绑定码和账号私聊连接表。 |
-| `0009_abandoned_dragon_lord.sql` | 新账号默认助手名改为 Cloud Puffer，并更新仍使用旧默认名的账号；其他自定义名字保留。 |
-
-升级配置工作区时，先在旧服务仍在线时应用 `0002`，再更新 Web/Worker。新界面和 Agent 都依赖这些字段，不能只更新前端。
-
-## 检查
-
-- `pnpm typecheck`：包含服务端、页面、工具和测试的类型检查。
-- `pnpm lint`：ESLint 10、TypeScript、Next 与 React Hooks 规则。
-- `pnpm test`：迁移独立 `jojobot_test` 数据库并运行 Vitest。可通过 `TEST_DATABASE_URL` 指定测试服务器，但数据库名必须为 `jojobot_test`。测试账号按用例创建并删除；不要将真实资料放入该库。
-- `pnpm build`：生产应用编译。构建成功不代表微信或模型供应商验收完成。
-
-### 本地 Agent 开发预览
-
-网页「助手 › 设定 › 运行位置」可创建设备令牌并选择该设备。设备令牌只显示一次；本地数据库仅保存摘要。在用户电脑安装并登录 Codex 或 OpenClaw，在本项目目录设置 `JOJOBOT_DEVICE_TOKEN`、`JOJOBOT_URL`（云端 HTTPS 地址）和可选的 `JOJOBOT_AGENT_WORKDIR`，运行 `pnpm local-agent`。程序每轮在终端询问是否执行。Codex 当前固定使用只读沙箱；OpenClaw 通过本机已配置的 Gateway 执行，不附加渠道发送。该本地程序目前需从项目源码运行，尚未提供独立安装包。
-
-本地设备在线后才接受选择给它的新对话。云端主对话仍按账号隔离并在网页显示；已完成的本地回复也尝试返回发起消息的微信/QQ/Telegram 渠道。设备离线、撤销、取消和中断后不自动改派或重放。仅支持文字最终回复；不支持把本地 Agent 的工具接到云端事项/记忆，也不显示其本机模型用量。实现边界见[渠道与 Agent 接入方向](channel-agent-gateway.md)。
-
-2026-11-11 本地检查：`pnpm db:generate` 生成 `0007`，在本项目本地 PostgreSQL 上执行 `pnpm db:migrate` 成功；`pnpm typecheck`、`pnpm lint`、`pnpm test`（52 项）及 `pnpm build` 通过。新增集成检查覆盖两个账号的设备隔离、领取、结果幂等和撤销。尚未运行真实 Codex/OpenClaw 回复、微信/QQ 经本地设备的收发，亦未部署生产。
-
-2026-11-12 早先复核：当时代码的 `pnpm typecheck`、`pnpm lint`、`pnpm test`（54 项）和 `pnpm build` 通过。本机 Codex CLI 0.144.3 在临时目录以只读沙箱完成一次独立文字回复；再用 `jojobot_test` 的临时账号和设备，经服务端处理器领取任务、执行真实 Codex、提交结果并核对数据库记录。临时账号和文件已清理。未启动 HTTP/Web、未验证网页连接程序或手机渠道回传；本机无 OpenClaw CLI。开发 PostgreSQL 和 Mailpit 容器就绪。开源复用选择与尚缺的外部条件见[开源复用记录](research/open-source-reuse-2026-11-12.md)。
-
-2026-11-12 Telegram 增量：本地库已应用 `0008`；专用测试库的 58 项检查通过，含 Telegram 绑定、账号隔离、私聊入队、去重和投递状态。Bot API 使用测试替身，没有真实 Bot 凭据或客户端收发验证；线上尚未部署此增量。
-
-同日 Codex HTTP 增量：用独立 `jojobot_test` 账号经真实 HTTP 完成注册、邮箱验证、登录、创建设备、选择在线设备和网页 API 发消息；本地连接程序领取任务，在本机确认后调用 Codex CLI，最终通过 HTTP 提交回复。网页状态 API 读到同一运行的 `completed` 和实际回复“云端桥接成功”。测试账号已删除；未通过浏览器点击界面，也未接真实手机渠道。新增自动化检查覆盖 Telegram 消息经本地设备处理后回原私聊的投递规则，使用 Bot API 替身；总计 59 项测试通过。
-
-## 验证记录
-
-验证日期：2026-11-02；代码基线：`60f433c`。以下记录来自该版本的实际检查，文档更新不代表重新完成真实供应商或渠道验收。
-
-| 检查 | 结果与覆盖 |
-| --- | --- |
-| 类型、Lint、构建 | `pnpm typecheck`、`pnpm lint`、`pnpm build` 通过。 |
-| 自动化集成检查 | 37 项通过，使用独立 PostgreSQL 测试库、真实业务写入与 AI SDK 工具循环；模型和渠道网络使用测试替身。 |
-| 账号和业务边界 | Better Auth 注册/验证/登录/撤销、资源归属、同源写入、请求大小、并发版本、幂等、事务化操作记录、取消后的写入、额度、历史清理和上下文顺序。 |
-| 助手配置 | 按账号持久化与局部更新、输入限制；Web/微信/QQ 系统提示词注入、实际移除关闭的工具、停止记忆注入、下一轮重新开启；模型返回已关闭工具调用时不产生业务写入。 |
-| 渠道和表情 | iLink 接收筛选/保守投递；QQ 绑定码轮换/过期/并发消费、跨账号冲突、去重、媒体拒绝、解绑重绑、分条/部分/未知投递；四张 PNG 实际读取、表情开关与连续重复限制、纯表情回复。 |
-| 浏览器操作 | 首页浮窗、邮箱注册与本地邮件验证、待办创建/完成、记忆保存、刷新持久化；助手配置保存、另一页面同步和侧栏切换保留草稿。 |
-| 响应式显示 | 桌面 1440 × 1000、1440 × 960、1024 × 768；手机视口 390 × 844，另检查 320 像素宽配置页，无横向溢出。 |
-| Docker | 本机镜像构建、Web 健康检查、共享 Worker 就绪、四张 PNG 资源；独立测试账号检查长回复、表格、长单词、操作记录及表情显示。 |
-| 持续编译回归 | 修复并重启后，写入仓库内开发日志、运行测试期间未再触发重复编译；观察到页面未重载、实时状态连接保持。 |
-
-该基线在浏览器和容器中的样本明确标注为界面验收数据，不是真实模型或 QQ 返回。当时的临时测试账号及容器已清理，修改过的本地体验账号配置已还原；该基线未发起付费模型请求或真实微信/QQ 发送，也未部署公开生产服务。这些视口检查不替代 iOS Safari、微信内置浏览器或真实 QQ 客户端验收。
-
-### 本地模型与微信增量验收
-
-验证日期：2026-11-02。以下记录来自后续本地验收，不改变上表 `60f433c` 基线的历史结论。
-
-| 检查 | 实际结果 |
-| --- | --- |
-| 模型与网页 | 本地 `.env` 配置百炼 `qwen3.8-flash`，模型接口返回真实文字；独立测试账号经 Mailpit 完成邮箱验证、登录、网页发问与回复，刷新后记录仍在。未验证该模型的全部工具调用场景。 |
-| 微信绑定与收发 | `ILINK_ENABLED=true` 后，手机扫码确认，微信私聊发入文字并收到模型回复；同一账号的网页主对话展示来源、回复和提交状态。数据库中该轮为 `completed/accepted`，手机可见性另由测试者确认。 |
-| 跨端接续 | 网页追问上一条微信消息，模型使用同一主对话上下文正确回答。此项仅覆盖单账号文字场景。 |
-| 二维码等待 | 扫码前的长轮询曾因 15 秒本地超时显示 500；调整后，未扫码等待连续两次约 30 秒均返回 200，浏览器未产生新错误，原微信连接仍为 `connected`。 |
-| 当前改动检查 | `pnpm typecheck`、`pnpm lint`、`pnpm test`（37 项）和 `pnpm build` 均通过。 |
-
-本地测试微信连接按测试者要求暂留在独立测试账号。服务端 API 密钥写入忽略提交的本地 `.env`，微信绑定 token 加密保存在本地数据库。尚未验证生产部署、断线恢复、多账号实机并发、长期运行或微信媒体收发。
-
-### 首次微信欢迎图检查
-
-验证日期：2026-11-02。本次把用户提供的两张设置截图裁去无关内容、合并为 13 KB 的操作图，并将头像转为 29 KB 的 JPEG。固定文件随 `public/guides` 进入应用镜像。
-
-自动化检查覆盖首次微信回复的欢迎文字、两张图片的加密上传与消息提交、后续回复不重复，以及图片上传失败时保留已提交文字并标记部分投递。`pnpm test` 共 39 项、`pnpm typecheck`、`pnpm lint` 和 `pnpm build` 均通过。iLink 与 CDN 使用测试替身；真实微信手机客户端是否收到并正确显示两张图片仍待外部验收。
-
-### 自然回复与记忆增量验收
-
-验证日期：2026-11-02，基于 `6d87b3f` 的本次增量。设计见[自然回复与个人记忆](memory-and-replies.md)。
-
-- `pnpm typecheck`、`pnpm lint`、`pnpm test`（47 项）和 `pnpm build` 通过。
-- 新增 8 项记忆检查：并发内容去重、请求键冲突、归属与版本、100 条容量、完整正文、字面搜索与分页、删除后的查询及旧工具快照处理、AI SDK 按需查询再更新的工具循环。
-- 已有 Web/微信/QQ 配置测试同步验证：开启记忆也不自动注入正文；关闭时移除工具，下一轮重新开启后可调用。
-- 本地 Web、Worker 已重启，Web 数据库健康检查与 Worker 就绪通过。没有新增依赖或数据库迁移，没有部署生产。
-
-本轮模型工具使用测试替身，未进行真实模型自然度对比或 QQ 实机验证。按需查询是否充分、同义表达是否能找到、语气是否符合用户预期仍需真实模型复核；不能把业务测试通过写成效果保证。既有真实模型及微信验收结论仅覆盖其原场景。
-
-### 每日积分与简易后台增量验收
-
-验证日期：2026-11-02。本次 `pnpm typecheck`、`pnpm lint`、`pnpm test`（50 项）和 `pnpm build` 通过。集成检查覆盖输入/输出 token 分别向上取整、北京时间日期切换、失败/取消后的已报告用量、清空聊天保留计量、排队后再次检查，以及管理员会话、同源写入、越权拒绝和个人额度修改。
-
-临时独立账号完成一轮真实百炼模型请求，服务端记录输入 3,437 token、输出 26 token，按当前规则计 7 分；验证后已删除该账号。浏览器在 1440 × 960 与 390 × 844 视口检查管理员登录、设定页入口、后台列表、额度修改与恢复，控制台无错误。当时已在本地创建并验证指定管理员账号，凭据保存在忽略提交的私密文件；生产邮箱验证见下节。积分是模型报告用量的换算，不代表全平台实际成本或严格的货币预算。
-
-### 每日 1000 分、上下文缓存与首次托管验收
-
-验证日期：2026-11-02。`pnpm typecheck`、`pnpm lint`、`pnpm test`（51 项）及 `pnpm build` 通过；本地 Web/Worker 在迁移后重启并通过健康检查。历史重建复用同一轮用户消息、限定上下文长度，并压缩旧待办操作记录；测试验证缓存命中 token 写入数据库。百炼两次请求的第二次报告 1024 个缓存输入 token；命中不是保证值，积分仍按全部输入 token 结算。
-
-服务器使用同一已提交版本构建并运行 Web、Worker 和 PostgreSQL；Caddy 已为 `puffer.jobo.ink` 签发 HTTPS 证书。首次数据库备份在独立临时库恢复出 14 张业务表。生产健康检查、管理员注册邮件送达与邮箱验证、管理员登录及后台入口通过。临时独立账号完成两轮真实模型回复：第二轮输入 3505 token，其中报告缓存命中 3072 token；账号随后删除。完整模型工具调用、QQ/微信生产收发、持续负载和成本硬上限仍待验收。部署细节见[部署说明](deployment.md)。
-
-### 线上微信扫码入口
-
-2026-11-02 排查灰色的“连接微信”按钮：生产 `.env.production` 的 `ILINK_ENABLED=false`，服务端按配置返回 `channel.enabled=false`，前端因此禁用按钮。服务器可访问 iLink 接口；本地测试环境仍有一条微信连接，已先关闭本地轮询，再把生产开关改为 `true` 并重建本项目 Web 与 Worker。生产账号状态接口现返回 `channel.enabled=true`，独立临时账号从生产 Web 容器成功生成二维码，随后清理测试账号。用户随后确认手机扫码及基础文字收发正常；生产库显示一个 `connected` 连接、8 轮微信请求均已完成且提交接口返回 `accepted`。欢迎图片实际送达和长期稳定性没有因此得到验证。
-
-## 反复编译或页面刷新
-
-| 已知触发点 | 当前处理方式 |
-| --- | --- |
-| 开发服务运行中安装依赖，pnpm 重排依赖目录 | 修改依赖前停止本项目 Web，安装完成后重启。 |
-| Vitest 在 `node_modules` 内写生成缓存 | `vitest.config.ts` 将缓存放到被忽略的 `.local/vite` 和 `.local/vitest-modules`。 |
-| QQ 表情使用动态根路径读取，扩大文件追踪范围，日志写入触发循环热更新 | `qq.ts` 逐个读取四个明确的 PNG 路径；更改后重启开发服务以清除旧监听。 |
-
-排查时先停止源码修改，观察是否仍反复出现 `Compiled`、`GET /app` 和状态连接重建，再检查最近的依赖安装、缓存输出和动态文件读取。正常的 SSE 长连接不代表页面仍在编译；不要靠隐藏开发指示器处理持续刷新。
-
-在同一工作目录运行 `pnpm build` 前停止本机开发服务，完成后重新启动。数据库迁移仍须保持服务在线，不把此处的开发构建步骤套用为停服迁移。
-
-## 待完成
-
-定时提醒、日程起止时间、搜索、资料/文档、完整运营后台、全平台成本上限与告警、定期异地加密备份、规模压测、模型工具调用全面验证、iLink 欢迎图片送达与长期稳定性及 QQ 实机验证均未完成。当前简易后台只支持搜索账号、查看今日积分和修改个人上限。QQ 主体认证与公开服务权限仍待处理；当前仅私聊文本入站、静态表情出站，无群聊、主动通知、识图、私人图库、自动风格学习或自然度盲评结论。当前只支持一台共享 Worker；网页状态流每秒查询，尚未做大规模连接优化。待办列表当前最多展示 200 条，记忆上限 100 条。公开站点仍是开发预览，长期稳定性未验证。
+发现开发页面反复编译时，先检查是否有工具把日志或临时文件写入仓库、是否在运行中修改依赖目录；停止 Web 后安装依赖，再重启项目服务。保持 `.local/`、`.research/` 和构建产物不入 Git。

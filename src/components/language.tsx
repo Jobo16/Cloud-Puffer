@@ -16,7 +16,7 @@ export function LanguageProvider({
 }) {
   const [current, setCurrent] = useState(language);
   const change = (next: SiteLanguage) => {
-    document.cookie = `jojobot-language=${next}; Path=/; SameSite=Lax; Max-Age=31536000`;
+    document.cookie = `cloud-puffer-language=${next}; Path=/; SameSite=Lax; Max-Age=31536000`;
     document.documentElement.lang = next === "en" ? "en" : "zh-CN";
     setCurrent(next);
   };

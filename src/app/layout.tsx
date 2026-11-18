@@ -4,7 +4,7 @@ import { siteUrl } from "@/lib/site-language";
 import "./globals.css";
 
 // 在首帧渲染前定好主题，避免刷新时先白后黑
-const themeScript = `(function(){try{var s=localStorage.getItem('jojobot-theme');var d=s?s==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.dataset.theme=d?'dark':'light';}catch(e){document.documentElement.dataset.theme='light';}})();`;
+const themeScript = `(function(){try{var s=localStorage.getItem('cloud-puffer-theme');var d=s?s==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.dataset.theme=d?'dark':'light';}catch(e){document.documentElement.dataset.theme='light';}})();`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -25,8 +25,8 @@ export default async function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   const requestHeaders = await headers();
   const locale =
-    requestHeaders.get("x-jojobot-language") ??
-    (await cookies()).get("jojobot-language")?.value;
+    requestHeaders.get("x-cloud-puffer-language") ??
+    (await cookies()).get("cloud-puffer-language")?.value;
   return (
     <html lang={locale === "en" ? "en" : "zh-CN"} suppressHydrationWarning>
       <head>
