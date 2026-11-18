@@ -24,7 +24,7 @@ GitHub Actions 通过仓库密钥 `DEPLOY_SSH_KEY` 使用专用 `deploy` 账号�
 
 两个 `.env` 均只有 `deploy` 可读。以 `.env.example` 的应用变量为基础，另加 `POSTGRES_PASSWORD`、`COMPOSE_PROJECT_NAME`、`WEB_PORT`。`DATABASE_URL` 指向 Compose 网络内的 `postgres:5432/jojobot`。应用密钥至少满足配置校验要求。`ADMIN_EMAIL` 仅指定管理员账号邮箱，不创建用户。健康接口 `/api/health` 只验证 Web 与数据库，不验证模型、邮件或渠道。
 
-发布脚本先拉取指定 digest，启动数据库，对现有数据库做备份，然后执行迁移、更新 Web 和 Worker，并检查本机健康接口。它不会删除数据库卷或备份。发布后应验证公网 HTTPS、登录、真实模型回复，以及生产渠道的实际收发。iLink 同一连接只能由一个 Worker 轮询；迁移时先停止旧 Worker，再启动新 Worker。
+发布脚本先拉取指定 digest，启动数据库，对现有数据库做备份，然后执行迁移、更新 Web 和 Worker，并检查本机健康接口及 Worker 就绪日志。它不会删除数据库卷或备份。发布后应验证公网 HTTPS、登录、真实模型回复，以及生产渠道的实际收发。iLink 同一连接只能由一个 Worker 轮询；迁移时先停止旧 Worker，再启动新 Worker。
 
 回退时从服务器 `*/.release` 或 GitHub Actions 记录找到上一镜像 digest，检查数据库迁移是否兼容，随后用对应镜像重新发布。若迁移不兼容，先从同一时间点的数据库备份恢复。不要直接回退旧镜像并继续写入新结构数据库。备份目前保存在同一服务器；异地加密备份仍待建立。
 

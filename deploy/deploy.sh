@@ -39,5 +39,16 @@ compose run --rm --pull never migrate
 compose up -d --wait --pull never web worker
 port=$(sed -n 's/^WEB_PORT=//p' "$dir/.env")
 curl --fail --silent --show-error "http://127.0.0.1:$port/api/health" >/dev/null
+worker_container=$(compose ps -q worker)
+worker_ready=false
+for ((attempt = 0; attempt < 30; attempt++)); do
+  if [[ $(docker inspect -f '{{.State.Running}}' "$worker_container") == true ]] &&
+    docker logs "$worker_container" 2>&1 | grep -q 'Cloud Puffer worker ready'; then
+    worker_ready=true
+    break
+  fi
+  sleep 1
+done
+test "$worker_ready" = true
 mv "$next" "$dir/.release"
 echo "$environment deployed: $commit"
