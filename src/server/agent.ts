@@ -63,6 +63,16 @@ export async function executeRun(id: string) {
     .where(and(eq(runs.id, id), eq(runs.status, "queued")))
     .returning();
   if (!claimed) return;
+  const startedAt = Date.now();
+  const queueWaitMs = Math.max(0, startedAt - claimed.createdAt.getTime());
+  console.info(
+    JSON.stringify({
+      event: "agent_run_started",
+      runId: id,
+      source: claimed.source,
+      queueWaitMs,
+    }),
+  );
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 120000);
   let checking = false;
@@ -312,5 +322,24 @@ export async function executeRun(id: string) {
   } finally {
     clearTimeout(timeout);
     clearInterval(cancellation);
+    try {
+      const [state] = await db()
+        .select({ status: runs.status, errorCode: runs.errorCode })
+        .from(runs)
+        .where(eq(runs.id, id));
+      console.info(
+        JSON.stringify({
+          event: "agent_run_finished",
+          runId: id,
+          source: claimed.source,
+          status: state?.status ?? "missing",
+          errorCode: state?.errorCode ?? null,
+          queueWaitMs,
+          executionMs: Date.now() - startedAt,
+        }),
+      );
+    } catch {
+      console.error("agent_run_metrics_failed", { runId: id });
+    }
   }
 }

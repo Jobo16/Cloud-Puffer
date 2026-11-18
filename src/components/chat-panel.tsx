@@ -42,11 +42,21 @@ export function ChatPanel({
   const [older, setOlder] = useState<AppState["runs"]>([]);
   const [olderMore, setOlderMore] = useState<boolean | null>(null);
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const [now, setNow] = useState(0);
   const request = useRef<{ text: string; key: string } | null>(null);
   const composer = useRef<HTMLTextAreaElement>(null);
   const scroll = useRef<HTMLDivElement>(null);
   const follow = useRef(true);
   const last = state.runs.at(-1);
+  const queuedIds = state.runs
+    .filter((run) => run.status === "queued")
+    .map((run) => run.id)
+    .join(",");
+  useEffect(() => {
+    if (!queuedIds) return;
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, [queuedIds]);
   useEffect(() => {
     if (follow.current && scroll.current)
       scroll.current.scrollTop = scroll.current.scrollHeight;
@@ -212,15 +222,24 @@ export function ChatPanel({
                     {["running", "queued"].includes(run.status) && (
                       <div className="thinking" role="status">
                         <span />
-                        {run.status === "queued"
-                          ? t(
+                        {run.status === "queued" ? (
+                          <>
+                            {t(
                               `等待 ${state.preferences.agentName} 处理…`,
                               `Waiting for ${state.preferences.agentName}…`,
-                            )
-                          : t(
-                              `${state.preferences.agentName} 正在思考…`,
-                              `${state.preferences.agentName} is thinking…`,
                             )}
+                            {now > 0 &&
+                              ` · ${t(
+                                `已等待 ${Math.max(0, Math.floor((now - new Date(run.createdAt).getTime()) / 1000))} 秒`,
+                                `${Math.max(0, Math.floor((now - new Date(run.createdAt).getTime()) / 1000))}s elapsed`,
+                              )}`}
+                          </>
+                        ) : (
+                          t(
+                            `${state.preferences.agentName} 正在思考…`,
+                            `${state.preferences.agentName} is thinking…`,
+                          )
+                        )}
                         <button
                           onClick={() =>
                             void mutate(`runs/${run.id}/cancel`, "POST")
