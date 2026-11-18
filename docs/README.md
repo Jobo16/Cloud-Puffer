@@ -10,6 +10,7 @@
 - [开发与验证](development.md)：启动、配置、测试和未完成范围。
 - [当前架构](architecture.md)：模块、配置生效、数据权限、队列与 iLink/QQ/Telegram 行为。
 - [渠道与 Agent 接入方向](channel-agent-gateway.md)：Octop Gateway 的适用范围及用户电脑连接云端的迁移边界。
+- [渠道与 Agent 执行扩容 TODO](worker-scaling-todo.md)：排队基线、进程拆分、多实例执行和验收顺序。
 - [自然回复与个人记忆](memory-and-replies.md)：表达规则、按需记忆、更新与忘记，以及对 IELTS Buddy 的取舍。
 - [Docker 部署](deployment.md)：服务器配置、在线迁移与验收步骤。
 - [产品需求](PRD.md)：已确认决策及完整首版验收目标。
