@@ -1,89 +1,31 @@
-# Docker 部署
+# 部署与发布
 
-托管开发预览运行在 `https://fish.jobo.ink`：服务器 `/opt/apps/jojobot/repo` 检出 `main`，Docker Compose 运行 Web、共享 Worker 和 PostgreSQL，Caddy 将 HTTPS 转发到 `127.0.0.1:3030`。私密配置在仓库目录的 `.env.production`，不入 Git；首次数据库备份保存在 `/opt/stacks/jojobot/initial.dump`（权限 0600），已在独立临时库恢复验证。定期异地加密备份尚未配置。
+Cloud Puffer 运行在首尔服务器 `119.28.238.248`。正式站点为 <https://puffer.jobo.ink>，预发布站点为 <https://staging.puffer.jobo.ink>。Cloudflare 托管 DNS，两个记录均指向首尔服务器且为「仅 DNS」；Caddy 签发 HTTPS 证书，并将流量转发到仅监听本机的 Web 容器。服务器只拉取 GitHub Actions 构建的镜像，不在服务器上构建源码。
 
-## 配置
+## 开发与发布
 
-在服务器创建不入 Git 的 `.env.production`，以 `.env.example` 的变量为基础，替换：
+1. 从功能分支提交 PR；PR 执行类型检查、Lint、测试与构建。测试使用独立的 `jojobot_test` 数据库。
+2. push 到 `main` 后，同样的检查通过才构建容器镜像，推送到 GitHub Container Registry，并自动发布到 staging。发布记录保存精确的镜像 digest 与 Git 提交。
+3. 验证 staging 后，在 GitHub Actions 手动运行 **Release production** 工作流。它要求 staging 的提交等于当前 `main`，并将 staging 已验证的镜像 digest 发布到生产；不重新构建。
 
-- `POSTGRES_PASSWORD`：另行生成高强度密码，不使用本地开发密码。
-- `DATABASE_URL`：`postgresql://jojobot:<URL 编码后的密码>@postgres:5432/jojobot`。
-- `BETTER_AUTH_URL`：正式 HTTPS 域名；随机生成 `BETTER_AUTH_SECRET` 和 `CHANNEL_ENCRYPTION_KEY`。
-- `DAILY_POINT_LIMIT`：默认每日积分，当前为 1000；`ADMIN_EMAIL`：已验证的管理员登录邮箱。
-- `IMAGE_TAG`：当前运行的应用镜像标记；每次构建和启动使用同一标记。
-- SMTP：当前托管部署选用 QQ 邮箱 SMTP（`smtp.qq.com`、465、SSL），授权码只放在不入 Git 的私密配置中；生产注册邮件已送到管理员邮箱并完成验证。不要使用本地 Mailpit。
-- 模型：选择并验证支持流式输出/工具调用的供应商，填入服务端配置。
-- 对支持隐式前缀缓存的模型，应用会保持系统提示词及历史消息稳定并限制历史长度；模型是否命中以 `runs.cache_read_tokens` 和 Worker 的 `model_usage` 日志为准。缓存命中的 token 仍属于输入积分，不改变用户的换算比例。
-- `ILINK_ENABLED`：线上已开启扫码接入，手机扫码与基础文字收发已验收。同一微信不能由本地与线上同时轮询，因此本地开发环境已关闭 iLink 轮询。
-- `TELEGRAM_ENABLED`：默认关闭。准备好 BotFather 创建的机器人后配置 `TELEGRAM_BOT_TOKEN` 和 `TELEGRAM_BOT_USERNAME`；Web 提供绑定入口，Worker 用长轮询收发私聊文字。同一个 Bot 只运行一个本项目 Worker，不与其他 polling 或 webhook 消费端共用。真实 Telegram 收发尚未验收。
-- `QQ_ENABLED`：默认关闭。准备 QQ 开放平台机器人应用后配置 `QQ_APP_ID`、`QQ_APP_SECRET`，可选 `QQ_BOT_URL` 为官方分享页的 HTTPS 链接；重启 Web 和 Worker 后，用户在设置生成绑定指令并发给机器人。凭据由平台维护，不向用户分发。
+staging 使用独立的 PostgreSQL 数据卷、认证和加密密钥，连接真实模型，关闭微信 iLink、QQ、Telegram。入口有单独的 HTTP 基本认证；测试账号和数据不会复制到生产。不要在 staging 使用生产账号或真实个人资料。生产保留原数据库、认证密钥和微信连接，迁移时从旧服务器做最终备份后恢复。模型和 SMTP 凭据只保存在服务器的私密配置中，不进入仓库或 GitHub Actions。
 
-示例只说明格式，不包含可使用的生产密钥。配置文件限制为维护者可读；后续建立异地加密备份时，备份密钥与备份文件分别保存。
+GitHub Actions 通过仓库密钥 `DEPLOY_SSH_KEY` 使用专用 `deploy` 账号登录。服务器主机公钥固定在 `deploy/known_hosts`。镜像拉取使用该次工作流的短期 `GITHUB_TOKEN`；服务器不保存 GitHub 长期令牌。生产发布可在 GitHub Environments 的 `production` 中配置审批人。
 
-`ADMIN_EMAIL` 只指定权限归属，不自动创建账号。部署后用该邮箱完成正常注册与邮箱验证，才会在「助手 › 设定」看到后台入口；其他账号访问 `/app/admin` 或 `/api/admin` 会被拒绝。后台可修改个人每日积分上限，0 暂停新对话。积分按模型报告的 token 事后结算，不能代替全平台成本硬上限。
+## 服务器布局
 
-## 固定发布流程
+| 路径 | 内容 |
+| --- | --- |
+| `/opt/cloud-puffer/compose.yml`、`deploy.sh` | 从已提交版本上传的编排与发布脚本 |
+| `/opt/cloud-puffer/staging/.env` | staging 私密配置，Web 端口 3031 |
+| `/opt/cloud-puffer/production/.env` | 生产私密配置，Web 端口 3030 |
+| `*/.release` | 当前镜像 digest 和 Git 提交 |
+| `*/backups/*.dump` | 后续发布前的 PostgreSQL 自定义格式备份 |
 
-镜像从国内的 `docker.1ms.run` 拉取 Node.js 和 PostgreSQL 基础镜像，依赖通过 `registry.npmmirror.com` 下载；这两个镜像源只用于本项目，不修改服务器上其他项目的 Docker 配置。
+两个 `.env` 均只有 `deploy` 可读。以 `.env.example` 的应用变量为基础，另加 `POSTGRES_PASSWORD`、`COMPOSE_PROJECT_NAME`、`WEB_PORT`。`DATABASE_URL` 指向 Compose 网络内的 `postgres:5432/jojobot`。应用密钥至少满足配置校验要求。`ADMIN_EMAIL` 仅指定管理员账号邮箱，不创建用户。健康接口 `/api/health` 只验证 Web 与数据库，不验证模型、邮件或渠道。
 
-首次发布时服务器到 GitHub 的连接和国内镜像站的镜像层下载中断：本地已推送的同一提交通过 Git bundle 放入服务器 Git 检出，基础镜像从国内源取得 amd64 版本后导入服务器，再在服务器执行 Docker 构建。现在 GitHub 是协作主仓库，Gitee 的 `Jobot/Cloud-Puffer` 只同步 `main` 供服务器拉取；两边不分别提交代码。服务器检出目录须保持干净；优先从 Gitee 快进拉取，若 Gitee 也不可用，可用已推送提交的 Git bundle 快进，不同步未提交文件。生产密钥仅传入受限的 `.env.production`。
+发布脚本先拉取指定 digest，启动数据库，对现有数据库做备份，然后执行迁移、更新 Web 和 Worker，并检查本机健康接口。它不会删除数据库卷或备份。发布后应验证公网 HTTPS、登录、真实模型回复，以及生产渠道的实际收发。iLink 同一连接只能由一个 Worker 轮询；迁移时先停止旧 Worker，再启动新 Worker。
 
-本地一次性添加 Gitee 远程 `git remote add gitee git@gitee.com:Jobot/Cloud-Puffer.git`；服务器一次性添加只读远程 `git remote add gitee https://gitee.com/Jobot/Cloud-Puffer.git`。本地先完成 `pnpm typecheck`、`pnpm lint`、`pnpm test`、`pnpm build`，确认工作区无未提交修改，再将同一 `main` 提交依次推送到 GitHub (`origin`) 和 Gitee (`gitee`)。核对两边 `main` 的提交哈希一致；任一推送失败时不发布。服务器检出目录必须干净，快进到该提交后执行项目脚本：
+回退时从服务器 `*/.release` 或 GitHub Actions 记录找到上一镜像 digest，检查数据库迁移是否兼容，随后用对应镜像重新发布。若迁移不兼容，先从同一时间点的数据库备份恢复。不要直接回退旧镜像并继续写入新结构数据库。备份目前保存在同一服务器；异地加密备份仍待建立。
 
-```sh
-git push origin main
-git push gitee main
-git ls-remote origin refs/heads/main
-git ls-remote gitee refs/heads/main
-```
-
-```sh
-ssh server-renovation 'cd /opt/apps/jojobot/repo && git fetch gitee main && git merge --ff-only FETCH_HEAD && ./scripts/deploy-server.sh'
-```
-
-服务器无法访问 Gitee 时，从**已推送到两边的**本地 `main` 制作 Git bundle，然后仍在服务器快进并运行同一脚本：
-
-```sh
-git bundle create .local/jojobot-deploy.bundle main
-scp .local/jojobot-deploy.bundle server-renovation:/opt/stacks/jojobot/deploy.bundle
-ssh server-renovation 'cd /opt/apps/jojobot/repo && git bundle verify /opt/stacks/jojobot/deploy.bundle && git fetch /opt/stacks/jojobot/deploy.bundle main && git merge --ff-only FETCH_HEAD && ./scripts/deploy-server.sh'
-```
-
-`deploy-server.sh` 加独占锁、检查干净的 `main` 和至少 4 GiB 空间，以提交短哈希构建并检查运行镜像；启动 PostgreSQL 后保存权限 0600 的迁移前备份，再执行兼容迁移、切换 Web/Worker，并检查本机及公网健康接口。脚本成功后才删除本项目除当前版和上一版以外的镜像，最后以 3 GB 为目标清理**共享** Docker 构建缓存，并设置 2 GB 缓存保留量。Docker 可能保留被镜像引用的层，因此 `docker system df` 显示的构建缓存总量未必低于 3 GB。清理可能让其他项目下次构建变慢，但不会删除容器、数据库卷、用户文件或备份。不要使用 `docker system prune --volumes` 或 `docker compose down -v`。备份不自动轮删，需另行建立异地加密备份和保留策略。
-
-迁移期间保留已有 Web、Worker 在线，不先 `down`。如果迁移拿不到锁，退出并调查，不增加停服迁移开关。`IMAGE_TAG` 在成功切换前写入私密配置；发布失败时不清理旧镜像，先排查，再按迁移兼容性决定是否切回上一版。当前只运行一个共享 Worker，关闭时等待已领取任务结束。
-
-配置工作区依赖 `0002_safe_wallflower.sql`（添加名字、提示词及能力开关）和 `0003_merge_prompt.sql`。`0003` 把原先分开的人设与自定义提示词拼接成 `system_prompt`，随后删除 `persona`、`instructions` 两列，属于非兼容变更：必须在同一次发布窗口内执行迁移并重启 Web 与 Worker，旧进程不能在迁移后继续读写配置。迁移顺序和内容见[开发文档](development.md#数据与模块)。
-
-应用仅映射 `127.0.0.1:3030`，PostgreSQL 不映射主机端口。在现有 HTTPS 反向代理中转发到应用；SSE 路径 `/api/app/events` 关闭响应缓冲，并保留大于 30 秒的读取超时。入口需要合理的请求体与请求速率限制。不得把密钥注入浏览器构建。
-
-## 验收和回退
-
-检查 `/api/health` 与 Worker 的 ready 日志：
-
-```sh
-curl --fail http://127.0.0.1:3030/api/health
-docker compose --env-file .env.production logs --tail=50 worker
-```
-
-再验证注册邮件、登录、助手配置保存/刷新/跨页面同步，以及真实模型工具调用。关闭待办或记忆后，下一轮不能调用对应工具；关闭记忆也不注入记忆库，手动管理仍可用。手机扫码/收发、解绑重绑及网络中断单独验收。健康接口只检查 Web 能访问数据库，不代表模型或渠道可用。
-
-微信首次绑定后，从手机发入第一条私聊消息，检查回复中的欢迎文字、操作示意图和头像图是否依次可见；再发第二条，确认不重复欢迎。扫码确认后尚未发消息时，iLink 没有可用的回复凭证，不以此作为主动推送验收项。图片上传失败时检查文字回复与网页投递状态。
-
-发布前建立数据库备份与恢复演练。`0003` 之前的迁移为新增表及添加有默认值的列；`0003` 删除了两列，回退到旧镜像会因缺列失败，需从备份恢复到相同时点。已应用的迁移不回滚、不改写。旧版 Worker 不识别新增提示词字段或工具开关，回退后的行为应按旧版说明，不能继续声称开关生效。数据库迁移 SQL 与元数据必须随代码保存。
-
-当前尚无对象存储和文件能力；实现上传/生成文档时必须使用私有对象存储，而非容器文件系统。
-
-2026-11-02 首次托管验收：`/api/health` 在服务器本机及 HTTPS 域名均返回 ready；Worker 就绪；生产管理员邮箱完成注册与验证，登录后 `/api/admin` 和 `/app/admin` 均返回 200，默认每日额度为 1000 分。独立临时账号完成两轮真实模型回复，第二轮报告输入 3505 token，其中缓存命中 3072 token；临时账号随后删除。尚未验证 QQ、微信生产渠道、完整模型工具调用与长期运行。
-
-同日后续微信验收：用户确认手机扫码和基础文字收发正常；生产库有一个 `connected` 微信连接，8 轮微信消息均已完成且提交接口返回 `accepted`。手机确认只覆盖这次基础文字场景，欢迎图片实际送达、断线恢复和长期稳定性仍待验收。
-
-同日固定发布流程验收：`43d5f5e` 由已推送的 Git bundle 快进到服务器，运行 `scripts/deploy-server.sh` 成功；迁移前备份为 0600，本机及公网 `/api/health` 返回 ready，Web 和 Worker 正常启动。运行镜像从上一版约 1.27 GB 降至约 1.17 GB；清理后可用空间从发布前 8.3 GB 增至 9.3 GB。BuildKit 仍报告约 3.58 GB 缓存，其中包含被其他镜像引用的层；这是清理目标而非硬上限。
-
-## QQ 部署后验收
-
-主体认证、公开服务范围与平台权限在部署阶段处理；个体工商户属于官方文档列举的企业开发者类型，实际资格和材料以 [QQ 开放平台](https://bot.q.qq.com/wiki/) 审核为准。本地实现不表示已通过认证或拥有公开/群聊权限。
-
-先在平台允许的测试范围验证：两个账号分别绑定、私聊文本与静态 PNG、同一主对话在网页接续、解绑和重复事件、连续分条回复的次数与窗口、断线重连和 Worker 重启。`accepted` 只代表接口接受，必须另外检查手机/电脑可见性。仅处理被动私聊回复；不使用此适配器承诺定时主动通知。当前未保存跨进程的 QQ 网关会话，停机期间是否补发事件需实测。
-
-镜像包含 `public/stickers` 中的原创公开素材，供网页展示与 Worker 上传；这些素材与未来用户私有文件分开。表情选用和自然语气的质量需用实际模型及用户场景验证，测试替身只证明执行与数据边界。
+首次托管验证曾完成管理员邮件、登录、两轮真实模型回复及微信基础文字收发。QQ 实机收发、微信长期可靠性、完整模型工具调用和持续负载仍待验收。当前尚无对象存储或用户文件上传能力。

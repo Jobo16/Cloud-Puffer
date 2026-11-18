@@ -1,0 +1,78 @@
+name: CI and staging
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17.11-alpine
+        env:
+          POSTGRES_USER: jojobot
+          POSTGRES_PASSWORD: ci-only
+          POSTGRES_DB: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U jojobot -d postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      TEST_DATABASE_URL: postgresql://jojobot:ci-only@127.0.0.1:5432/jojobot_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.30.3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test
+      - run: pnpm build
+
+  staging:
+    if: github.event_name == 'push'
+    needs: check
+    runs-on: ubuntu-latest
+    concurrency:
+      group: cloud-puffer-staging
+      cancel-in-progress: false
+    environment: staging
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        id: image
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/jobo16/cloud-puffer:sha-${{ github.sha }}
+      - name: Deploy staging
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          IMAGE_DIGEST: ${{ steps.image.outputs.digest }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          cp deploy/known_hosts ~/.ssh/known_hosts
+          scp -o StrictHostKeyChecking=yes deploy/compose.yml deploy/deploy.sh deploy@119.28.238.248:/opt/cloud-puffer/
+          printf '%s\n' "$GH_TOKEN" | ssh -o StrictHostKeyChecking=yes deploy@119.28.238.248 \
+            "bash /opt/cloud-puffer/deploy.sh staging ghcr.io/jobo16/cloud-puffer@$IMAGE_DIGEST $GITHUB_SHA"

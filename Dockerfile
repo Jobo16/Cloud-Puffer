@@ -1,6 +1,5 @@
-FROM docker.1ms.run/library/node:24.21.0-bookworm-slim AS dependencies
+FROM node:24.21.0-bookworm-slim AS dependencies
 WORKDIR /app
-ENV NPM_CONFIG_REGISTRY=https://registry.npmmirror.com
 RUN npm install --global pnpm@10.30.3
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
@@ -13,7 +12,7 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN pnpm build
 
-FROM docker.1ms.run/library/node:24.21.0-bookworm-slim AS runtime
+FROM node:24.21.0-bookworm-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3030 HOSTNAME=0.0.0.0
 COPY --from=build --chown=node:node /app/.next/standalone ./

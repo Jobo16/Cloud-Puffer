@@ -2,7 +2,7 @@
 
 ### 多种入口，同一段对话。
 
-**[打开网页版 →](https://fish.jobo.ink)** · [使用教程](docs/workspace.md) · [English](README.en.md) · [当前状态](#当前状态) · [本地运行](#本地运行) · [实现架构](docs/architecture.md) · [产品规划](docs/PRD.md)
+**[打开网页版 →](https://puffer.jobo.ink)** · [使用教程](docs/workspace.md) · [English](README.en.md) · [当前状态](#当前状态) · [本地运行](#本地运行) · [实现架构](docs/architecture.md) · [产品规划](docs/PRD.md)
 
 Cloud Puffer 的目标是连接各种收发渠道与 Agent 运行方式，让同一账号始终接续一条主对话。当前已有网页和微信入口、QQ 与 Telegram 适配代码；WhatsApp、飞书等渠道将逐步接入。云端负责身份、待办、记忆、运行顺序与回复状态，并提供内置 Agent；开发预览版还提供用户电脑上的 Codex/OpenClaw 文字连接。已实现与规划的边界见[当前状态](#当前状态)和[接入方向](docs/channel-agent-gateway.md)。
 
@@ -14,7 +14,7 @@ Cloud Puffer 的目标是连接各种收发渠道与 Agent 运行方式，让同
 
 ## 页面预览
 
-[![Cloud Puffer 中文首页](docs/assets/home.png)](https://fish.jobo.ink)
+[![Cloud Puffer 中文首页](docs/assets/home.png)](https://puffer.jobo.ink)
 
 首页 · 点击图片打开网页版
 
@@ -24,7 +24,7 @@ Cloud Puffer 的目标是连接各种收发渠道与 Agent 运行方式，让同
 
 ## 当前状态
 
-> **开发预览版。** 托管站点已部署到 [fish.jobo.ink](https://fish.jobo.ink)，Web、Worker、数据库及两轮真实百炼模型回复已验收，第二轮报告命中 3,072 个缓存输入 token。线上微信已完成扫码和基础文字收发；QQ 实机收发与微信长期稳定性仍待验收。私有文件存储尚未选定；QQ 邮箱 SMTP 已发出管理员验证邮件并完成邮箱验证。
+> **开发预览版。** 托管站点已部署到 [puffer.jobo.ink](https://puffer.jobo.ink)，Web、Worker、数据库及两轮真实百炼模型回复已验收，第二轮报告命中 3,072 个缓存输入 token。线上微信已完成扫码和基础文字收发；QQ 实机收发与微信长期稳定性仍待验收。私有文件存储尚未选定；QQ 邮箱 SMTP 已发出管理员验证邮件并完成邮箱验证。
 
 当前预览版已有：
 

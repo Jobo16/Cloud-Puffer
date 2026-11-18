@@ -2,7 +2,7 @@
 
 ### One conversation, across your channels.
 
-**[Open the web app →](https://fish.jobo.ink/en)** · [Getting started](docs/workspace.md) · [简体中文](README.md) · [What works](#project-status) · [Run locally](#run-locally) · [Architecture](docs/architecture.md) · [Roadmap](docs/PRD.md)
+**[Open the web app →](https://puffer.jobo.ink/en)** · [Getting started](docs/workspace.md) · [简体中文](README.md) · [What works](#project-status) · [Run locally](#run-locally) · [Architecture](docs/architecture.md) · [Roadmap](docs/PRD.md)
 
 Cloud Puffer aims to connect messaging channels with agent runtimes while keeping one conversation per account. Web and WeChat entry points and QQ and Telegram adapter code exist today; WhatsApp, Feishu, and other channels are planned. The cloud service owns identity, tasks, memory, run order, and reply status, and includes an agent runtime. The development preview also has a text connector for Codex or OpenClaw on a user's computer. See [project status](#project-status) and the [integration plan](docs/channel-agent-gateway.md) (Chinese) for the boundary between code and plans.
 
@@ -14,7 +14,7 @@ The diagram shows the channel and agent integration direction; current availabil
 
 ## Screenshots
 
-[![Cloud Puffer English homepage](docs/assets/home-en.png)](https://fish.jobo.ink/en)
+[![Cloud Puffer English homepage](docs/assets/home-en.png)](https://puffer.jobo.ink/en)
 
 Homepage · click the image to open the web app
 
@@ -24,7 +24,7 @@ Assistant › Connections · captured with a local test account
 
 ## Project status
 
-> **Development preview.** The hosted site is live at [fish.jobo.ink](https://fish.jobo.ink). Web, worker, database, and two real Bailian model replies passed production smoke checks; the second reported 3,072 cached input tokens. Production WeChat QR binding and basic text exchange have been confirmed; QQ exchange and long-running WeChat reliability remain unverified. Private file storage has not been selected. QQ Mail SMTP delivered the administrator verification email, and the address was verified.
+> **Development preview.** The hosted site is live at [puffer.jobo.ink](https://puffer.jobo.ink). Web, worker, database, and two real Bailian model replies passed production smoke checks; the second reported 3,072 cached input tokens. Production WeChat QR binding and basic text exchange have been confirmed; QQ exchange and long-running WeChat reliability remain unverified. Private file storage has not been selected. QQ Mail SMTP delivered the administrator verification email, and the address was verified.
 
 Available in this preview:
 

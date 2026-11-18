@@ -1,6 +1,6 @@
 export type SiteLanguage = "zh" | "en";
 
-export const siteUrl = "https://fish.jobo.ink";
+export const siteUrl = "https://puffer.jobo.ink";
 
 export const siteMetadata = {
   zh: {

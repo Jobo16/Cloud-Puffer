@@ -1,17 +1,18 @@
-name: jojobot
+name: ${COMPOSE_PROJECT_NAME:?Set COMPOSE_PROJECT_NAME}
+
 x-app: &app
-  image: jojobot:${IMAGE_TAG:-local}
-  build: .
-  env_file: .env.production
+  image: ${IMAGE_REF:?Set IMAGE_REF}
+  env_file: ${APP_ENV_FILE:?Set APP_ENV_FILE}
   init: true
+
 services:
   postgres:
-    image: docker.1ms.run/library/postgres:17.11-alpine
+    image: postgres:17.11-alpine
     restart: unless-stopped
     environment:
       POSTGRES_USER: jojobot
       POSTGRES_DB: jojobot
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.production}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
     volumes: [postgres:/var/lib/postgresql/data]
     healthcheck:
       test: [CMD-SHELL, "pg_isready -U jojobot -d jojobot"]
@@ -28,7 +29,7 @@ services:
   web:
     <<: *app
     restart: unless-stopped
-    ports: ["127.0.0.1:3030:3030"]
+    ports: ["127.0.0.1:${WEB_PORT:?Set WEB_PORT}:3030"]
     depends_on:
       postgres: { condition: service_healthy }
     healthcheck:
@@ -43,5 +44,6 @@ services:
     stop_grace_period: 160s
     depends_on:
       postgres: { condition: service_healthy }
+
 volumes:
   postgres:
