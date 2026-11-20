@@ -20,6 +20,7 @@ This is the public homepage; sign in to open the workspace. Click the image to t
 | Capability | Status |
 | --- | --- |
 | Web app, accounts, and main conversation | Live; email sign-up, verification, sign-in, streaming replies, and history |
+| Cloud model connections | Code supports native OpenAI, Anthropic, and Google APIs plus OpenAI-compatible services; automated checks pass, while each configured provider still needs a live check |
 | Tasks, long-term memory, and assistant settings | Live; account-scoped rules shared by the web and cloud agent |
 | WeChat iLink | Enabled in production; QR binding and basic text exchange were verified before the server move and need a new phone check |
 | QQ and Telegram private chat | Adapters and automated checks exist; disabled on the hosted site and not verified with real clients |
@@ -39,7 +40,7 @@ pnpm db:migrate
 pnpm dev
 ```
 
-Run `pnpm worker` in another terminal, then open <http://localhost:3030>. Local verification emails appear in Mailpit at <http://localhost:18025>. `dev:setup` creates `.env` only when it is absent. The default setup has no model or chat-channel connection. To enable a model, set `MODEL_BASE_URL`, `MODEL_API_KEY`, and `MODEL_NAME`, then restart Web and Worker. See the [development guide](docs/development.md) for configuration.
+Run `pnpm worker` in another terminal, then open <http://localhost:3030>. Local verification emails appear in Mailpit at <http://localhost:18025>. `dev:setup` creates `.env` only when it is absent. The default setup has no model or chat-channel connection. To enable a model, set `MODEL_PROVIDER`, `MODEL_API_KEY`, and `MODEL_NAME`; OpenAI-compatible endpoints also need `MODEL_BASE_URL`. Restart Web and Worker to apply changes. See the [development guide](docs/development.md) for configuration.
 
 ## Development and releases
 

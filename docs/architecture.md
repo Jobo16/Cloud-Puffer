@@ -26,7 +26,7 @@ flowchart LR
 | `src/server/http.ts`、`auth.ts` | 会话验证、同源写入、输入边界和邮件 |
 | `tasks.ts`、`memories.ts`、`owned-write.ts` | 账号归属、版本、幂等和事务；网页与 Agent 共用 |
 | `conversations.ts`、`queue.ts` | 每账号主对话、历史、取消、入队与顺序执行 |
-| `agent.ts`、`agent-prompt.ts`、`preferences.ts` | 模型工具循环、助手设定和能力开关 |
+| `agent.ts`、`agent-model.ts`、`agent-prompt.ts`、`preferences.ts` | 模型工具循环、服务端模型接入、助手设定和能力开关 |
 | `agent-devices.ts`、`scripts/local-agent.ts` | 设备令牌、运行领取、本机确认及结果提交 |
 | `ilink.ts`、`qq.ts`、`telegram.ts`、`channel-delivery.ts` | 绑定、接收、去重、渠道限制和投递状态 |
 | `credits.ts`、`admin.ts` | 每日积分、个人上限及管理员操作 |

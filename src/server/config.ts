@@ -14,6 +14,9 @@ const schema = z.object({
   SMTP_USER: z.string().optional(),
   SMTP_PASSWORD: z.string().optional(),
   MAIL_FROM: z.string().min(1),
+  MODEL_PROVIDER: z
+    .enum(["openai-compatible", "openai", "anthropic", "google"])
+    .default("openai-compatible"),
   MODEL_BASE_URL: z.string().optional(),
   MODEL_API_KEY: z.string().optional(),
   MODEL_NAME: z.string().optional(),
@@ -53,7 +56,11 @@ export function config() {
   cached = result.data;
   return cached;
 }
-export const modelConfigured = () =>
-  Boolean(
-    config().MODEL_BASE_URL && config().MODEL_API_KEY && config().MODEL_NAME,
+export const modelConfigured = () => {
+  const env = config();
+  return Boolean(
+    env.MODEL_API_KEY?.trim() &&
+      env.MODEL_NAME?.trim() &&
+      (env.MODEL_PROVIDER !== "openai-compatible" || env.MODEL_BASE_URL?.trim()),
   );
+};

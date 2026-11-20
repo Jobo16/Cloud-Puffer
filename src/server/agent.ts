@@ -1,10 +1,10 @@
 import { stepCountIs, streamText, tool } from "ai";
-import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db";
 import { runs } from "../db/schema";
 import { config } from "./config";
+import { agentModel } from "./agent-model";
 import { buildAgentPrompt } from "./agent-prompt";
 import { modelHistory, modelTurnInput } from "./conversations";
 import { pointStatus } from "./credits";
@@ -121,15 +121,10 @@ export async function executeRun(id: string) {
   };
   try {
     const env = config();
-    const provider = createOpenAICompatible({
-      name: "platform",
-      baseURL: env.MODEL_BASE_URL!,
-      apiKey: env.MODEL_API_KEY!,
-    });
     const settings = await preferences(run.userId);
     const useStickers = ["web", "qq"].includes(run.source) && settings.stickersEnabled;
     const result = streamText({
-      model: provider.chatModel(env.MODEL_NAME!),
+      model: agentModel(env),
       abortSignal: controller.signal,
       maxRetries: 0,
       maxOutputTokens: 4000,

@@ -20,6 +20,7 @@
 | 功能 | 状态 |
 | --- | --- |
 | 网页、账号与主对话 | 已上线；支持邮箱注册、验证、登录、流式回复与历史记录 |
+| 云端模型接入 | 代码支持 OpenAI、Anthropic、Google 原生 API 及兼容 OpenAI 的服务；自动化测试已通过，具体供应商需配置密钥并实测 |
 | 事项、长期记忆与助手设定 | 已上线；按账号隔离，网页与云端 Agent 共用业务规则 |
 | 微信 iLink | 生产已开启；迁移前验证过扫码与基础文字收发，迁移后仍需手机实测 |
 | QQ、Telegram 私聊 | 适配器和自动化检查已实现；托管站关闭，尚未完成真实平台验收 |
@@ -39,7 +40,7 @@ pnpm db:migrate
 pnpm dev
 ```
 
-另开终端运行 `pnpm worker`，然后访问 <http://localhost:3030>。本地验证邮件进入 <http://localhost:18025> 的 Mailpit。`.env` 由 `dev:setup` 首次生成，不会覆盖已有配置；默认不连接模型或聊天渠道。要使用模型，设置 `MODEL_BASE_URL`、`MODEL_API_KEY`、`MODEL_NAME` 并重启 Web 与 Worker。完整配置见[开发说明](docs/development.md)。
+另开终端运行 `pnpm worker`，然后访问 <http://localhost:3030>。本地验证邮件进入 <http://localhost:18025> 的 Mailpit。`.env` 由 `dev:setup` 首次生成，不会覆盖已有配置；默认不连接模型或聊天渠道。要使用模型，设置 `MODEL_PROVIDER`、`MODEL_API_KEY`、`MODEL_NAME`；兼容 OpenAI 的端点还需 `MODEL_BASE_URL`。重启 Web 与 Worker 后生效。完整配置见[开发说明](docs/development.md)。
 
 ## 开发与发布
 
