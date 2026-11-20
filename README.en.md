@@ -20,7 +20,7 @@ This is the public homepage; sign in to open the workspace. Click the image to t
 | Capability | Status |
 | --- | --- |
 | Web app, accounts, and main conversation | Live; email sign-up, verification, sign-in, streaming replies, and history |
-| Cloud model connections | Code supports native OpenAI, Anthropic, and Google APIs plus OpenAI-compatible services; automated checks pass, while each configured provider still needs a live check |
+| Cloud model connections | Code supports OpenAI, Anthropic, Google, DeepSeek, Alibaba Cloud Model Studio, and OpenAI-compatible services; automated checks pass, while each configured provider still needs a live check |
 | Tasks, long-term memory, and assistant settings | Live; account-scoped rules shared by the web and cloud agent |
 | WeChat iLink | Enabled in production; QR binding and basic text exchange were verified before the server move and need a new phone check |
 | QQ and Telegram private chat | Adapters and automated checks exist; disabled on the hosted site and not verified with real clients |

@@ -15,7 +15,14 @@ const schema = z.object({
   SMTP_PASSWORD: z.string().optional(),
   MAIL_FROM: z.string().min(1),
   MODEL_PROVIDER: z
-    .enum(["openai-compatible", "openai", "anthropic", "google"])
+    .enum([
+      "openai-compatible",
+      "openai",
+      "anthropic",
+      "google",
+      "deepseek",
+      "bailian",
+    ])
     .default("openai-compatible"),
   MODEL_BASE_URL: z.string().optional(),
   MODEL_API_KEY: z.string().optional(),
