@@ -40,7 +40,7 @@ pnpm db:migrate
 pnpm dev
 ```
 
-Run `pnpm worker` in another terminal, then open <http://localhost:3030>. Local verification emails appear in Mailpit at <http://localhost:18025>. `dev:setup` creates `.env` only when it is absent. The default setup has no model or chat-channel connection. To enable a model, set `MODEL_PROVIDER`, `MODEL_API_KEY`, and `MODEL_NAME`; OpenAI-compatible endpoints also need `MODEL_BASE_URL`. Restart Web and Worker to apply changes. See the [development guide](docs/development.md) for configuration.
+Run `pnpm worker` in another terminal, then open <http://127.0.0.1:3030>. Local verification emails appear in Mailpit at <http://localhost:18025>. `dev:setup` creates `.env` only when it is absent. The default setup has no model or chat-channel connection. To enable a model, set `MODEL_PROVIDER`, `MODEL_API_KEY`, and `MODEL_NAME`; OpenAI-compatible endpoints also need `MODEL_BASE_URL`. Restart Web and Worker to apply changes. See the [development guide](docs/development.md) for configuration.
 
 ## Development and releases
 

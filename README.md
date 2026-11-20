@@ -40,7 +40,7 @@ pnpm db:migrate
 pnpm dev
 ```
 
-另开终端运行 `pnpm worker`，然后访问 <http://localhost:3030>。本地验证邮件进入 <http://localhost:18025> 的 Mailpit。`.env` 由 `dev:setup` 首次生成，不会覆盖已有配置；默认不连接模型或聊天渠道。要使用模型，设置 `MODEL_PROVIDER`、`MODEL_API_KEY`、`MODEL_NAME`；兼容 OpenAI 的端点还需 `MODEL_BASE_URL`。重启 Web 与 Worker 后生效。完整配置见[开发说明](docs/development.md)。
+另开终端运行 `pnpm worker`，然后访问 <http://127.0.0.1:3030>。本地验证邮件进入 <http://localhost:18025> 的 Mailpit。`.env` 由 `dev:setup` 首次生成，不会覆盖已有配置；默认不连接模型或聊天渠道。要使用模型，设置 `MODEL_PROVIDER`、`MODEL_API_KEY`、`MODEL_NAME`；兼容 OpenAI 的端点还需 `MODEL_BASE_URL`。重启 Web 与 Worker 后生效。完整配置见[开发说明](docs/development.md)。
 
 ## 开发与发布
 

@@ -338,25 +338,6 @@ export function Landing({
               </a>
             </div>
           </div>
-          <div className="footer-legal">
-            <a
-              href="https://beian.miit.gov.cn/"
-              target="_blank"
-              rel="noreferrer"
-            >
-              浙ICP备2025148802号-3
-            </a>
-            <a
-              className="footer-police"
-              href="https://beian.mps.gov.cn/#/query/webSearch?code=33010602015015"
-              target="_blank"
-              rel="noreferrer"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/police-beian.png" alt="" width={14} height={14} />
-              浙公网安备33010602015015号
-            </a>
-          </div>
         </footer>
         {login && (
           <Modal

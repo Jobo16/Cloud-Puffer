@@ -14,7 +14,7 @@ pnpm db:migrate
 pnpm dev
 ```
 
-另开终端运行 `pnpm worker`。网页位于 <http://localhost:3030>，验证邮件在 <http://localhost:18025> 的 Mailpit，健康接口是 `/api/health`。本地 PostgreSQL 只监听 `127.0.0.1:55439`。`pnpm dev:setup` 仅在 `.env` 不存在时创建配置。停止本地基础设施可运行 `docker compose -f compose.dev.yml stop`；这会保留数据卷。
+另开终端运行 `pnpm worker`。网页位于 <http://127.0.0.1:3030>，验证邮件在 <http://localhost:18025> 的 Mailpit，健康接口是 `/api/health`。本地 PostgreSQL 只监听 `127.0.0.1:55439`。`pnpm dev:setup` 仅在 `.env` 不存在时创建配置。停止本地基础设施可运行 `docker compose -f compose.dev.yml stop`；这会保留数据卷。
 
 ## 配置
 
