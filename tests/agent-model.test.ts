@@ -17,6 +17,7 @@ describe("cloud agent model selection", () => {
     ["google", "google.generative-ai"],
     ["deepseek", "deepseek.chat"],
     ["bailian", "bailian.chat"],
+    ["agnes", "agnes.chat"],
   ] as const)("selects %s", (provider, expected) => {
     const model = agentModel({
       ...base,
@@ -41,6 +42,11 @@ describe("cloud agent model selection", () => {
       "bailian",
       "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
       "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
+    ],
+    [
+      "agnes",
+      "",
+      "https://apihub.agnes-ai.com/v1/chat/completions",
     ],
   ] as const)("routes %s requests to %s", async (provider, baseURL, url) => {
     const fetchMock = vi.fn<typeof fetch>(async () =>
@@ -79,7 +85,7 @@ describe("cloud agent model selection", () => {
       expect(body.thinking).toEqual({ type: "disabled" });
   });
 
-  it.each(["deepseek", "bailian"] as const)(
+  it.each(["deepseek", "bailian", "agnes"] as const)(
     "requests streaming usage from %s",
     async (provider) => {
       const fetchMock = vi.fn<typeof fetch>(async () =>

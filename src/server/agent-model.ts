@@ -35,6 +35,13 @@ export function agentModel(env: ReturnType<typeof config>) {
         apiKey,
         includeUsage: true,
       }).chatModel(name);
+    case "agnes":
+      return createOpenAICompatible({
+        name: "agnes",
+        baseURL: "https://apihub.agnes-ai.com/v1",
+        apiKey,
+        includeUsage: true,
+      }).chatModel(name);
     case "openai-compatible":
       return createOpenAICompatible({
         name: "platform",

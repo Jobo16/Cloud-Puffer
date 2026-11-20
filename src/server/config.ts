@@ -22,6 +22,7 @@ const schema = z.object({
       "google",
       "deepseek",
       "bailian",
+      "agnes",
     ])
     .default("openai-compatible"),
   MODEL_BASE_URL: z.string().optional(),

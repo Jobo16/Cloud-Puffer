@@ -27,9 +27,10 @@ pnpm dev
 | `openai`、`anthropic`、`google` | 对应官方 API；OpenAI 使用 Responses API | 不需要 |
 | `deepseek` | DeepSeek 官方 Chat Completions API，使用非思考模式以支持当前工具历史 | 不需要，固定为 `https://api.deepseek.com` |
 | `bailian` | 阿里云百炼 OpenAI 兼容 Chat API，支持工具调用 | 可选；默认北京按量付费地址 `https://dashscope.aliyuncs.com/compatible-mode/v1`。其他地域或业务空间填写与 API Key 匹配的地址 |
-| `openai-compatible`（默认） | 其他支持 Chat Completions 与工具调用的服务或网关 | 必填 |
+| `agnes` | Agnes OpenAI 兼容 Chat API；示例配置使用 `agnes-2.5-flash` | 不需要，固定为 `https://apihub.agnes-ai.com/v1` |
+| `openai-compatible`（省略变量时） | 其他支持 Chat Completions 与工具调用的服务或网关 | 必填 |
 
-例如 DeepSeek 可设置 `MODEL_PROVIDER=deepseek`、`MODEL_NAME=deepseek-flash`；百炼可设置 `MODEL_PROVIDER=bailian`、`MODEL_NAME=qwen-plus`。具体模型是否提供工具调用及用量数据，以对应模型和 API 为准。百炼只使用可供应用后端调用的按量付费 API Key；Token Plan 和 Coding Plan 的专用密钥不适用于此服务。一个部署当前只使用一组模型配置；切换后重启 Web 和 Worker。模型密钥不会发送给浏览器。渠道开关分别为 `ILINK_ENABLED`、`QQ_ENABLED`、`TELEGRAM_ENABLED`；在启用渠道前配置对应凭据，并使用独立测试账号。不要将密钥写入日志或测试记录。
+`.env.example` 预选 Agnes 2.5 Flash，但不包含密钥；Cloud Puffer 托管站的默认体验也使用该模型。例如 DeepSeek 可设置 `MODEL_PROVIDER=deepseek`、`MODEL_NAME=deepseek-flash`；百炼可设置 `MODEL_PROVIDER=bailian`、`MODEL_NAME=qwen-plus`。具体模型是否提供工具调用及用量数据，以对应模型和 API 为准。百炼只使用可供应用后端调用的按量付费 API Key；Token Plan 和 Coding Plan 的专用密钥不适用于此服务。一个部署当前只使用一组模型配置；切换后重启 Web 和 Worker。模型密钥不会发送给浏览器。渠道开关分别为 `ILINK_ENABLED`、`QQ_ENABLED`、`TELEGRAM_ENABLED`；在启用渠道前配置对应凭据，并使用独立测试账号。不要将密钥写入日志或测试记录。
 
 本地 Agent 连接程序位于 `scripts/local-agent.ts`。在用户电脑安装并登录 Codex 或 OpenClaw，创建设备令牌后设置 `PUFFER_DEVICE_TOKEN`、`PUFFER_URL`（线上须为 HTTPS）及可选 `PUFFER_AGENT_WORKDIR`，运行 `pnpm local-agent`。程序每轮要求本机确认，只返回最终文字；本地工具和账号凭据留在用户电脑。它不具备云端事项、记忆工具。
 
